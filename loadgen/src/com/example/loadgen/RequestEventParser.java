@@ -28,6 +28,15 @@ class RequestEvent{
 	}
 }
 
+class Load{
+	long loadid;
+	Vector<RequestEvent> events;
+	Load(long tloadid, Vector<RequestEvent> tevents){
+		loadid = tloadid;
+		events = tevents;
+	}
+}
+
 public class RequestEventParser {
 	
 	private static final Map<String, RequestType> typeMap;
@@ -95,17 +104,22 @@ public class RequestEventParser {
 		return new RequestEvent(cal, url, type);
 	}
 	
-	public static Vector<RequestEvent> parseEvents(String s){
+	public static Load parseEvents(String s){
+		Log.d("Return event entering", "HERE");
 		Vector<RequestEvent> events = new Vector<RequestEvent>();
 		Scanner scanner = new Scanner(s);
+		String line = scanner.nextLine();
+		long id = Long.parseLong(line.split(" ")[0]);
+		
 		while (scanner.hasNextLine()) {
-		  String line = scanner.nextLine();
+		  line = scanner.nextLine();
 		  RequestEvent event = parseLine(line);
 		  events.add(event);
 		  // process the line
 		}
 		scanner.close();
+		Log.d("Return event", events.size() + "");
 		
-		return events;
+		return new Load(id, events);
 	}
 }

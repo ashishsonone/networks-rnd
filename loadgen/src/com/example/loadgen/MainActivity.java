@@ -1,10 +1,16 @@
 package com.example.loadgen;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.Vector;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -24,22 +30,31 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 	TextView textbox;
+	EditText ipbox;
+	Button startbutton;
+	
+	String serverip;
 	AlarmManager am ;
 	SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
 	
 	String Users[] = { "A1", "A2", "A3" };
 	
-	Vector<RequestEvent> events;
+	Load load;
 	
 	int currEvent = 0;
+	int downloaded = 0;
+	
+	File log = null;
 	
 	HttpClient getHttpClient(){
 		//Set timeout parameters for httpclient
@@ -56,17 +71,33 @@ public class MainActivity extends ActionBarActivity {
 		return new DefaultHttpClient(httpParameters);
 	}
 	
+	String getTimeInFormat(){
+		Calendar cal = Calendar.getInstance();
+		return sdf.format(cal.getTime());
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
 		textbox = (TextView) findViewById(R.id.response_id);
+		ipbox = (EditText) findViewById(R.id.server);
+		startbutton = (Button) findViewById(R.id.startbutton);
 		am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		
+		
+		//scheduleNextAlarm();
+	}
+	
+	public void startEvents(View v){
+		startbutton.setEnabled(false); //disble the button so that events are not started again
+		
+		HttpGet getRequest = new HttpGet("http://www.cse.iitb.ac.in/~sanchitgarg/events.txt");
+		serverip = ipbox.getText().toString().trim();
 		textbox.append("\n===========================\n");
-	        
-		HttpGet getRequest = new HttpGet("http://www.cse.iitb.ac.in/~ashishsonone/events.txt");
- 		
+		textbox.append("server : " + serverip + "\n");
+		textbox.append("\n===========================\n");
+		
  		try {
  			HttpClient client = getHttpClient();
  			// Execute HTTP Get Request
@@ -74,11 +105,13 @@ public class MainActivity extends ActionBarActivity {
  	        String responseBody = client.execute(getRequest, responseHandler);
  	        
  	        textbox.append(responseBody);
- 	        events = RequestEventParser.parseEvents(responseBody);
+ 	        load = RequestEventParser.parseEvents(responseBody);
  	        textbox.append("\n===========================\n");
- 	        textbox.append("#EVENTS : " + events.size() + "\n");
+ 	        textbox.append("#EVENTS : " + load.events.size() + "\n");
  	        textbox.append("\n===========================\n");
  	        
+ 	        log = new File("/sdcard/log_" + load.loadid + ".txt");
+ 	       
  	        scheduleNextAlarm();
  	        
  		} catch (ClientProtocolException e){
@@ -88,15 +121,12 @@ public class MainActivity extends ActionBarActivity {
  			e.printStackTrace();
  			Toast.makeText(this, "IOException while fetching eventlist", Toast.LENGTH_SHORT).show();
  		}
-		
-		
-		//scheduleNextAlarm();
 	}
 	
 	void scheduleNextAlarm(){
-		if(currEvent >= events.size()) return;
+		if(currEvent >= load.events.size()) return;
 		
-		RequestEvent e = events.get(currEvent);
+		RequestEvent e = load.events.get(currEvent);
 		
 		textbox.append("Scheduling " + currEvent + "@" + sdf.format(e.cal.getTime()) + "\n");
 		
@@ -119,8 +149,8 @@ public class MainActivity extends ActionBarActivity {
 		int eventid = intent.getExtras().getInt("eventid");
 		
 		// get a Calendar object with current time
-		Calendar cal = Calendar.getInstance();
-		textbox.append("Received " + eventid + " @ " + sdf.format(cal.getTime()) + "\n");
+		
+		textbox.append("Received " + eventid + " @ " + getTimeInFormat() + "\n");
 				
 		RequestMaker as = new RequestMaker();
 		
@@ -158,11 +188,16 @@ public class MainActivity extends ActionBarActivity {
 	private class RequestMaker extends AsyncTask<Integer, Void, String> {
 		
 	     protected void onPostExecute(String result) {
-	    	 textbox.append(result + "\n");
-	 	        
-	 		 Log.d("Response HTTP GET", result);
+	    	 textbox.append("download status : " + result + "\n");
+	    	 
+	    	 downloaded++;
+	    	 if(downloaded == load.events.size()){
+	    		 textbox.append("Uploading log file to " + serverip + " ...... \n");
+	    	 }
+	 		 //Log.d("Response HTTP GET", result);
 	     }
 
+	     /*
 		@Override
 		protected String doInBackground(Integer... args) {
 			
@@ -184,5 +219,84 @@ public class MainActivity extends ActionBarActivity {
 	 		}
 			return "GET Response is NULL(ERROR)";
 		}
+		*/
+	     
+	    @Override
+		protected String doInBackground(Integer... args) {
+	    	InputStream input = null;
+	     
+	        OutputStream output = null;
+	        HttpURLConnection connection = null;
+	        FileWriter fw = null;
+	        
+	        try {
+	        	RequestEvent event = load.events.get(args[0]);
+	            URL url = new URL(event.url);
+	          
+	            String filename = event.url.substring(event.url.lastIndexOf('/') + 1);
+	            connection = (HttpURLConnection) url.openConnection();
+	            connection.connect();
+
+	            // expect HTTP 200 OK, so we don't mistakenly save error report
+	            // instead of the file
+	            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+	                return "Server returned HTTP " + connection.getResponseCode()
+	                        + " " + connection.getResponseMessage();
+	            }
+
+	            // this will be useful to display download percentage
+	            // might be -1: server did not report the length
+	            int fileLength = connection.getContentLength();
+
+	            // download the file
+	            input = connection.getInputStream();
+	            output = new FileOutputStream("/sdcard/" + filename);
+	            
+	            fw = new FileWriter(log.getAbsoluteFile(), true);
+	            
+	            fw.write("LOG EVENT:" + args[0] + " url: " + url + " filesize: " + fileLength + "\n");
+	            
+
+	            byte data[] = new byte[4096];
+	            long total = 0;
+	            int count;
+	            int oldprogress = -1, currprogress = 0;
+	            while ((count = input.read(data)) != -1) {
+	                // allow canceling with back button
+	                if (isCancelled()) {
+	                    input.close();
+	                    return null;
+	                }
+	                total += count;
+	                
+	                // publishing the progress....
+	                if (fileLength > 0){ // only if total length is known
+	                	currprogress = (int) (total * 100 / fileLength);
+	                	if(currprogress > oldprogress){
+	                		oldprogress = currprogress;
+	                		fw.write(getTimeInFormat() + " " + currprogress + "% " + total + "\n");
+	                	}
+	                    //publishProgress((int) (total * 100 / fileLength));
+	                }
+	                output.write(data, 0, count);
+	            }
+	        } catch (Exception e) {
+	            return e.toString();
+	        } finally {
+	            try {
+	                if (output != null)
+	                    output.close();
+	                if (input != null)
+	                    input.close();
+	                if(fw != null)
+	                	fw.close();
+	            } catch (IOException ignored) {
+	            }
+
+	            if (connection != null)
+	                connection.disconnect();
+	        }
+	        return "Success";
+	     }
 	 }
 }

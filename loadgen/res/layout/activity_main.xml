@@ -1,12 +1,29 @@
-<ScrollView 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    <EditText
+  	    android:id="@+id/server"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+		android:text="@string/default_server"
+		android:inputType="text" />
+    <Button
+        android:id="@+id/startbutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="startEvents"
+        android:text="@string/start" />
+
+	<ScrollView 
     android:layout_width="fill_parent" 
     android:layout_height="fill_parent"
     android:orientation="vertical">
-  	<TextView
+    
+	<TextView
     	android:id="@+id/response_id"
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
 		android:text="@string/hello_world" />
-</ScrollView>
+	</ScrollView>
+</LinearLayout>

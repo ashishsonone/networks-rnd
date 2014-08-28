@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">loadgen</string>
+    <string name="start">start</string>
+    <string name="default_server">10.3.97.77</string>
     <string name="hello_world">Welcome To LoadGen !!</string>
     <string name="action_settings">Settings</string>
 
