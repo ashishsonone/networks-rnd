@@ -55,6 +55,7 @@ public class MainActivity extends ActionBarActivity {
 	int downloaded = 0;
 	
 	File log = null;
+	String logfileuri = null;
 	
 	HttpClient getHttpClient(){
 		//Set timeout parameters for httpclient
@@ -110,9 +111,18 @@ public class MainActivity extends ActionBarActivity {
  	        textbox.append("#EVENTS : " + load.events.size() + "\n");
  	        textbox.append("\n===========================\n");
  	        
- 	        log = new File("/sdcard/log_" + load.loadid + ".txt");
+ 	        logfileuri = "/sdcard/log_" + load.loadid + ".txt";
+ 	        log = new File(logfileuri);
  	       
- 	        scheduleNextAlarm();
+ 	        /**
+ 	       String serverUri = "http://" + serverip + "/fup.php";
+ 	       textbox.append("Uploading log file to " + serverUri + " ...... \n");
+ 	       int res = Uploader.uploadFile("/sdcard/log.txt", serverUri);
+  		 
+ 	       textbox.append("Upload Over : responsecode " + res + "\n");
+ 	       */
+  		 
+ 	       scheduleNextAlarm();
  	        
  		} catch (ClientProtocolException e){
  			e.printStackTrace();
@@ -192,7 +202,11 @@ public class MainActivity extends ActionBarActivity {
 	    	 
 	    	 downloaded++;
 	    	 if(downloaded == load.events.size()){
-	    		 textbox.append("Uploading log file to " + serverip + " ...... \n");
+	    		 String serverUri = "http://" + serverip + "/fup.php";
+	    		 textbox.append("Uploading log file to " + serverUri + " ...... \n");
+	    		 int res = Uploader.uploadFile(logfileuri, serverUri);
+	    		 
+	    		 textbox.append("Upload Over : responsecode " + res + "\n");
 	    	 }
 	 		 //Log.d("Response HTTP GET", result);
 	     }
