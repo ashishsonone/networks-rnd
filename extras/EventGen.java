@@ -13,7 +13,7 @@ public class EventGen{
         line += cal.get(Calendar.SECOND) + " ";
         line += cal.get(Calendar.MILLISECOND) + " ";
         
-        line += "http://www.cse.iitb.ac.in/~ashishsonone/serve.php?user=ashish@" + cal.get(Calendar.SECOND);
+        line += "http://www.pgcon.org/2014/schedule/attachments/322_IMCS.pdf";
         return line;
     }
     

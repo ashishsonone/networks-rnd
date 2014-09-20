@@ -279,6 +279,7 @@ public class MainActivity extends ActionBarActivity {
 	                // allow canceling with back button
 	                if (isCancelled()) {
 	                    input.close();
+	                    fw.close();
 	                    return null;
 	                }
 	                total += count;

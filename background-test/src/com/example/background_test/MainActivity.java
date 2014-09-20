@@ -56,6 +56,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
     
+    //!called on button click
     public void startBackgroundTask(View view){
     	Intent mServiceIntent = new Intent(this, BackgroundService.class);
     	button.setEnabled(false);
