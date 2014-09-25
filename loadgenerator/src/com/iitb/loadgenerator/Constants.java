@@ -20,11 +20,13 @@ public class Constants {
 	
 	//temporary
 	static final String LOGTAG = "LOADGENERATOR";
+	
+	// Defines a custom intent for alarm receiver
+	public static final String BROADCAST_ALARM_ACTION = "com.iitb.loadgenerator.BROADCAST_ALARM";
+	
 	// Defines a custom Intent action
-    public static final String BROADCAST_ACTION =
-        "com.example.android.threadsample.BROADCAST";
+    public static final String BROADCAST_ACTION = "com.example.android.threadsample.BROADCAST";
     
     // Defines the key for the status "extra" in an Intent
-    public static final String BROADCAST_MESSAGE =
-        "com.example.android.threadsample.STATUS";
+    public static final String BROADCAST_MESSAGE = "com.example.android.threadsample.STATUS";
 }

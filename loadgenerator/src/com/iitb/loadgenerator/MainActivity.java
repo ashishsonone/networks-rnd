@@ -2,7 +2,10 @@ package com.iitb.loadgenerator;
 
 
 import java.net.ServerSocket;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
+import android.app.AlarmManager;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -17,18 +20,25 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
-	TextView textbox;
-	EditText ipbox;
-	EditText portbox;
-	Button startbutton;
+	static TextView textbox;
+	static EditText ipbox;
+	static EditText portbox;
+	static Button startbutton;
 	
 	static String serverip = "192.168.0.119";
-	static int serverport = 12345;
+	static int serverport = 11111;
 	static String myip;
 	
 	static boolean experimentOn = true;
 	
 	static ServerSocket listen = null;
+	
+	//Alarm specific
+	static Load load;
+	static int currEvent = 0;
+	
+	static AlarmManager am ;
+	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
 	
 
 	@Override
@@ -46,16 +56,20 @@ public class MainActivity extends ActionBarActivity {
 		
 		startbutton = (Button) findViewById(R.id.startbutton);
 		
+		am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		
 		//Register Broadcast receiver
-		IntentFilter mStatusIntentFilter = new IntentFilter(
+		IntentFilter broadcastIntentFilter = new IntentFilter(
                 Constants.BROADCAST_ACTION);
         
+        ResponseReceiver broadcastReceiver = new ResponseReceiver(new Handler());
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastIntentFilter);
         
-        ResponseReceiver receiver = new ResponseReceiver(new Handler());
+        //Register AlarmReceiver
+        IntentFilter alarmIntentFilter = new IntentFilter(Constants.BROADCAST_ALARM_ACTION);
+        AlarmReceiver alarmReceiver = new AlarmReceiver();
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                										receiver,
-                										mStatusIntentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(alarmReceiver, alarmIntentFilter);
 	}
 	
 	public void startService(View v){

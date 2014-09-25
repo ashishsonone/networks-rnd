@@ -18,8 +18,8 @@ public class Main {
 	static boolean experimentOn = true;
 	
 	//static String serverName = "10.105.42.237";
-	static String serverName = "192.168.150.10";
-	static int port = 22222;
+	static String serverName = "192.168.0.119";
+	static int port = 11111;
 
 	public static void main(String [] args)
 	{
@@ -93,6 +93,8 @@ public class Main {
 
 			obj.put(Constants.action, "startExperiment");
 			obj.put("timetostart", "60"); //seconds
+			obj.put("timeoutWindow", "10000");
+			obj.put("filteringDevicesCount", "3");
 			
 			String json = obj.toJSONString();
 			dout.writeInt(json.length());

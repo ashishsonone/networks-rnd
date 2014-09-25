@@ -8,6 +8,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -28,14 +29,16 @@ public class BackgroundService extends IntentService{
 			MainActivity.myip = client.getLocalAddress().getHostAddress();
 			
 			MainActivity.listen = new ServerSocket(0);
-			MainActivity.listen.setSoTimeout(0);
+			MainActivity.listen.setSoTimeout(10000);
 			
 			sendDeviceInfo(client);
 			client.close();
 			
+			final Context ctx = getApplicationContext();
+			
 			Runnable r = new Runnable() {
 				public void run() {
-					Threads.ListenServer();
+					Threads.ListenServer(ctx);
 				}
 			};
 			

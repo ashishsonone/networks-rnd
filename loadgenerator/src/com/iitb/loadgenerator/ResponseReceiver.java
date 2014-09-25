@@ -5,10 +5,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 
-class ResponseReceiver extends BroadcastReceiver
+public class ResponseReceiver extends BroadcastReceiver
 {
 	private Handler handler;
 	
@@ -26,7 +25,8 @@ class ResponseReceiver extends BroadcastReceiver
             @Override
             public void run() {
                 //MainActivity.button.setEnabled(true);
-            	Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+            	//Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+            	MainActivity.textbox.append("\n" + msg + "\n");
             }
         });
     }
