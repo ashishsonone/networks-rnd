@@ -1,7 +1,7 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Map;
@@ -10,22 +10,14 @@ import java.util.Vector;
 
 public class Handlers {
 	
-	private static Vector<DeviceInfo> filterDevices(){
+	private static Vector<DeviceValidation> filterDevices(){
 		System.out.println("Filtereing Devices....");
-		
-		Vector<DeviceInfo> filteredDevices = new Vector<DeviceInfo>();
-		
-		int i=0;
-			for (Map.Entry<String, DeviceInfo> e : Main.registeredClients.entrySet()) {
-			    filteredDevices.add(e.getValue());
-			    i++;
-			    if(i==3){
-			    	break;
-			    }
-			}
-		
-		System.out.println("Number of filtered devices: " + filteredDevices.size());	
-		
+		Vector<DeviceValidation> filteredDevices = new Vector<DeviceValidation>();
+		for (Map.Entry<String, DeviceInfo> e : Main.registeredClients.entrySet()) {
+			System.out.println("filterDevices: " + e.getValue().ip + " " + e.getValue().port);
+		    filteredDevices.add(new DeviceValidation(e.getValue(), true));
+		}
+			
 		return filteredDevices;
 	}
 	
@@ -37,13 +29,13 @@ public class Handlers {
 	}
 	
 	public static void StartExperiment(Socket client, Map<String,String> jsonMap){
-		
 		OutputStream out = null;
 		DataOutputStream dout = null;
+		DataInputStream din = null;
 		try {
 			out = client.getOutputStream();
 			dout = new DataOutputStream(out);
-			dout.writeInt(200);	//ack stating I got the command to start experiment
+			dout.writeInt(Constants.responseOK);	//ack stating I got the command to start experiment
 		} catch (IOException e) {
 			System.out.println("StartExperiment: 'new DataOutputStream(out)' Failed...");
 			e.printStackTrace();
@@ -51,23 +43,51 @@ public class Handlers {
 		
 		System.out.println("\nStarting Experiment....");
 		//1. filter the devices
-		Vector<DeviceInfo> devices = filterDevices();
+		
+		final int expectedFilterCount = Integer.parseInt((String)jsonMap.get(Constants.noOfFilteringDevices));
+		final int timeoutWindow = Integer.parseInt((String)jsonMap.get(Constants.timeoutWindow));
+		int filteredCount = 0;
+		Vector<DeviceValidation> devices = filterDevices();
 		
 		//2. send control files one by one
-		String fileName = "/home/sanchit/Desktop/events.txt";
-		for(DeviceInfo d : devices){
+		//String fileName = "/home/sanchit/Desktop/events.txt";
+		for(DeviceValidation d : devices){
 			try {
-				Socket s = new Socket(d.ip, d.port);
+				System.out.println("StartExperiment: while sending control files to devices...");
+				System.out.println("StartExperiment: IP: " + d.device.ip + 
+						" and Port" + d.device.port);
+				Socket s = new Socket(d.device.ip, d.device.port);
+				s.setSoTimeout(timeoutWindow);
 				out = s.getOutputStream();
 				dout = new DataOutputStream(out);
 				String jsonString = Utils.getControlFileJson();
 				dout.writeInt(jsonString.length());
 				dout.writeBytes(jsonString);
-				Utils.SendFile(dout, fileName);
+				
+				String events = EventGen.generateEvents(1);
+				System.out.println(events);
+				
+				dout.writeInt(events.length());
+				dout.writeBytes(events);
+				//Utils.SendFile(dout, fileName);
+				
+				din = new DataInputStream(s.getInputStream());
+				int response = din.readInt();
+				if(response == Constants.responseOK){
+					filteredCount++;
+				}
 				s.close();
+				if(filteredCount >= expectedFilterCount){
+					break;
+				}
+				
+			} catch (InterruptedIOException ie){
+				System.out.println("StartExperiment: Timeout occured for sending control file to device with ip: "
+											+ d.device.ip + " and Port: " + d.device.port);
 			} catch (IOException e) {
-				System.out.println("StartExperiment: 'new DataOutputStream(out)' Failed...");
-				e.printStackTrace();
+				System.out.println("StartExperiment: 'new DataOutputStream(out)' or " +
+									"'DataInputStream(s.getInputStream())' Failed...");
+				//e.printStackTrace();
 			}
 		}
 	}
@@ -100,44 +120,42 @@ public class Handlers {
 			dout = new DataOutputStream(client.getOutputStream());
 			if(Main.registrationWindowOpen){
 				System.out.print("Client Registered with ip and port: ");
-				System.out.println(jsonMap.get(Constants.ip) + " & " + jsonMap.get(Constants.port));
+				System.out.println(jsonMap.get(Constants.Device.ip) + " & " + jsonMap.get(Constants.Device.port));
 				
 				DeviceInfo d = new DeviceInfo();
-				d.ip = (String)jsonMap.get(Constants.ip);
-				d.port = Integer.parseInt((String)jsonMap.get(Constants.port));
-				d.macAddress = (String)jsonMap.get(Constants.macAddress);
-				d.osVersion = (String)jsonMap.get(Constants.osVersion);
-				d.wifiVersion = (String)jsonMap.get(Constants.wifiVersion);
-				d.processorSpeed = Double.parseDouble((String)jsonMap.get(Constants.processorSpeed));
-				d.numberOfCores = Integer.parseInt((String)jsonMap.get(Constants.numberOfCores));
-				d.storageSpace = Integer.parseInt((String)jsonMap.get(Constants.storageSpace));
-				d.memory = Integer.parseInt((String)jsonMap.get(Constants.memory));
-				d.wifiSignalStrength = Double.parseDouble((String)jsonMap.get(Constants.wifiSignalStrength));
-				d.packetCaptureAppUsed = Boolean.parseBoolean((String)jsonMap.get(Constants.packetCaptureAppUsed));
+				d.ip = (String)jsonMap.get(Constants.Device.ip);
+				d.port = Integer.parseInt((String)jsonMap.get(Constants.Device.port));
+				d.macAddress = (String)jsonMap.get(Constants.Device.macAddress);
+				d.osVersion = (String)jsonMap.get(Constants.Device.osVersion);
+				d.wifiVersion = (String)jsonMap.get(Constants.Device.wifiVersion);
+				d.processorSpeed = Double.parseDouble((String)jsonMap.get(Constants.Device.processorSpeed));
+				d.numberOfCores = Integer.parseInt((String)jsonMap.get(Constants.Device.numberOfCores));
+				d.storageSpace = Integer.parseInt((String)jsonMap.get(Constants.Device.storageSpace));
+				d.memory = Integer.parseInt((String)jsonMap.get(Constants.Device.memory));
+				d.wifiSignalStrength = Double.parseDouble((String)jsonMap.get(Constants.Device.wifiSignalStrength));
+				d.packetCaptureAppUsed = Boolean.parseBoolean((String)jsonMap.get(Constants.Device.packetCaptureAppUsed));
 				
 				d.print();
 				Main.registeredClients.put(d.ip + Integer.toString(d.port), d);
 				
-				dout.writeInt(200);
+				dout.writeInt(Constants.responseOK);
 			}
 			else{
-				System.out.println(jsonMap.get(Constants.ip) + " " + jsonMap.get(Constants.port));
-				dout.writeInt(404);
+				System.out.println(jsonMap.get(Constants.Device.ip) + " " + jsonMap.get(Constants.Device.port));
+				dout.writeInt(Constants.responseError);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("RegisterClient: 'DataOutputStream(client.getOutputStream())' Failed...");
 			e.printStackTrace();
 		}
 	}
 	
 	public static void MasterHandler(Socket client){
-		InputStream is=null;
 		DataInputStream dis = null;
 		String data = "";
 		Map<String, String> jsonMap;
 		try {
-			is = client.getInputStream();
-			dis = new DataInputStream(is);
+			dis = new DataInputStream(client.getInputStream());
 			
 			int lengthJson = dis.readInt();
 			
@@ -146,7 +164,7 @@ public class Handlers {
 			}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("MasterHandler: 'client.getInputStream()' Failed...");
 			e.printStackTrace();
 		}
 		
@@ -180,7 +198,7 @@ public class Handlers {
 		try {
 			client.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("MasterHandler: 'client.close()' Failed...");
 			e.printStackTrace();
 		}
 		

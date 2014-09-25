@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -93,10 +92,10 @@ public class Utils {
 		    bis.close();
 		    
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Utils.SendFile: 'FileInputStream(file)' Failed...");
 			e.printStackTrace();
 		} catch (IOException e){
-			// TODO Auto-generated catch block
+			System.out.println("Utils.SendFile: 'BufferedInputStream(fis)' Failed...");
 			e.printStackTrace();
 		}
 	}
@@ -119,11 +118,8 @@ public class Utils {
 			
 			fout.close();
 			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Utils.ReceiveFile: 'dis.readInt()' Failed...");
 			e.printStackTrace();
 		}
         
