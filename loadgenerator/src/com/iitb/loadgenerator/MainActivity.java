@@ -84,6 +84,11 @@ public class MainActivity extends ActionBarActivity {
     	startbutton.setEnabled(false);
     	startService(mServiceIntent);
 	}
+	
+	public void exit(View v){
+		finish();          
+        moveTaskToBack(true);
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
