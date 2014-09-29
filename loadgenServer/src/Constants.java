@@ -17,6 +17,7 @@ public class Constants {
 	}
 	
 	static final int responseOK = 200; 
+	static final int responseRepeat = 300;
 	static final int responseError = 404; 
 	
 	public class Device{

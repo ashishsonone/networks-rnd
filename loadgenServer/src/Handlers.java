@@ -2,7 +2,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Map;
 import java.util.Vector;
@@ -10,7 +9,7 @@ import java.util.Vector;
 
 public class Handlers {
 	
-	private static Vector<DeviceValidation> filterDevices(){
+	private static Vector<DeviceValidation> FilterDevices(){
 		System.out.println("Filtereing Devices....");
 		Vector<DeviceValidation> filteredDevices = new Vector<DeviceValidation>();
 		for (Map.Entry<String, DeviceInfo> e : Main.registeredClients.entrySet()) {
@@ -22,35 +21,46 @@ public class Handlers {
 	}
 	
 	public static void StartRegistration(Socket client, Map<String,String> jsonMap){
-		Main.registrationWindowOpen = true;
+		System.out.println("StartRegistration: Registrations are open. Now devices can register....");
+
+			if(Main.registrationWindowOpen){
+				Utils.SendResponse(client, Constants.responseRepeat);
+			}
+			else{
+				Main.registrationWindowOpen = true;
+				Utils.SendResponse(client, Constants.responseOK);
+			}
+			
 	}
+	
 	public static void StopRegistration(Socket client, Map<String,String> jsonMap){
-		Main.registrationWindowOpen = false;
+		System.out.println("StopRegistration: Registration is now closed....");
+		
+		if(Main.registrationWindowOpen){
+			Main.registrationWindowOpen = false;
+			Utils.SendResponse(client, Constants.responseOK);
+		}
+		else{
+			Utils.SendResponse(client, Constants.responseRepeat);
+		}
 	}
 	
 	public static void StartExperiment(Socket client, Map<String,String> jsonMap){
-		OutputStream out = null;
-		DataOutputStream dout = null;
+		//Main.registrationWindowOpen = false;
 		DataInputStream din = null;
-		try {
-			out = client.getOutputStream();
-			dout = new DataOutputStream(out);
-			dout.writeInt(Constants.responseOK);	//ack stating I got the command to start experiment
-		} catch (IOException e) {
-			System.out.println("StartExperiment: 'new DataOutputStream(out)' Failed...");
-			e.printStackTrace();
-		}
+		
+		Utils.SendResponse(client, Constants.responseOK);
+
 		
 		System.out.println("\nStarting Experiment....");
-		//1. filter the devices
-		
+
 		final int expectedFilterCount = Integer.parseInt((String)jsonMap.get(Constants.noOfFilteringDevices));
 		final int timeoutWindow = Integer.parseInt((String)jsonMap.get(Constants.timeoutWindow));
 		int filteredCount = 0;
-		Vector<DeviceValidation> devices = filterDevices();
-		
-		//2. send control files one by one
+		Vector<DeviceValidation> devices = FilterDevices();
+		DataOutputStream dout = null;
 		//String fileName = "/home/sanchit/Desktop/events.txt";
+		
 		for(DeviceValidation d : devices){
 			try {
 				System.out.println("StartExperiment: while sending control files to devices...");
@@ -58,8 +68,7 @@ public class Handlers {
 						" and Port" + d.device.port);
 				Socket s = new Socket(d.device.ip, d.device.port);
 				s.setSoTimeout(timeoutWindow);
-				out = s.getOutputStream();
-				dout = new DataOutputStream(out);
+				dout = new DataOutputStream(s.getOutputStream());
 				String jsonString = Utils.getControlFileJson();
 				dout.writeInt(jsonString.length());
 				dout.writeBytes(jsonString);
@@ -93,7 +102,7 @@ public class Handlers {
 	}
 	
 	public static void StopExperiment(Socket client, Map<String,String> jsonMap){
-		////!!
+		Utils.SendResponse(client, Constants.responseOK);
 	}
 	
 	public static void ReceiveLogFile(Socket client, Map<String,String> jsonMap){
@@ -188,7 +197,11 @@ public class Handlers {
 			case Constants.Action.startExperiment:
 				StartExperiment(client, jsonMap);
 				break;
-				
+			
+			case Constants.Action.stopExperiment:
+				StopExperiment(client, jsonMap);
+				break;
+			
 			case Constants.Action.receiveLogFile:
 				ReceiveLogFile(client, jsonMap);
 				break;

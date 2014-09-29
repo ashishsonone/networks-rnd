@@ -15,8 +15,7 @@ public class Main {
 	static boolean serverON = true;
 	static boolean experimentRunning = false;
 	
-	//TODO this is temporary. Change to false
-	static boolean registrationWindowOpen = true;
+	static boolean registrationWindowOpen = false;
 	static ConcurrentHashMap<String, DeviceInfo> registeredClients = new ConcurrentHashMap<String, DeviceInfo>();
 	
 	public static void main(String args[]){

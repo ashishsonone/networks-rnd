@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -123,6 +124,17 @@ public class Utils {
 			e.printStackTrace();
 		}
         
+	}
+	
+	static void SendResponse(Socket s, int response){
+		try {
+			DataOutputStream dout = new DataOutputStream(s.getOutputStream());
+			dout.writeInt(response);
+			dout.close();
+		} catch (IOException e) {
+			System.out.println("SendResponse: Sending Response " + response + " Failed...");
+			e.printStackTrace();
+		}
 	}
 	
 }
