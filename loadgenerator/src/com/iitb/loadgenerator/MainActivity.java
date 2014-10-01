@@ -6,8 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import android.app.AlarmManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -39,6 +41,7 @@ public class MainActivity extends ActionBarActivity {
 	static int currEvent = 0;
 	
 	static AlarmManager am ;
+	static WifiManager wifimanager;
 	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
 	
 
@@ -58,6 +61,9 @@ public class MainActivity extends ActionBarActivity {
 		startbutton = (Button) findViewById(R.id.startbutton);
 		
 		am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		wifimanager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+		
+		wifimanager.setWifiEnabled(true); //Switch on the wifi if not already
 		
 		experimentOn = true;
 		
@@ -85,16 +91,24 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	public void startService(View v){
-		serverip = ipbox.getText().toString();
-		serverport = Integer.parseInt(portbox.getText().toString());
-		
-		textbox.setText("");
-		textbox.append("\n1) Register \n 2)Listen  \n3)Alarms  \n4) Send log\n");
-		textbox.append("ip = " + serverip + " port" + serverport);
-		
-		Intent mServiceIntent = new Intent(this, BackgroundService.class);
-    	startbutton.setEnabled(false);
-    	startService(mServiceIntent);
+		//TODO Change this to enable normal flow 
+		boolean test = true;
+		if(test){
+			String json = Utils.getMyDetailsJson(MainActivity.listen, MainActivity.myip);
+			Log.d(Constants.LOGTAG, "JSON : " + json);
+		}
+		else{
+			serverip = ipbox.getText().toString();
+			serverport = Integer.parseInt(portbox.getText().toString());
+			
+			textbox.setText("");
+			textbox.append("\n1) Register \n 2)Listen  \n3)Alarms  \n4) Send log\n");
+			textbox.append("ip = " + serverip + " port" + serverport);
+			
+			Intent mServiceIntent = new Intent(this, BackgroundService.class);
+	    	startbutton.setEnabled(false);
+	    	startService(mServiceIntent);
+		}
 	}
 	
 	public void exit(View v){

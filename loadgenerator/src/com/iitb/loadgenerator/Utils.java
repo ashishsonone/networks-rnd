@@ -3,20 +3,28 @@ package com.iitb.loadgenerator;
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Environment;
+import android.os.StatFs;
 
 
 public class Utils {
@@ -33,20 +41,22 @@ public class Utils {
 	public static String getMyDetailsJson(ServerSocket listen, String myip){
 		JSONObject obj = new JSONObject();
 		InetAddress IP = null; 
+		String osVersion = Integer.toString(android.os.Build.VERSION.SDK_INT);
 
 		obj.put(Constants.action, "register");
-		obj.put(Constants.ip, myip);
-		obj.put(Constants.port, Integer.toString(listen.getLocalPort()));
-		obj.put(Constants.osVersion, "2.3");
+		//TODO remove comment following two lines
+//		obj.put(Constants.ip, myip);
+//		obj.put(Constants.port, Integer.toString(listen.getLocalPort()));
+		obj.put(Constants.osVersion, osVersion);
 		obj.put(Constants.wifiVersion, "802.11n");
 
-		obj.put(Constants.macAddress, getMAC(listen.getInetAddress()));
-		obj.put(Constants.processorSpeed, "2.7");
-		obj.put(Constants.numberOfCores, Integer.toString(4));
-		obj.put(Constants.wifiSignalStrength, Double.toString(2.3));
+		obj.put(Constants.macAddress, getMACAddress());
+		obj.put(Constants.processorSpeed, getProcessorSpeed());
+		obj.put(Constants.numberOfCores, Integer.toString(getNumCores()));
+		obj.put(Constants.wifiSignalStrength, getWifiStrength());
 
-		obj.put(Constants.storageSpace, Integer.toString(4096));
-		obj.put(Constants.memory, Integer.toString(1024));
+		obj.put(Constants.storageSpace, getAvailableStorage());
+		obj.put(Constants.memory, getTotalRAM());
 		obj.put(Constants.packetCaptureAppUsed, (new Boolean(false)).toString());
 
 		String jsonString = obj.toJSONString();
@@ -55,22 +65,92 @@ public class Utils {
 		return jsonString;
 	}
 
-	public static String getMAC(InetAddress addr){
-		/*try {
-				NetworkInterface network = NetworkInterface.getByInetAddress(addr);
-				byte[] mac = network.getHardwareAddress();
-
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < mac.length; i++) {
-					sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));		
-				}
-				return sb.toString();
-		   } catch (SocketException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-		   }*/
-		return "12-0x-25";
+	public static String getMACAddress(){
+		WifiInfo info = MainActivity.wifimanager.getConnectionInfo();
+		String address = info.getMacAddress();
+		return address;
 	}
+	
+	public static String getWifiStrength(){
+		WifiInfo info = MainActivity.wifimanager.getConnectionInfo();
+		int level = WifiManager.calculateSignalLevel(info.getRssi(), 10);
+		return Integer.toString(level);
+	}
+	
+	public static String getAvailableStorage(){
+		File path = Environment.getDataDirectory(); //internal storage
+		StatFs sf = new StatFs(path.getPath());
+		long blocks = sf.getAvailableBlocksLong();
+		long blocksize = sf.getBlockSizeLong();
+		long availStorage = blocks * blocksize/(1024 * 1024); //Mega bytes
+		return Long.toString(availStorage);
+	}
+	
+	public static String getTotalRAM() {
+	    RandomAccessFile reader = null;
+	    String load = "0";
+	    try {
+	        reader = new RandomAccessFile("/proc/meminfo", "r");
+	        load = reader.readLine();
+	        String[] tokens = load.split(" +");
+	        load = tokens[1].trim(); //here is the memory
+	        int ram = Integer.parseInt(load); //KB
+	        ram = ram/1024;
+	        load = Integer.toString(ram);
+	        reader.close();
+	    } catch (IOException ex) {
+	        ex.printStackTrace();
+	    }
+	    return load;
+	}
+	
+	/**
+	 * Gets the number of cores available in this device, across all processors.
+	 * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
+	 * @return The number of cores, or 1 if failed to get result
+	 */
+	public static int getNumCores() {
+	    //Private Class to display only CPU devices in the directory listing
+	    class CpuFilter implements FileFilter {
+	        @Override
+	        public boolean accept(File pathname) {
+	            //Check if filename is "cpu", followed by a single digit number
+	            if(Pattern.matches("cpu[0-9]+", pathname.getName())) {
+	                return true;
+	            }
+	            return false;
+	        }      
+	    }
+
+	    try {
+	        //Get directory containing CPU info
+	        File dir = new File("/sys/devices/system/cpu/");
+	        //Filter to only list the devices we care about
+	        File[] files = dir.listFiles(new CpuFilter());
+	        //Return the number of cores (virtual CPU devices)
+	        return files.length;
+	    } catch(Exception e) {
+	        //Default to return 1 core
+	        return 1;
+	    }
+	}
+	
+	public static String getProcessorSpeed() {
+	    RandomAccessFile reader = null;
+	    String load = "0";
+	    try {
+	        reader = new RandomAccessFile("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r");
+	        load = reader.readLine();
+	        int speed = Integer.parseInt(load); //Khz
+	        speed = speed / 1000; //Mhz
+	        load = Integer.toString(speed);
+	        reader.close();
+	    } catch (IOException ex) {
+	        ex.printStackTrace();
+	    }
+	    return load;
+	}
+	
 
 	public static void tryParse(String json){
 		JSONParser parser = new JSONParser();
@@ -88,7 +168,6 @@ public class Utils {
 			Map dict = (Map) parser.parse(json, containerFactory);
 			System.out.println(dict.get("balance"));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -143,10 +222,8 @@ public class Utils {
 		    bis.close();
 		    
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e){
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
