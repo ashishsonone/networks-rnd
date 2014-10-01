@@ -1,13 +1,13 @@
 package com.iitb.loadgenerator;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 
-public class ResponseReceiver extends BroadcastReceiver
+public class ResponseReceiver extends WakefulBroadcastReceiver
 {
 	private Handler handler;
 	

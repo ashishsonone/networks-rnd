@@ -1,5 +1,12 @@
 
 public class Constants {
+	public class Action{
+		static final String regstart = "regstart";
+		static final String regstop = "regstop";
+		static final String expstart = "expstart";
+		static final String expstop = "expstop";
+	}
+	
 	static final String action = "action";
 	static final String ip = "ip";
 	static final String port = "port";

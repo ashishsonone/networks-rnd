@@ -114,18 +114,19 @@ public class Threads {
 		}
 	}
 
-	static int HandleEvent(RequestEvent event){
+	static int HandleEvent(RequestEvent event, final Context context){
 		Log.d(Constants.LOGTAG, "HandleEvent : just entered thread");
 		InputStream input = null;
 
 		OutputStream output = null;
 		HttpURLConnection connection = null;
 		FileWriter fw = null;
+		String filename = "unknown";
 
 		try {
 			URL url = new URL(event.url);
 
-			String filename = event.url.substring(event.url.lastIndexOf('/') + 1);
+			filename = event.url.substring(event.url.lastIndexOf('/') + 1);
 			
 			Log.d(Constants.LOGTAG, "HandleEvent : " + event.url + " " + filename);
 			
@@ -171,6 +172,15 @@ public class Threads {
 				}
 				output.write(data, 0, count);
 			}
+			
+			//File download over
+			//on complete  
+	        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+	        					.putExtra(Constants.BROADCAST_MESSAGE, "File  ... " + filename + "\n");
+	        	
+	        // Broadcasts the Intent to receivers in this application.
+	        LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
+	        
 		} catch (Exception e) {
 			return -1;
 		} finally {
@@ -187,6 +197,9 @@ public class Threads {
 			if (connection != null)
 				connection.disconnect();
 		}
+		
+
+        
 		return 0;
 	}
 

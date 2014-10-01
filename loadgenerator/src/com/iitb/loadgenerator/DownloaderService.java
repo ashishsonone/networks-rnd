@@ -25,7 +25,7 @@ public class DownloaderService extends IntentService{
         
 		Runnable r = new Runnable() {
 			public void run() {
-				Threads.HandleEvent(e);
+				Threads.HandleEvent(e, getApplicationContext());
 			}
 		};
 		

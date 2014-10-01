@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +27,7 @@ public class MainActivity extends ActionBarActivity {
 	static Button startbutton;
 	
 	static String serverip = "192.168.0.119";
-	static int serverport = 11111;
+	static int serverport = 22222;
 	static String myip;
 	
 	static boolean experimentOn = true;
@@ -58,6 +59,8 @@ public class MainActivity extends ActionBarActivity {
 		
 		am = (AlarmManager) getSystemService(ALARM_SERVICE);
 		
+		experimentOn = true;
+		
 		//Register Broadcast receiver
 		IntentFilter broadcastIntentFilter = new IntentFilter(
                 Constants.BROADCAST_ACTION);
@@ -70,6 +73,15 @@ public class MainActivity extends ActionBarActivity {
         AlarmReceiver alarmReceiver = new AlarmReceiver();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(alarmReceiver, alarmIntentFilter);
+	}
+	
+	@Override
+	public void onBackPressed() {
+	   Log.d(Constants.LOGTAG, "onBackPressed Called");
+	   Intent setIntent = new Intent(Intent.ACTION_MAIN);
+	   setIntent.addCategory(Intent.CATEGORY_HOME);
+	   setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	   startActivity(setIntent);
 	}
 	
 	public void startService(View v){
@@ -86,8 +98,8 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	public void exit(View v){
-		finish();          
-        moveTaskToBack(true);
+		finish();
+        android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 	@Override
