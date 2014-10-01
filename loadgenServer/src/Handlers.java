@@ -159,6 +159,18 @@ public class Handlers {
 		}
 	}
 	
+	//if not registration process started: send Status
+	//if registration process started: send status and the devices which are registered
+	//if experiment started: send status, registered devices and devices which are filtered
+	
+	public static String SendStatus(Socket client, Map<String,String> jsonMap){
+		
+		
+		
+		return "";
+	}
+	
+	
 	public static void MasterHandler(Socket client){
 		DataInputStream dis = null;
 		String data = "";
@@ -205,6 +217,9 @@ public class Handlers {
 			case Constants.Action.receiveLogFile:
 				ReceiveLogFile(client, jsonMap);
 				break;
+				
+			case Constants.sendStatus:
+				SendStatus(client, jsonMap);
 				
 		}
 		

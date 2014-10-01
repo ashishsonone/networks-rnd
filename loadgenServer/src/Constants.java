@@ -5,6 +5,12 @@ public class Constants {
 	static final String noOfFilteringDevices = "filteringDevicesCount";
 	static final String timeoutWindow = "timeoutWindow";
 	static final String textFileFollow = "textFileFollow";
+	static final String sendStatus = "sendStatus";
+	
+	public class Status{
+		static final String registrationNotStarted = "registrationNotStarted";
+		static final String registrationStarted = "registrationStarted";
+	}
 	
 	public class Action{
 		static final String startRegistration = "startRegistration";
