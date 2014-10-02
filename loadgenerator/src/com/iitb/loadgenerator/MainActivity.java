@@ -106,7 +106,7 @@ public class MainActivity extends ActionBarActivity {
 	
 	public void startService(View v){
 		//TODO Change this to enable normal flow 
-		boolean test = true;
+		boolean test = false;
 		if(test){
 			String json = Utils.getMyDetailsJson(MainActivity.listen, MainActivity.myip);
 			Log.d(Constants.LOGTAG, "JSON : " + json);

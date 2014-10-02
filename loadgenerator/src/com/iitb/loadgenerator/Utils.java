@@ -45,8 +45,8 @@ public class Utils {
 
 		obj.put(Constants.action, "register");
 		//TODO remove comment following two lines
-//		obj.put(Constants.ip, myip);
-//		obj.put(Constants.port, Integer.toString(listen.getLocalPort()));
+		obj.put(Constants.ip, myip);
+		obj.put(Constants.port, Integer.toString(listen.getLocalPort()));
 		obj.put(Constants.osVersion, osVersion);
 		obj.put(Constants.wifiVersion, "802.11n");
 
