@@ -20,6 +20,7 @@ public class Constants {
 		static final String sendControlFile = "controlFile";
 		static final String receiveLogFile = "receiveLog";
 		static final String registerClient = "register";
+		static final String ping = "ping";
 	}
 	
 	static final int responseOK = 200; 

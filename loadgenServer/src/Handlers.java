@@ -163,11 +163,28 @@ public class Handlers {
 	//if registration process started: send status and the devices which are registered
 	//if experiment started: send status, registered devices and devices which are filtered
 	
-	public static String SendStatus(Socket client, Map<String,String> jsonMap){
+	public static void SendStatus(Socket client, Map<String,String> jsonMap){
 		
+		String status = "0000";
+		int cas=0, msg=Constants.responseOK;
+		if(!Main.registrationWindowOpen && !Main.experimentRunning) {status="00"; cas = 0;}
+		if(!Main.registrationWindowOpen && Main.experimentRunning) {status="01"; cas = 1;}
+		if(Main.registrationWindowOpen && !Main.experimentRunning) {status="10"; cas = 2;}
+		if(Main.registrationWindowOpen && Main.experimentRunning) {status="11"; cas = 3;msg=Constants.responseError;}
 		
-		
-		return "";
+		switch(cas){
+			case 0: //send devices registered
+				break;
+				
+			case 1:	//send filtered devices and devices registered
+				break;
+				
+			case 2:
+				break;
+				
+			case 3:
+				break;
+		}
 	}
 	
 	
