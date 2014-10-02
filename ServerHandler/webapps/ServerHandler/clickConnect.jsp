@@ -51,7 +51,7 @@
       <div class="container">
         <div class="page-header">
           <h1>Load Generator's Server Handler</h1>
-          <h3>	<% out.print(serverIP); out.print( " " ); out.print(serverPort);%>  </h3>
+          
           <h4>Click to start the registration process</h4>
           <form action="startRegistration.jsp" class="form-horizontal form-signin-signup">
             <input type="submit" name="startRegistration" value="Start Registration" class="btn btn-primary btn-large">
