@@ -172,6 +172,19 @@ public class Handlers {
 		if(Main.registrationWindowOpen && !Main.experimentRunning) {status="10"; cas = 2;}
 		if(Main.registrationWindowOpen && Main.experimentRunning) {status="11"; cas = 3;msg=Constants.responseError;}
 		
+		DataOutputStream dout = null;
+		try {
+			dout = new DataOutputStream(client.getOutputStream());
+			String json = getStatusResponse(status, msg);
+			dout.writeInt(json.length());
+			dout.writeByte(json);
+	
+		} catch (IOException e) {
+			System.out.println("RegisterClient: 'DataOutputStream(client.getOutputStream())' Failed...");
+			e.printStackTrace();
+		}
+		
+		
 		switch(cas){
 			case 0: //send devices registered
 				break;

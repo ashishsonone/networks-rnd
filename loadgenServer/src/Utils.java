@@ -40,7 +40,15 @@ public class Utils {
 		return jsonString;
 	}
 
-
+	@SuppressWarnings("unchecked")
+	static Stting getStatusResponse(String status, int msg){
+		JSONObject obj = new JSONObject();
+		obj.put(Constants.sendStatus, status);
+		obj.put("msg", Integer.toString(msg));
+		String jsonString = obj.toJSONString();
+		System.out.println(jsonString);
+		return jsonString;
+	}
 	
 	@SuppressWarnings("unchecked")
 	static Map<String, String> ParseJson(String json){
