@@ -1,4 +1,10 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="ServerHandler.*" %>
+
+<%
+	String serverIP = request.getParameter("serverIP");
+	String serverPort = request.getParameter("serverPort");
+%>
 
 <html lang="en">
   <head>
@@ -34,6 +40,12 @@
         </div>
       </div>     
     </header>
+
+	 <div class="container">
+	<form action="index.jsp" class="form-horizontal form-signin-signup">
+            <input type="submit" name="back" value="Back" class="btn btn-primary btn-large">
+    </form>
+    </div>
 
     <div class="content">
       <div class="container">
