@@ -31,13 +31,14 @@ public class Handler {
 				+ Constants.Action.expstop);
 	}
 	
-	public static void Handle(String [] args)
+	public static int Handle(String [] args)
 	{
+		int res =-1;
 		try
 		{
 			if(args.length < 3){
 				usage();
-				return ;
+				return -1;
 			}
 			
 			String action = args[0];
@@ -46,30 +47,52 @@ public class Handler {
 			
 			System.out.println("Connecting to " + serverName
 					+ " on port " + port);
+					
 			Socket client = new Socket(serverName, port);
 			myip = client.getLocalAddress().getHostAddress();
 			
 			
 			switch(action){
 				case Constants.Action.expstart:
-					sendStartExperimentRequest(client);
+					res = sendStartExperimentRequest(client);
 					break;
 				case Constants.Action.expstop:
-					sendStopExperimentRequest(client);
+					res = sendStopExperimentRequest(client);
 					break;
 				case Constants.Action.regstart:
-					sendStartRegistrationRequest(client);
+					res = sendStartRegistrationRequest(client);
 					break;
 				case Constants.Action.regstop:
-					sendStopRegistrationRequest(client);
+					res = sendStopRegistrationRequest(client);
 					break;
+					
+				case Constants.Action.sendstatus:
+					res = sendStatusRequest(client);
 			}
 			
 		}catch(IOException e)
 		{
 			e.printStackTrace();
 		}
+		
+		return res;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static int sendStatusRequest(Socket client){
+		System.out.println("Into sendStatusRequest()");
+		JSONObject obj = new JSONObject();
+		obj.put(Constants.action, "sendStatus");
+		String json = obj.toJSONString();
+		
+		int res = sendJSON(client, json);
+		if(res == -1){
+			System.out.println("sendStatusRequest failed");
+			return -1;
+		}
+		return 0;
+	}
+	
 	
 	@SuppressWarnings("unchecked")
 	public static int sendStopExperimentRequest(Socket client){

@@ -7,6 +7,7 @@ public class Constants {
 		static final String regstop = "regstop";
 		static final String expstart = "expstart";
 		static final String expstop = "expstop";
+		static final String sendstatus = "sendstatus";
 	}
 	
 	static final String action = "action";

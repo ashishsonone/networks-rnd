@@ -27,7 +27,8 @@ public class EventGen{
         cal.add(Calendar.SECOND, 60*1); 
         for(int i=0; i<count; i++){
         	//String link = "http://www.cse.iitb.ac.in/~ashishsonone/video.mp4";
-        	String link = "http://192.168.150.1/video.mp4";
+        	//String link = "http://192.168.150.1/video.mp4";
+        	String link = "http://www.cse.iitb.ac.in/~ashishsonone/video.mp4";
             String line = generateLine(cal, "GET", link);
             data+=line;
             cal.add(Calendar.SECOND, 5 + rand.nextInt(15));

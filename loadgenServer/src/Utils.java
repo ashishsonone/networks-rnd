@@ -41,7 +41,7 @@ public class Utils {
 	}
 
 	@SuppressWarnings("unchecked")
-	static Stting getStatusResponse(String status, int msg){
+	static String getStatusResponse(String status, int msg){
 		JSONObject obj = new JSONObject();
 		obj.put(Constants.sendStatus, status);
 		obj.put("msg", Integer.toString(msg));

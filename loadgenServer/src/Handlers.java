@@ -103,6 +103,7 @@ public class Handlers {
 	
 	public static void StopExperiment(Socket client, Map<String,String> jsonMap){
 		Utils.SendResponse(client, Constants.responseOK);
+		System.out.println("Experiment Stopped...");
 	}
 	
 	public static void ReceiveLogFile(Socket client, Map<String,String> jsonMap){
@@ -164,39 +165,28 @@ public class Handlers {
 	//if experiment started: send status, registered devices and devices which are filtered
 	
 	public static void SendStatus(Socket client, Map<String,String> jsonMap){
-		
-		String status = "0000";
+		System.out.println("\nSending Status Client....");
+		/*
+		String status ="22";
 		int cas=0, msg=Constants.responseOK;
 		if(!Main.registrationWindowOpen && !Main.experimentRunning) {status="00"; cas = 0;}
 		if(!Main.registrationWindowOpen && Main.experimentRunning) {status="01"; cas = 1;}
 		if(Main.registrationWindowOpen && !Main.experimentRunning) {status="10"; cas = 2;}
 		if(Main.registrationWindowOpen && Main.experimentRunning) {status="11"; cas = 3;msg=Constants.responseError;}
-		
+		*/
+		int msg=Constants.responseOK;
 		DataOutputStream dout = null;
 		try {
 			dout = new DataOutputStream(client.getOutputStream());
-			String json = getStatusResponse(status, msg);
-			dout.writeInt(json.length());
-			dout.writeByte(json);
+			//String json = Utils.getStatusResponse(status, msg);
+			//dout.writeInt(json.length());
+			dout.writeInt(msg);
+			//dout.writeBytes(json);
+			dout.close();
 	
 		} catch (IOException e) {
-			System.out.println("RegisterClient: 'DataOutputStream(client.getOutputStream())' Failed...");
+			System.out.println("SendStatus: 'DataOutputStream(client.getOutputStream())' Failed...");
 			e.printStackTrace();
-		}
-		
-		
-		switch(cas){
-			case 0: //send devices registered
-				break;
-				
-			case 1:	//send filtered devices and devices registered
-				break;
-				
-			case 2:
-				break;
-				
-			case 3:
-				break;
 		}
 	}
 	
