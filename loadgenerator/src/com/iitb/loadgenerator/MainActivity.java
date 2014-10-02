@@ -9,6 +9,8 @@ import android.app.AlarmManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -27,6 +30,7 @@ public class MainActivity extends ActionBarActivity {
 	static EditText ipbox;
 	static EditText portbox;
 	static Button startbutton;
+	static WebView webview;
 	
 	static String serverip = "192.168.0.119";
 	static int serverport = 22222;
@@ -53,6 +57,7 @@ public class MainActivity extends ActionBarActivity {
 		textbox = (TextView) findViewById(R.id.response_id);
 		ipbox = (EditText) findViewById(R.id.serverip);
 		portbox = (EditText) findViewById(R.id.serverport);
+		webview = (WebView) findViewById(R.id.webview);
 		
 		ipbox.setText(serverip);
 		portbox.setText(Integer.toString(serverport));
@@ -66,6 +71,9 @@ public class MainActivity extends ActionBarActivity {
 		wifimanager.setWifiEnabled(true); //Switch on the wifi if not already
 		
 		experimentOn = true;
+		
+		//Set the orientation to portrait
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		
 		//Register Broadcast receiver
 		IntentFilter broadcastIntentFilter = new IntentFilter(
@@ -90,12 +98,19 @@ public class MainActivity extends ActionBarActivity {
 	   startActivity(setIntent);
 	}
 	
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+	    super.onConfigurationChanged(newConfig);
+	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	}
+	
 	public void startService(View v){
 		//TODO Change this to enable normal flow 
 		boolean test = true;
 		if(test){
 			String json = Utils.getMyDetailsJson(MainActivity.listen, MainActivity.myip);
 			Log.d(Constants.LOGTAG, "JSON : " + json);
+			textbox.append(json);
 		}
 		else{
 			serverip = ipbox.getText().toString();
