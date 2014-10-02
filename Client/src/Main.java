@@ -22,7 +22,7 @@ public class Main {
 	static int port = 11111;
 
 	public static void usage(){
-		System.out.println("Requires two arguments : <action> , <ip> and <port>");
+		System.out.println("Requires three arguments : <action> , <ip> and <port>");
 		System.out.println("<action> can be : " + Constants.Action.regstart + ", "
 				+ Constants.Action.regstop + ", "
 				+ Constants.Action.expstart + ", "
@@ -31,6 +31,9 @@ public class Main {
 	
 	public static void main(String [] args)
 	{
+		
+		String c = "[1, 2, 3, 4]";
+		Utils.deSerialize(c);
 		try
 		{
 			if(args.length < 3){
@@ -67,6 +70,7 @@ public class Main {
 		{
 			e.printStackTrace();
 		}
+		
 	}
 	public static int sendStopExperimentRequest(Socket client){
 		System.out.println("Into sendStopExperimentRequest()");

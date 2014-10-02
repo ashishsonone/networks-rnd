@@ -16,8 +16,25 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 
 public class Utils {
+	
+	class Device{
+		int a;
+		int b;
+	}
+	static List<Integer> deSerialize(String c){
+		Gson gson = new Gson();
+		TypeToken<List<Integer>> token = new TypeToken<List<Integer>>(){};
+		List<Integer> l = gson.fromJson(c, token.getType());
+		for(int i=0; i<l.size(); i++){
+			System.out.println(l.get(i));
+		}
+		return null;
+	}
 	static String getLogFileJson(){
 		JSONObject obj = new JSONObject();
 		obj.put(Constants.action, "receiveLog");
