@@ -1,4 +1,30 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="ServerHandler.*" %>
+
+<% 
+	String username = (String)session.getAttribute("username");
+	String password = "";
+	boolean valid = false;
+	if(username==null || username.compareTo("")==0){
+		username = request.getParameter("uname");
+		password = request.getParameter("passwd");
+		if((username.compareTo("admin")==0) && (password.compareTo("synerg")==0)){
+			valid = true;
+			session.setAttribute("username", username);
+		}
+	}
+	else
+		valid = true;
+	
+	String serverIP = (String)session.getAttribute("serverIP");
+	String serverPort = (String)session.getAttribute("serverPort");
+	boolean connected = false;
+	if (!((serverIP == null) || (serverIP.compareTo("")==0) || (serverPort == null) || (serverPort.compareTo("")==0))){
+		String[] req = {"sendstatus", serverIP, serverPort};
+		if( Handler.Handle(req) == 0)
+			connected = true;
+	}
+%>
 
 <html lang="en">
   <head>
@@ -34,20 +60,52 @@
         </div>
       </div>   
     </header>
+    
 
     <div class="content">
       <div class="container">
-        <div class="page-header">
-          <h1>Load Generator's Server Handler</h1>
-          <br>
-          <br>
-          <h4>Enter Server IP and Port here</h4>
-          <form action="clickConnect.jsp" class="form-horizontal form-signin-signup">
-            <input type="text" name="serverIP" placeholder="Server IP">
-            <input type="text" name="serverPort" placeholder="Server Port">
-            <br>
-            <input type="submit" name="connect" value="Connect" class="btn btn-primary btn-large">
-          </form>
+      
+        <div class="page-header">        
+ 
+			<h1>Load Generator's Server Handler</h1>
+<%
+  if(username!=null && username.compareTo("")!=0){
+%>
+	<div align="right">
+		<a href="logout.jsp" >Logout</a>
+	</div>
+<%	
+  }
+%>
+
+			  
+<% 
+	if(!valid){ 
+%>
+
+				<h4>Username or Password Incorrect...</h4>
+				<form action="login.jsp" class="form-horizontal form-signin-signup">
+					<input type="submit" name="back" value="LogIn Again" class="btn btn-primary btn-large">
+				</form>
+
+<%	
+	} 
+	else if(valid && !connected){	
+%>
+
+			  <h4>Enter Server IP and Port here</h4>
+			  <form action="clickConnect.jsp" class="form-horizontal form-signin-signup">
+				<input type="text" name="serverIP" placeholder="Server IP">
+				<input type="text" name="serverPort" placeholder="Server Port">
+				<br>
+				<input type="submit" name="connect" value="Connect" class="btn btn-primary btn-large">
+			  </form>
+<%	
+	}
+	else
+		response.sendRedirect("clickConnect.jsp");
+%>
+		
         </div>
       </div>
     </div>

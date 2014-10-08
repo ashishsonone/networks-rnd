@@ -2,16 +2,18 @@
 <%@ page import="ServerHandler.*" %>
 
 <%
-	String serverIP = request.getParameter("serverIP");
-	String serverPort = request.getParameter("serverPort");
-	//String action = Constants.Action.sendstatus;
-	//String action2 = Constants.action;
+	String username = (String)session.getAttribute("username");
+	String serverIP = (String)session.getAttribute("serverIP");
+	String serverPort = (String)session.getAttribute("serverPort");
+	if ((serverIP == null) || (serverIP.compareTo("")==0) || (serverPort == null) || (serverPort.compareTo("")==0)){
+		serverIP = request.getParameter("serverIP");
+		serverPort = request.getParameter("serverPort");
+		session.setAttribute("serverIP", serverIP);
+		session.setAttribute("serverPort", serverPort);
+	}
+
 	String[] req = {"sendstatus", serverIP, serverPort};
-	
-	//Handler h = new Handler();
-	
 	int result = Handler.Handle(req);
-	
 %>
 
 <html lang="en">
@@ -49,17 +51,22 @@
       </div>     
     </header>
 
-	 <div class="container">
-	<form action="index.jsp" class="form-horizontal form-signin-signup">
-            <input type="submit" name="back" value="Back" class="btn btn-primary btn-large">
-    </form>
-    </div>
-
     <div class="content">
       <div class="container">
         <div class="page-header">
+
+		<h1>Load Generator's Server Handler</h1>
+<%
+  if(username!=null && username.compareTo("")!=0){
+%>
+	<div align="right">
+		<a href="logout.jsp" >Logout</a>
+	</div>
+<%	
+  }
+%>
         
-			<h1>Load Generator's Server Handler</h1>
+			
         
 			<%
 			if(result!=0){

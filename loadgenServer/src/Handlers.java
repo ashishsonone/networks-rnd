@@ -103,6 +103,7 @@ public class Handlers {
 	
 	public static void StopExperiment(Socket client, Map<String,String> jsonMap){
 		Utils.SendResponse(client, Constants.responseOK);
+		Main.experimentRunning = false;
 		System.out.println("Experiment Stopped...");
 	}
 	
@@ -166,6 +167,7 @@ public class Handlers {
 	
 	public static void SendStatus(Socket client, Map<String,String> jsonMap){
 		System.out.println("\nSending Status Client....");
+		int msg=Constants.responseOK;
 		/*
 		String status ="22";
 		int cas=0, msg=Constants.responseOK;
@@ -174,7 +176,7 @@ public class Handlers {
 		if(Main.registrationWindowOpen && !Main.experimentRunning) {status="10"; cas = 2;}
 		if(Main.registrationWindowOpen && Main.experimentRunning) {status="11"; cas = 3;msg=Constants.responseError;}
 		*/
-		int msg=Constants.responseOK;
+		
 		DataOutputStream dout = null;
 		try {
 			dout = new DataOutputStream(client.getOutputStream());

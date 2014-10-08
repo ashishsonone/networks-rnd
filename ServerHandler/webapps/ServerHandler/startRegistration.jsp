@@ -2,10 +2,9 @@
 <%@ page import="ServerHandler.*" %>
 
 <%
+	String username = (String)session.getAttribute("username");
 	String serverIP = request.getParameter("serverIP");
 	String serverPort = request.getParameter("serverPort");
-	//String action = Constants.Action.sendstatus;
-	//String action2 = Constants.action;
 	String[] req = {"regstart", serverIP, serverPort};
 	
 	int result = Handler.Handle(req);
@@ -47,19 +46,21 @@
       </div>     
     </header>
 
-	 <div class="container">
-	<form action="clickConnect.jsp" class="form-horizontal form-signin-signup">
-		<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
-		<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
-        <input type="submit" name="back" value="Back" class="btn btn-primary btn-large">
-    </form>
-    </div>
-
+	
     <div class="content">
       <div class="container">
         <div class="page-header">
         
-			<h1>Load Generator's Server Handler</h1>
+		<h1>Load Generator's Server Handler</h1>
+<%
+  if(username!=null && username.compareTo("")!=0){
+%>
+	<div align="right">
+		<a href="logout.jsp" >Logout</a>
+	</div>
+<%	
+  }
+%>
         
 			<%
 			if(result!=0){

@@ -2,10 +2,9 @@
 <%@ page import="ServerHandler.*" %>
 
 <%
-	String serverIP = request.getParameter("serverIP");
-	String serverPort = request.getParameter("serverPort");
-	//String action = Constants.Action.sendstatus;
-	//String action2 = Constants.action;
+	String username = (String)session.getAttribute("username");
+	String serverIP = (String)session.getAttribute("serverIP");
+	String serverPort = (String)session.getAttribute("serverPort");
 	String[] req = {"expstop", serverIP, serverPort};
 	
 	int result = Handler.Handle(req);
@@ -47,28 +46,35 @@
       </div>     
     </header>
 
-	 <div class="container">
-	<form action="clickConnect.jsp" class="form-horizontal form-signin-signup">
-		<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
-		<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
-        <input type="submit" name="back" value="Back" class="btn btn-primary btn-large">
-    </form>
-    </div>
 
     <div class="content">
-      <div class="container">
+      <div class="container"> 
         <div class="page-header">
         
-			<h1>Load Generator's Server Handler</h1>
-        
-			<%
-			if(result!=0){
-				out.print("<h4>Request for stop experiment failed</h4>");
-			}
-			else{
-				out.print("<h3>Experiment stopped on Server with IP and Port are: "+serverIP + " "+ serverPort+"</h3>");
-			}
-			%>
+		<h1>Load Generator's Server Handler</h1>
+<%
+  if(username!=null && username.compareTo("")!=0){
+%>
+	<div align="right">
+		<a href="logout.jsp" >Logout</a>
+	</div>
+<%	
+  }
+%>
+      
+<%
+	if(result!=0){
+		out.print("<h4>Request for stop experiment failed</h4>");
+	}
+	else{
+		out.print("<h4>Experiment stopped on Server with IP and Port are: "+serverIP + " "+ serverPort+"</h4>");
+	}
+%>
+        <form action="index.jsp" class="form-horizontal form-signin-signup">
+			<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
+			<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
+			<input type="submit" name="back" value="Back" class="btn btn-primary btn-large">
+		</form>	
           
         </div>
       </div>
