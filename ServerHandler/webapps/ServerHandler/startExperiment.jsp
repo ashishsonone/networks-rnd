@@ -3,8 +3,8 @@
 
 <%
 	String username = (String)session.getAttribute("username");
-	String serverIP = request.getParameter("serverIP");
-	String serverPort = request.getParameter("serverPort");
+	String serverIP = (String)session.getAttribute("serverIP");
+	String serverPort = (String)session.getAttribute("serverPort");
 	String[] req = {"expstart", serverIP, serverPort};
 	
 	int result = Handler.Handle(req);

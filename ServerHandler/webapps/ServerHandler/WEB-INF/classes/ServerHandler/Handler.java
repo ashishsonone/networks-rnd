@@ -43,7 +43,15 @@ public class Handler {
 			
 			String action = args[0];
 			serverName = args[1];
-			port = Integer.parseInt(args[2]);
+			
+			try { 
+				port = Integer.parseInt(args[2]);
+			} catch(NumberFormatException e) { 
+				return -1; 
+			}
+			
+			
+			
 			
 			System.out.println("Connecting to " + serverName
 					+ " on port " + port);
@@ -66,7 +74,7 @@ public class Handler {
 					res = sendStopRegistrationRequest(client);
 					break;
 					
-				case Constants.Action.sendstatus:
+				case Constants.sendStatus:
 					res = sendStatusRequest(client);
 			}
 			

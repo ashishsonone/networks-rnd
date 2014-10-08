@@ -6,6 +6,8 @@ public class Constants {
 	static final String timeoutWindow = "timeoutWindow";
 	static final String textFileFollow = "textFileFollow";
 	static final String sendStatus = "sendStatus";
+	static final String expID = "expID";
+	static final String mainExpLogsDir = "/home/sanchit/Desktop/experimentLogs/";
 	
 	public class Status{
 		static final String registrationNotStarted = "registrationNotStarted";

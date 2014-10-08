@@ -1,5 +1,6 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.Socket;
@@ -83,6 +84,8 @@ public class Handlers {
 				din = new DataInputStream(s.getInputStream());
 				int response = din.readInt();
 				if(response == Constants.responseOK){
+					//!TODO
+					//create an entry in database expecting log file
 					filteredCount++;
 				}
 				s.close();
@@ -110,16 +113,28 @@ public class Handlers {
 	public static void ReceiveLogFile(Socket client, Map<String,String> jsonMap){
 		//1. receive log file
 		System.out.println("\nReceiving Log File....");
-		String fileName = "/home/sanchit/Desktop/experimentLogs/" + client.getPort();
 		
+		String expID = (String)jsonMap.get(Constants.expID);
+		String macAddress = (String)jsonMap.get(Constants.Device.macAddress);
+		String dir = Constants.mainExpLogsDir + expID + "/";
+		String fileName = dir + macAddress;
+		
+		File theDir = new File(dir);
+
 		try {
+			if (!theDir.exists()) {
+				theDir.mkdir();
+			}
 			DataInputStream dis = new DataInputStream(client.getInputStream());
 			Utils.ReceiveFile(dis, client.getReceiveBufferSize(), fileName);
 			System.out.println("Log File Received....");
 		} catch (IOException e) {
 			System.out.println("Error in Receiving Log File....");
 			e.printStackTrace();
-		}
+		} catch(SecurityException se){
+			System.out.println("Error in Creating Directory" + dir +"....");
+			se.printStackTrace();
+	    } 
 	}
 	
 	public static void RegisterClient(Socket client, Map<String,String> jsonMap){
@@ -139,11 +154,11 @@ public class Handlers {
 				d.macAddress = (String)jsonMap.get(Constants.Device.macAddress);
 				d.osVersion = (String)jsonMap.get(Constants.Device.osVersion);
 				d.wifiVersion = (String)jsonMap.get(Constants.Device.wifiVersion);
-				d.processorSpeed = Double.parseDouble((String)jsonMap.get(Constants.Device.processorSpeed));
+				d.processorSpeed = Integer.parseInt((String)jsonMap.get(Constants.Device.processorSpeed));
 				d.numberOfCores = Integer.parseInt((String)jsonMap.get(Constants.Device.numberOfCores));
 				d.storageSpace = Integer.parseInt((String)jsonMap.get(Constants.Device.storageSpace));
 				d.memory = Integer.parseInt((String)jsonMap.get(Constants.Device.memory));
-				d.wifiSignalStrength = Double.parseDouble((String)jsonMap.get(Constants.Device.wifiSignalStrength));
+				d.wifiSignalStrength = Integer.parseInt((String)jsonMap.get(Constants.Device.wifiSignalStrength));
 				d.packetCaptureAppUsed = Boolean.parseBoolean((String)jsonMap.get(Constants.Device.packetCaptureAppUsed));
 				
 				d.print();

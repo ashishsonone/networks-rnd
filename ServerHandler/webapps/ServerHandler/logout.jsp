@@ -50,10 +50,12 @@
 	session.removeAttribute("username");
 	session.removeAttribute("serverIP");
 	session.removeAttribute("serverPort");
-	session.invalidate();
+	
 %>
-          <h4> <% out.print(username + " "); %> Logged out successfully!</h4>
+          <h4> <% out.print(username + " "); %> Logged out successfully! </h4>
 <%
+	session.removeAttribute("status");
+	session.invalidate();
 	out.println("<a href=\"login.jsp\" >Log In Again</a>");
 %>
         </div>

@@ -8,11 +8,11 @@
 	if ((serverIP == null) || (serverIP.compareTo("")==0) || (serverPort == null) || (serverPort.compareTo("")==0)){
 		serverIP = request.getParameter("serverIP");
 		serverPort = request.getParameter("serverPort");
-		session.setAttribute("serverIP", serverIP);
-		session.setAttribute("serverPort", serverPort);
 	}
-
-	String[] req = {"sendstatus", serverIP, serverPort};
+	session.setAttribute("serverIP", serverIP);
+	session.setAttribute("serverPort", serverPort);
+	
+	String[] req = {Constants.getSendStatus(), serverIP, serverPort};
 	int result = Handler.Handle(req);
 %>
 
@@ -68,34 +68,35 @@
         
 			
         
-			<%
-			if(result!=0){
-				out.print("<h4>Request for connection failed</h4>");
-			}
-			else{
-			%>	
+<%
+	if(result!=0){
+		session.removeAttribute("serverIP");
+		session.removeAttribute("serverPort");
+%>
+		<h4>Request for connection failed. Try Again</h4>
+		<form action="index.jsp" class="form-horizontal form-signin-signup">
+            <input type="submit" name="connect" value="ReConnect" class="btn btn-primary btn-large">
+          </form>
+<%	
+	}
+	else{
+%>	
         
         
           
           
           <h4>Click to start the registration process</h4>
           <form action="startRegistration.jsp" class="form-horizontal form-signin-signup">
-			<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
-			<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
             <input type="submit" name="startRegistration" value="Start Registration" class="btn btn-primary btn-large">
           </form>
           
           <h4>Click to stop the registration process</h4>
           <form action="stopRegistration.jsp" class="form-horizontal form-signin-signup">
-			<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
-			<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
             <input type="submit" name="stopRegistration" value="Stop Registration" class="btn btn-primary btn-large">
           </form>
           
           <h4>Click to start the experiment. Make sure that events file is added</h4>
           <form action="startExperiment.jsp" class="form-horizontal form-signin-signup">
-			<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
-			<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
             <input type="file" name="eventsFile" placeholder="Upload Event File">
             <br>
             <input type="submit" name="startExperiment" value="Start Experiment" class="btn btn-primary btn-large">
@@ -103,8 +104,6 @@
           
           <h4>Click to stop the experiment</h4>
           <form action="stopExperiment.jsp" class="form-horizontal form-signin-signup">
-			<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
-			<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
             <input type="submit" name="stopExperiment" value="Stop Experiment" class="btn btn-primary btn-large">
           </form>
           

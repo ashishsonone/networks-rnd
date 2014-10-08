@@ -6,15 +6,24 @@ public class DeviceInfo {
 	String osVersion = "";
 	String wifiVersion = "";
 	int numberOfCores = 0;
-	int storageSpace = 200;
-	int memory = 200;
-	double processorSpeed = 2.2;
-	double wifiSignalStrength = 0.2;
+	int storageSpace = 0;
+	int memory = 0;
+	int processorSpeed = 0;
+	int  wifiSignalStrength = 0;
 	boolean packetCaptureAppUsed = false;
 	
 	void print(){
+		System.out.println("IP: " + ip);
 		System.out.println("Port: " + port);
 		System.out.println("MAC Address: " + macAddress);
-		System.out.println("IP: " + ip);
+		System.out.println("OS Version" + osVersion);
+		System.out.println("WIFI Version " + wifiVersion);
+		System.out.println("No of Cores: " + numberOfCores);
+		System.out.println("Storage Space: " + storageSpace);
+		System.out.println("Memory: " + memory);
+		System.out.println("Processor Speed: " + processorSpeed);
+		System.out.println("WIFI signal Strength: " + wifiSignalStrength);
+		
+		
 	}
 }

@@ -1,29 +1,36 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="ServerHandler.*" %>
 
+
 <% 
 	String username = (String)session.getAttribute("username");
-	String password = "";
+	String password = (String)session.getAttribute("password");
+	int result = Constants.getLoginSuccess();
 	boolean valid = false;
-	if(username==null || username.compareTo("")==0){
+	if(username==null || username.compareTo("")==0 || password==null || password.compareTo("")==0){
 		username = request.getParameter("uname");
 		password = request.getParameter("passwd");
-		if((username.compareTo("admin")==0) && (password.compareTo("synerg")==0)){
-			valid = true;
+		DBManager db = new DBManager();
+		result = db.loginVerification(username, password);
+		if(result==Constants.getLoginSuccess()){
 			session.setAttribute("username", username);
+			session.setAttribute("password", password);
+			valid=true;
 		}
 	}
-	else
-		valid = true;
+
 	
 	String serverIP = (String)session.getAttribute("serverIP");
 	String serverPort = (String)session.getAttribute("serverPort");
+	//session.invalidate();
 	boolean connected = false;
+	///*
 	if (!((serverIP == null) || (serverIP.compareTo("")==0) || (serverPort == null) || (serverPort.compareTo("")==0))){
-		String[] req = {"sendstatus", serverIP, serverPort};
+		String[] req = {Constants.getSendStatus(), serverIP, serverPort};
 		if( Handler.Handle(req) == 0)
 			connected = true;
 	}
+	//*/
 %>
 
 <html lang="en">
@@ -78,32 +85,55 @@
   }
 %>
 
-			  
-<% 
-	if(!valid){ 
+<%
+	if(result==Constants.getConnectionFailure()){
+%>
+				<h4>Cannot connect to Database. Try again later  <% out.print(" " + result); %></h4>
+				<form action="login.jsp" class="form-horizontal form-signin-signup">
+					<input type="submit" name="back" value="LogIn Again" class="btn btn-primary btn-large">
+				</form>
+<%
+	}
+	if(result==Constants.getConnectionFailure()){
+		session.removeAttribute("username");
+		session.removeAttribute("serverIP");
+		session.removeAttribute("serverPort");
+%>
+				<h4> Got internal error. Try Again Later</h4>
+				  <form method="post" action="login.jsp" class="form-horizontal form-signin-signup">
+					<input type="submit" name="login" value="LogIn Again" class="btn btn-primary btn-large">
+				  </form>
+		
+<%		
+	
+	}
+	else if(result==Constants.getLoginFailure()){
 %>
 
-				<h4>Username or Password Incorrect...</h4>
+				<h4>Username or Password Incorrect... <% out.print(" " + result); %> </h4>
 				<form action="login.jsp" class="form-horizontal form-signin-signup">
 					<input type="submit" name="back" value="LogIn Again" class="btn btn-primary btn-large">
 				</form>
 
 <%	
 	} 
-	else if(valid && !connected){	
+	else if(result==Constants.getLoginSuccess() && !connected){	
 %>
 
-			  <h4>Enter Server IP and Port here</h4>
+			  <h4>Enter Server IP and Port here <% out.print(" " + result); %> </h4>
 			  <form action="clickConnect.jsp" class="form-horizontal form-signin-signup">
-				<input type="text" name="serverIP" placeholder="Server IP">
-				<input type="text" name="serverPort" placeholder="Server Port">
+				<input type="text" name="serverIP" placeholder="Server IP" required>
+				<input type="text" name="serverPort" placeholder="Server Port" required>
 				<br>
 				<input type="submit" name="connect" value="Connect" class="btn btn-primary btn-large">
 			  </form>
 <%	
 	}
-	else
+	else if (result==Constants.getLoginSuccess() && connected){
 		response.sendRedirect("clickConnect.jsp");
+	}
+	else{
+	}
 %>
 		
         </div>

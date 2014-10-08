@@ -52,8 +52,8 @@
     
           <h4>Enter LogIn Details Here</h4>
           <form method="post" action="index.jsp" class="form-horizontal form-signin-signup">
-            <input type="text" name="uname" placeholder="Username">
-            <input type="password" name="passwd" placeholder="Password">
+            <input type="text" name="uname" placeholder="Username" required>
+            <input type="password" name="passwd" placeholder="Password" required>
             <br>
             <input type="submit" name="login" value="LogIn" class="btn btn-primary btn-large">
           </form>
