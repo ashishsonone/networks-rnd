@@ -10,9 +10,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -37,6 +40,14 @@ public class Utils {
 		return jsonString;
 	}
 
+	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
+	
+	static String getTimeInFormat(){
+		Calendar cal = Calendar.getInstance();
+		return sdf.format(cal.getTime());
+	}
+	
+	
 
 	public static String getMyDetailsJson(ServerSocket listen, String myip){
 		JSONObject obj = new JSONObject();

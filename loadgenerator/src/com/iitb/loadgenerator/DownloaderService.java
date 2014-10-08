@@ -16,16 +16,16 @@ public class DownloaderService extends IntentService{
     protected void onHandleIntent(Intent intent) {
 		Log.d(Constants.LOGTAG, "DownloaderService : just entered");
 		Bundle bundle = intent.getExtras();
-        int eventid = bundle.getInt("eventid");
+        final int eventid = bundle.getInt("eventid");
         
-        final RequestEvent e = MainActivity.load.events.get(eventid);
+        //final RequestEvent e = MainActivity.load.events.get(eventid);
         
 		Log.d(Constants.LOGTAG, "DownloaderService : Handling event " + eventid + "in a thread ... ");
 		
         
 		Runnable r = new Runnable() {
 			public void run() {
-				Threads.HandleEvent(e, getApplicationContext());
+				Threads.HandleEvent(eventid, getApplicationContext());
 			}
 		};
 		

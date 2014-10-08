@@ -1,5 +1,7 @@
 package com.iitb.loadgenerator;
 
+import android.os.Environment;
+
 
 public class Constants {
 	static final String action = "action";
@@ -17,9 +19,12 @@ public class Constants {
 	static final String action_controlFile = "controlFile";
 	static final String textFileFollow = "textFileFollow";
 	
+	static final String logDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/loadgenerator/logs";
+	
 	
 	//temporary
 	static final String LOGTAG = "LOADGENERATOR";
+	static final String LINEDELIMITER = "***\n";
 	
 	// Defines a custom intent for alarm receiver
 	public static final String BROADCAST_ALARM_ACTION = "com.iitb.loadgenerator.BROADCAST_ALARM";

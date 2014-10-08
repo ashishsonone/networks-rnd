@@ -1,7 +1,9 @@
 package com.iitb.loadgenerator;
 
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.util.Map;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -114,14 +117,20 @@ public class Threads {
 		}
 	}
 
-	static int HandleEvent(RequestEvent event, final Context context){
+	static int HandleEvent(int eventid, final Context context){
+		//Log file will be named   <eventid> . <loadid>
+		
+		RequestEvent event = MainActivity.load.events.get(eventid);
+		String logfilename = eventid + "." + MainActivity.load.loadid;
+		File logfile = new File(MainActivity.logDir, logfilename);
+		
 		Log.d(Constants.LOGTAG, "HandleEvent : just entered thread");
 		InputStream input = null;
 
 		OutputStream output = null;
 		HttpURLConnection connection = null;
-		FileWriter fw = null;
 		String filename = "unknown";
+		BufferedWriter logwriter = null;
 
 		try {
 			URL url = new URL(event.url);
@@ -148,7 +157,12 @@ public class Threads {
 
 			// download the file
 			input = connection.getInputStream();
-			output = new FileOutputStream("/sdcard/" + filename);
+			output = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + filename);
+			
+			logwriter = new BufferedWriter(new FileWriter(logfile));
+			
+			logwriter.write(MainActivity.load.loadid + " " + eventid +  " " + fileLength + "\n");
+			logwriter.write(url + "\n");
 
 			byte data[] = new byte[4096];
 			long total = 0;
@@ -167,11 +181,13 @@ public class Threads {
 					if(currprogress > oldprogress){
 						oldprogress = currprogress;
 						Log.d(Constants.LOGTAG, currprogress + "% " + total + "\n");
+						logwriter.write(Utils.getTimeInFormat() + " " + currprogress + "% " + total + "\n");
 					}
 					//publishProgress((int) (total * 100 / fileLength));
 				}
 				output.write(data, 0, count);
 			}
+			logwriter.write(Constants.LINEDELIMITER); //this marks the end of this log
 			
 			//File download over
 			//on complete  
@@ -182,6 +198,7 @@ public class Threads {
 	        LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
 	        
 		} catch (Exception e) {
+			e.printStackTrace();
 			return -1;
 		} finally {
 			try {
@@ -189,17 +206,15 @@ public class Threads {
 					output.close();
 				if (input != null)
 					input.close();
-				if(fw != null)
-					fw.close();
+				if (logwriter != null)
+					logwriter.close();
 			} catch (IOException ignored) {
 			}
 
 			if (connection != null)
 				connection.disconnect();
 		}
-		
-
-        
+		Log.d(Constants.LOGTAG, "end of thread downloader");
 		return 0;
 	}
 

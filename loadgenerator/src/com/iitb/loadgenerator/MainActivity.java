@@ -1,6 +1,7 @@
 package com.iitb.loadgenerator;
 
 
+import java.io.File;
 import java.net.ServerSocket;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -48,6 +49,7 @@ public class MainActivity extends ActionBarActivity {
 	static WifiManager wifimanager;
 	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
 	
+	static File logDir; //directory containing log files
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +73,9 @@ public class MainActivity extends ActionBarActivity {
 		wifimanager.setWifiEnabled(true); //Switch on the wifi if not already
 		
 		experimentOn = true;
+		
+		logDir = new File(Constants.logDirectory);
+		logDir.mkdirs();
 		
 		//Set the orientation to portrait
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
