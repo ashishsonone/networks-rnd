@@ -29,6 +29,10 @@ public class Constants {
 	static final int responseRepeat = 300;
 	static final int responseError = 404; 
 	
+	static final int connectionSuccess = 2;
+	static final int connectionFailure = 3;
+	static final int internalError = 4;
+	
 	public class Device{
 		static final String ip = "ip";
 		static final String port = "port";

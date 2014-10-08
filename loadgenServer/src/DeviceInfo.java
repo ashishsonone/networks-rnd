@@ -2,10 +2,10 @@
 public class DeviceInfo {	
 	int port = 0;
 	String ip = "";
-	String macAddress = "";
-	String osVersion = "";
-	String wifiVersion = "";
-	int numberOfCores = 0;
+	String macAddress = "00:00:00:00:00:00";
+	String osVersion = "1";
+	String wifiVersion = "802.11";
+	int numberOfCores = 1;
 	int storageSpace = 0;
 	int memory = 0;
 	int processorSpeed = 0;

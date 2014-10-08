@@ -128,6 +128,8 @@ public class Handlers {
 			DataInputStream dis = new DataInputStream(client.getInputStream());
 			Utils.ReceiveFile(dis, client.getReceiveBufferSize(), fileName);
 			System.out.println("Log File Received....");
+			//!TODO
+			//modify database entry for file received.
 		} catch (IOException e) {
 			System.out.println("Error in Receiving Log File....");
 			e.printStackTrace();
