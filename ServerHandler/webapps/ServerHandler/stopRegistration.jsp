@@ -72,17 +72,13 @@
           <br>
           <h4>Click to start the experiment. Make sure that events file is added</h4>
           <form action="startExperiment.jsp" class="form-horizontal form-signin-signup">
-			<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
-			<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
-			<input type="file" name="eventsFile" placeholder="Upload Event File">
+			<input type="file" name="eventsFile" placeholder="Upload Event File" required>
             <br>
             <input type="submit" name="startExperiment" value="Start Experiment" class="btn btn-primary btn-large">
           </form>
           
           <h4>Click to start the registration process</h4>
           <form action="startRegistration.jsp" class="form-horizontal form-signin-signup">
-			<input type="hidden" name="serverIP" value= <% out.print("\"" + serverIP + "\""); %> >
-			<input type="hidden" name="serverPort" value= <% out.print("\"" + serverPort + "\""); %> >
             <input type="submit" name="startRegistration" value="Start Registration" class="btn btn-primary btn-large">
           </form>
 

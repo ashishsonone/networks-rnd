@@ -9,7 +9,7 @@ public class DeviceInfo {
 	int storageSpace = 0;
 	int memory = 0;
 	int processorSpeed = 0;
-	int  wifiSignalStrength = 0;
+	int  wifiSignalStrength = 1;
 	boolean packetCaptureAppUsed = false;
 	
 	void print(){

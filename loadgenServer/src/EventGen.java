@@ -21,8 +21,9 @@ public class EventGen{
     	String data ="";
         Random rand = new Random();
         Calendar cal = Calendar.getInstance();
-        data += Long.toString(cal.getTimeInMillis());		//id of events
-        data +="\n";
+        //data += Long.toString(cal.getTimeInMillis());		//id of events
+        //data += Integer.toString(Main.experimentID+1);	//generate events with id one more than the current experimentID
+        //data +="\n";
         
         cal.add(Calendar.SECOND, 60*1); 
         for(int i=0; i<count; i++){

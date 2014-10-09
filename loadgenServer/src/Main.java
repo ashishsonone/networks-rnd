@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 
 
 public class Main {
-	static int PORT = 11111;
+	static int PORT = 22222;
 	static int Timeout = 5000; //in milliseconds
 	static ExecutorService executor = Executors.newCachedThreadPool();
 	
@@ -16,6 +16,7 @@ public class Main {
 	static boolean experimentRunning = false;
 	
 	static boolean registrationWindowOpen = false;
+	
 	static ConcurrentHashMap<String, DeviceInfo> registeredClients = new ConcurrentHashMap<String, DeviceInfo>();
 	
 	public static void main(String args[]){
@@ -61,4 +62,5 @@ public class Main {
 		
 		System.out.println("Server Stopped....");
 	}
+
 }

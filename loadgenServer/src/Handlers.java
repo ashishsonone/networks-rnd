@@ -74,19 +74,26 @@ public class Handlers {
 				dout.writeInt(jsonString.length());
 				dout.writeBytes(jsonString);
 				
+				int eventid = Utils.getCurrentExperimentID()+1;
 				String events = EventGen.generateEvents(1);
+				events = Integer.toString(eventid) + "\n" + events;
 				System.out.println(events);
+				
 				
 				dout.writeInt(events.length());
 				dout.writeBytes(events);
-				//Utils.SendFile(dout, fileName);
 				
 				din = new DataInputStream(s.getInputStream());
 				int response = din.readInt();
 				if(response == Constants.responseOK){
-					//!TODO
-					//create an entry in database expecting log file
-					filteredCount++;
+					int status = Utils.addExperimentDetails(eventid, d.device, false);
+					if(status<0){
+						System.out.println("StartExperiment: Error occured during inserting experiment details for device: " 
+												+ d.device.ip + ", " + d.device.macAddress);
+					}
+					else{
+						filteredCount++;
+					}
 				}
 				s.close();
 				if(filteredCount >= expectedFilterCount){
@@ -114,7 +121,7 @@ public class Handlers {
 		//1. receive log file
 		System.out.println("\nReceiving Log File....");
 		
-		String expID = (String)jsonMap.get(Constants.expID);
+		int expID = Integer.parseInt((String)jsonMap.get(Constants.expID));
 		String macAddress = (String)jsonMap.get(Constants.Device.macAddress);
 		String dir = Constants.mainExpLogsDir + expID + "/";
 		String fileName = dir + macAddress;
@@ -127,9 +134,54 @@ public class Handlers {
 			}
 			DataInputStream dis = new DataInputStream(client.getInputStream());
 			Utils.ReceiveFile(dis, client.getReceiveBufferSize(), fileName);
-			System.out.println("Log File Received....");
-			//!TODO
-			//modify database entry for file received.
+			
+			int status = Utils.updateFileReceivedField(expID, macAddress, true);
+			if(status < 0){
+				Utils.SendResponse(client, Constants.responseError);
+				System.out.println("ReceiveLogFile: Error while updating Database....");
+			}
+			else{
+				Utils.SendResponse(client, Constants.responseOK);
+				System.out.println("ReceiveLogFile: Log File Received....");
+			}
+			
+		} catch (IOException e) {
+			System.out.println("Error in Receiving Log File....");
+			e.printStackTrace();
+		} catch(SecurityException se){
+			System.out.println("Error in Creating Directory" + dir +"....");
+			se.printStackTrace();
+	    } 
+	}
+	
+	public static void ReceiveEventFile(Socket client, Map<String,String> jsonMap){
+		//1. receive log file
+		System.out.println("\nReceiving Event File....");
+		
+		int expID = Integer.parseInt((String)jsonMap.get(Constants.expID));
+		String macAddress = (String)jsonMap.get(Constants.Device.macAddress);
+		String dir = Constants.mainExpLogsDir + expID + "/";
+		String fileName = dir + macAddress;
+		
+		File theDir = new File(dir);
+
+		try {
+			if (!theDir.exists()) {
+				theDir.mkdir();
+			}
+			DataInputStream dis = new DataInputStream(client.getInputStream());
+			Utils.ReceiveFile(dis, client.getReceiveBufferSize(), fileName);
+			
+			int status = Utils.updateFileReceivedField(expID, macAddress, true);
+			if(status < 0){
+				Utils.SendResponse(client, Constants.responseError);
+				System.out.println("ReceiveLogFile: Error while updating Database....");
+			}
+			else{
+				Utils.SendResponse(client, Constants.responseOK);
+				System.out.println("ReceiveLogFile: Log File Received....");
+			}
+			
 		} catch (IOException e) {
 			System.out.println("Error in Receiving Log File....");
 			e.printStackTrace();
@@ -255,6 +307,10 @@ public class Handlers {
 			
 			case Constants.Action.receiveLogFile:
 				ReceiveLogFile(client, jsonMap);
+				break;
+			
+			case Constants.Action.receiveEventFile:
+				ReceiveEventFile(client, jsonMap);
 				break;
 				
 			case Constants.sendStatus:

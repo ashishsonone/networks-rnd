@@ -66,6 +66,7 @@
 				out.print("<h4>Request for start experiment failed</h4>");
 			}
 			else{
+				out.print(request.getParameter("eventsFile")+"</h3>");
 				out.print("<h3>Experiment started on Server with IP and Port are: "+serverIP + " "+ serverPort+"</h3>");
 			%>
         

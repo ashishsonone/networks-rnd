@@ -21,6 +21,7 @@ public class Constants {
 		static final String stopExperiment = "stopExperiment";
 		static final String sendControlFile = "controlFile";
 		static final String receiveLogFile = "receiveLog";
+		static final String receiveEventFile = "receiveEventFile";		
 		static final String registerClient = "register";
 		static final String ping = "ping";
 	}

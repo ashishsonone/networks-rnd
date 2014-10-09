@@ -145,4 +145,19 @@ public class Utils {
 		}
 	}
 	
+	static int getCurrentExperimentID(){
+		DBManager db = new DBManager();
+		return db.getMaxExperimentID();
+	}
+	
+	static int addExperimentDetails(int expID, DeviceInfo d, boolean fileReceived){
+		DBManager db = new DBManager();
+		return db.addExperimentDetail(expID, d, fileReceived); 
+	}
+	
+	static int updateFileReceivedField(int expID, String macAddress, boolean fileReceived){
+		DBManager db = new DBManager();
+		return db.updateFileReceivedField(expID, macAddress, fileReceived); 
+	}
+	
 }
