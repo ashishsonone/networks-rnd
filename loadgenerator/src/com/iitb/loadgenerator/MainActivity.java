@@ -37,7 +37,9 @@ public class MainActivity extends ActionBarActivity {
 	static int serverport = 22222;
 	static String myip;
 	
-	static boolean experimentOn = true;
+	static boolean experimentOn = true; //whether to listen as server
+	static boolean running = false; //whether scheduling alarms and downloading is going on
+	static int numDownloadOver = 0; //indicates for how many events download in thread is over
 	
 	static ServerSocket listen = null;
 	

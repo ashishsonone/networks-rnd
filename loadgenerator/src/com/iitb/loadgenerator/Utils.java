@@ -28,12 +28,15 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.os.StatFs;
+import android.util.Log;
 
 
 public class Utils {
-	static String getLogFileJson(){
+	static String getLogFileJson(String expID){
 		JSONObject obj = new JSONObject();
 		obj.put(Constants.action, "receiveLog");
+		obj.put("expID", expID);
+		obj.put(Constants.macAddress, Utils.getMACAddress());
 		String jsonString = obj.toJSONString();
 		System.out.println(jsonString);
 
@@ -231,6 +234,9 @@ public class Utils {
 		    
 		    fis.close();
 		    bis.close();
+		    Log.d(Constants.LOGTAG, "Deleting log file(not yet)" + fileName);
+		    //!TODO
+		    //file.delete(); //since this file sending was succesful we can delete it from the log directory
 		    
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

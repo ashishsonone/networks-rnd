@@ -33,11 +33,13 @@ public class Threads {
 					}
 				};
 
-				Thread t = new Thread(r);
+				if(MainActivity.running == false){
+					MainActivity.running = true; //At a time only one downloading activity in background can take place
+					Thread t = new Thread(r);
+					t.start();
+				}
 
-				t.start();
-
-				Log.d(Constants.LOGTAG,"Registration request rejected");
+				//Log.d(Constants.LOGTAG,"Registration request rejected");
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -88,6 +90,7 @@ public class Threads {
 
 					//Thread.sleep(10000); //Alarms are set and events processed during this time. Also log file gets generated
 					MainActivity.load = RequestEventParser.parseEvents(controlFile);
+					MainActivity.numDownloadOver = 0; //reset it
 					//on complete  
 
 					Log.d(Constants.LOGTAG,"eventRunner : Experiment over. Now sending log file");
@@ -113,6 +116,8 @@ public class Threads {
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			//Somehow experiment could not be started due to some IOException in socket transfer. So again reset running variable to false
+			MainActivity.running = false;
 			e.printStackTrace();
 		}
 	}
@@ -121,7 +126,7 @@ public class Threads {
 		//Log file will be named   <eventid> . <loadid>
 		
 		RequestEvent event = MainActivity.load.events.get(eventid);
-		String logfilename = eventid + "." + MainActivity.load.loadid;
+		String logfilename = "" + MainActivity.load.loadid;
 		File logfile = new File(MainActivity.logDir, logfilename);
 		
 		Log.d(Constants.LOGTAG, "HandleEvent : just entered thread");
@@ -159,7 +164,7 @@ public class Threads {
 			input = connection.getInputStream();
 			output = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + filename);
 			
-			logwriter = new BufferedWriter(new FileWriter(logfile));
+			logwriter = new BufferedWriter(new FileWriter(logfile, true));
 			
 			logwriter.write(MainActivity.load.loadid + " " + eventid +  " " + fileLength + "\n");
 			logwriter.write(url + "\n");
@@ -199,7 +204,6 @@ public class Threads {
 	        
 		} catch (Exception e) {
 			e.printStackTrace();
-			return -1;
 		} finally {
 			try {
 				if (output != null)
@@ -214,11 +218,17 @@ public class Threads {
 			if (connection != null)
 				connection.disconnect();
 		}
-		Log.d(Constants.LOGTAG, "end of thread downloader");
+		int num = MainActivity.numDownloadOver++;
+		Log.d(Constants.LOGTAG, "handle event thread : END . Incrementing numDownloadOver to " + MainActivity.numDownloadOver + " #events is "+ MainActivity.load.events.size());
+		if(num+1 == MainActivity.load.events.size()){
+			//send the consolidated log file
+			Log.d(Constants.LOGTAG, "handle event thread . Sending the log file");
+			Threads.sendLog(logfilename);
+		}
 		return 0;
 	}
 
-	static void sendLog(){
+	static void sendLog(String logFileName){
 		Socket client;
 
 		OutputStream outToServer;
@@ -232,7 +242,7 @@ public class Threads {
 
 			//String json = "HelloWorld from " + client.getLocalSocketAddress();
 
-			String json = Utils.getLogFileJson();
+			String json = Utils.getLogFileJson(logFileName); //send expID = log file name and mac Address = getMac()
 
 			dout.writeInt(json.length());
 
@@ -241,7 +251,7 @@ public class Threads {
 			//Now send log file
 
 
-			Utils.SendFile(dout, "/sdcard/ip.txt");
+			Utils.SendFile(dout, Constants.logDirectory + "/" + logFileName);
 			client.close();
 
 		} catch (IOException e) {
