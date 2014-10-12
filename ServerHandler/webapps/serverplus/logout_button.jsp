@@ -1,1 +1,3 @@
-<a href="logout.jsp"> LOGOUT </a>
+<br>
+<a href="logout.jsp" style="color: white"> LOGOUT </a>
+

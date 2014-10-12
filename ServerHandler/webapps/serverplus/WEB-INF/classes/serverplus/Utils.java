@@ -187,17 +187,30 @@ public class Utils {
 	
 	static int getCurrentExperimentID(){
 		DBManager db = new DBManager();
-		return db.getMaxExperimentID();
+		int res = db.getMaxExperimentID();
+		db.closeConnection();
+		return res;
 	}
 	
 	static int addExperimentDetails(int expID, DeviceInfo d, boolean fileReceived){
 		DBManager db = new DBManager();
-		return db.addExperimentDetail(expID, d, fileReceived); 
+		int res = db.addExperimentDetail(expID, d, fileReceived); 
+		db.closeConnection();
+		return res;
 	}
 	
 	static int updateFileReceivedField(int expID, String macAddress, boolean fileReceived){
 		DBManager db = new DBManager();
-		return db.updateFileReceivedField(expID, macAddress, fileReceived); 
+		int res = db.updateFileReceivedField(expID, macAddress, fileReceived); 
+		db.closeConnection();
+		return res;
+	}
+	
+	static int addExperiment(Experiment e){
+		DBManager db = new DBManager();
+		int res = db.addExperiment(e); 
+		db.closeConnection();
+		return res;
 	}
 	
 	

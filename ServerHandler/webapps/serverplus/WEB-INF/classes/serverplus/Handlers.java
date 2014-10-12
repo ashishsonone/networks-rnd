@@ -22,46 +22,46 @@ public class Handlers {
 		return filteredDevices;
 	}
 	
-	public static void StartRegistration(Socket client, Map<String,String> jsonMap){
+	public static int StartRegistration(){
+		Main.registrationWindowOpen = true;
 		System.out.println("StartRegistration: Registrations are open. Now devices can register....");
-
-			if(Main.registrationWindowOpen){
-				Utils.SendResponse(client, Constants.responseRepeat);
-			}
-			else{
-				Main.registrationWindowOpen = true;
-				Utils.SendResponse(client, Constants.responseOK);
-			}
-			
+		return 0;
 	}
 	
-	public static void StopRegistration(Socket client, Map<String,String> jsonMap){
+	public static int StopRegistration(){
+		Main.registrationWindowOpen = false;
 		System.out.println("StopRegistration: Registration is now closed....");
-		
-		if(Main.registrationWindowOpen){
-			Main.registrationWindowOpen = false;
-			Utils.SendResponse(client, Constants.responseOK);
-		}
-		else{
-			Utils.SendResponse(client, Constants.responseRepeat);
-		}
+		return 0;
 	}
 	
-	public static void StartExperiment(Socket client, Map<String,String> jsonMap){
-		//Main.registrationWindowOpen = false;
-		DataInputStream din = null;
-		
-		Utils.SendResponse(client, Constants.responseOK);
+	//returns max id enterd in database
+	public static int StartExperiment(Experiment e){
+		//make enrty in database about experiment
 
+		int result = Utils.addExperiment(e);
+		if(result==-1){
+			System.out.print("adding experiment to database failed...");
+			return -1;
+		}
+		result = Utils.getCurrentExperimentID();
+		if(result==-1){
+			System.out.print("getting max experiment id from database failed...");
+			return -1;
+		}
 		
 		System.out.println("\nStarting Experiment....");
 
-		final int expectedFilterCount = Integer.parseInt((String)jsonMap.get(Constants.noOfFilteringDevices));
-		final int timeoutWindow = Integer.parseInt((String)jsonMap.get(Constants.timeoutWindow));
+		final int expectedFilterCount = 5;		//need to get from web
+		
+		
+		e.ID=result;
+		
+		final int timeoutWindow = 10000;	//10 seconds
 		int filteredCount = 0;
 		Vector<DeviceValidation> devices = FilterDevices();
 		DataOutputStream dout = null;
-		//String fileName = "/home/sanchit/Desktop/events.txt";
+		Main.currentExperiment = result;
+		
 		
 		for(DeviceValidation d : devices){
 			try {
@@ -75,7 +75,8 @@ public class Handlers {
 				dout.writeInt(jsonString.length());
 				dout.writeBytes(jsonString);
 				
-				int eventid = Utils.getCurrentExperimentID()+1;
+				int eventid = result;
+				
 				String events = EventGen.generateEvents(1);
 				events = Integer.toString(eventid) + "\n" + events;
 				System.out.println(events);
@@ -84,10 +85,10 @@ public class Handlers {
 				dout.writeInt(events.length());
 				dout.writeBytes(events);
 				
-				din = new DataInputStream(s.getInputStream());
+				DataInputStream din = new DataInputStream(s.getInputStream());
 				int response = din.readInt();
 				if(response == Constants.responseOK){
-					int status = Utils.addExperimentDetails(eventid, d.device, false);
+					int status = Utils.addExperimentDetails(e.ID, d.device, false);
 					if(status<0){
 						System.out.println("StartExperiment: Error occured during inserting experiment details for device: " 
 												+ d.device.ip + ", " + d.device.macAddress);
@@ -104,22 +105,22 @@ public class Handlers {
 			} catch (InterruptedIOException ie){
 				System.out.println("StartExperiment: Timeout occured for sending control file to device with ip: "
 											+ d.device.ip + " and Port: " + d.device.port);
-			} catch (IOException e) {
+			} catch (IOException ioe) {
 				System.out.println("StartExperiment: 'new DataOutputStream(out)' or " +
 									"'DataInputStream(s.getInputStream())' Failed...");
-				//e.printStackTrace();
 			}
 		}
+		return result;
 	}
 	
-	public static void StopExperiment(Socket client, Map<String,String> jsonMap){
-		Utils.SendResponse(client, Constants.responseOK);
+	public static void StopExperiment(){
 		Main.experimentRunning = false;
+		Main.currentExperiment = -1;
 		System.out.println("Experiment Stopped...");
 	}
 	
 	public static void ReceiveLogFile(Socket client, Map<String,String> jsonMap){
-		//1. receive log file
+
 		System.out.println("\nReceiving Log File....");
 		
 		int expID = Integer.parseInt((String)jsonMap.get(Constants.expID));
@@ -156,7 +157,7 @@ public class Handlers {
 	}
 	
 	public static void ReceiveEventFile(Socket client, Map<String,String> jsonMap){
-		//1. receive log file
+
 		System.out.println("\nReceiving Event File....");
 		
 		int expID = Integer.parseInt((String)jsonMap.get(Constants.expID));
@@ -192,42 +193,11 @@ public class Handlers {
 	    } 
 	}
 	
-	public static void RegisterClient(Socket client, Map<String,String> jsonMap){
+	public static int RegisterClient(DeviceInfo d){
 		System.out.println("\nRegistering Client....");
-		
-		DataOutputStream dout = null;
-		
-		try {
-			dout = new DataOutputStream(client.getOutputStream());
-			if(Main.registrationWindowOpen){
-				System.out.print("Client Registered with ip and port: ");
-				System.out.println(jsonMap.get(Constants.Device.ip) + " & " + jsonMap.get(Constants.Device.port));
-				
-				DeviceInfo d = new DeviceInfo();
-				d.ip = (String)jsonMap.get(Constants.Device.ip);
-				d.port = Integer.parseInt((String)jsonMap.get(Constants.Device.port));
-				d.macAddress = (String)jsonMap.get(Constants.Device.macAddress);
-				d.osVersion = (String)jsonMap.get(Constants.Device.osVersion);
-				d.wifiVersion = (String)jsonMap.get(Constants.Device.wifiVersion);
-				d.processorSpeed = Integer.parseInt((String)jsonMap.get(Constants.Device.processorSpeed));
-				d.numberOfCores = Integer.parseInt((String)jsonMap.get(Constants.Device.numberOfCores));
-				d.storageSpace = Integer.parseInt((String)jsonMap.get(Constants.Device.storageSpace));
-				d.memory = Integer.parseInt((String)jsonMap.get(Constants.Device.memory));
-				d.wifiSignalStrength = Integer.parseInt((String)jsonMap.get(Constants.Device.wifiSignalStrength));
-				
-				d.print();
-				Main.registeredClients.put(d.ip + Integer.toString(d.port), d);
-				
-				dout.writeInt(Constants.responseOK);
-			}
-			else{
-				System.out.println(jsonMap.get(Constants.Device.ip) + " " + jsonMap.get(Constants.Device.port));
-				dout.writeInt(Constants.responseError);
-			}
-		} catch (IOException e) {
-			System.out.println("RegisterClient: 'DataOutputStream(client.getOutputStream())' Failed...");
-			e.printStackTrace();
-		}
+		Main.registeredClients.put(d.macAddress, d);
+		System.out.println("Client Registered....");
+		return 0;
 	}
 	
 	//if not registration process started: send Status
@@ -261,7 +231,7 @@ public class Handlers {
 		}
 	}
 	
-	
+	/*
 	public static void MasterHandler(Socket client){
 		DataInputStream dis = null;
 		String data = "";
@@ -326,6 +296,8 @@ public class Handlers {
 		}
 		
 	}
+	
+	*/
 	
 	
 }

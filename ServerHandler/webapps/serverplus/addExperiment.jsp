@@ -40,38 +40,17 @@
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span6">
-<%
-	if(!Main.isRegistrationWindowOpen()){
-%>
 					 <div>
-						 <h4>Click to start the Registration</h4>
-						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
-							<input type="submit" name="startRegistration" value="Start Registration" class="btn btn-primary btn-large">
+						 <h4>Add Experiment</h4>
+						<form method="post" action="startExperiment.jsp" class="form-horizontal form-signin-signup">
+							<input type="file" name="eventsFile" placeholder="Upload Event File" required> <br>
+							<input type="text" name="expname" placeholder="Experiment Name" required>
+							<input type="text" name="location" placeholder="Location of Experiment" required>
+							<input type="text" name="description" placeholder="Add Description">
+							<input type="submit" name="startExperiment" value="Start Experiment" class="btn btn-primary btn-large">
 						</form>
 					</div>
-					
-					 <div>
-						 <h4>Click to add a Experiment</h4>
-						<form method="post" action="addExperiment.jsp" class="form-horizontal form-signin-signup">
-							<input type="submit" name="addExperiment" value="Add Experiment" class="btn btn-primary btn-large">
-						</form>
-					</div>
-<%
-	}
-	else{
-%>
-
-					 <div>
-						 <h4>Click to stop the Registration</h4>
-						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
-							<input type="submit" name="stopRegistration" value="Stop Registration" class="btn btn-primary btn-large">
-						</form>
-					</div>
-					
-<%	
-	}
-%>
-					 
+									 
 					 
 					</div>
 					<div class="span6">

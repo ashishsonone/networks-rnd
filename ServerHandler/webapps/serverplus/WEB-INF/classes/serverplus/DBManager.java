@@ -48,7 +48,7 @@ public class DBManager {
 		return Constants.connectionFailure;
 	}
 	
-	private int closeConnection(){
+	public int closeConnection(){
 		
 		try{
 			if(conn!=null){
@@ -109,15 +109,12 @@ public class DBManager {
 				System.out.println("exprimentid = " + expID);
 				//expID = rs.getInt(1);
 			}
-			else{
-				expID=0;
-			}
 			status = closeConnection();
 			if(status == Constants.connectionFailure) return -1;
 
 		} catch (SQLException sqle) {
-			expID = -1;
 			System.out.println(sqle);
+			return -1;
 		}
 		
 		return expID;
@@ -130,7 +127,7 @@ public class DBManager {
 	 		PreparedStatement p1=conn.prepareStatement("insert into experimentdetails values(?,?,?,?,?,?,?,?,?,?);");
 			p1.setInt(1, expID);
 			p1.setString(2, d.macAddress);
-			p1.setString(3, d.osVersion);
+			p1.setInt(3, d.osVersion);
 			p1.setString(4, d.wifiVersion);
 			p1.setInt(5, d.numberOfCores);
 			p1.setInt(6, d.storageSpace);
@@ -140,7 +137,6 @@ public class DBManager {
 			p1.setBoolean(10, fileReceived);
 			p1.executeUpdate();
 			status = closeConnection();
-			if(status == Constants.connectionFailure) return -1;
 			return 0;
 			
 		} catch (SQLException sqle) {
@@ -162,12 +158,52 @@ public class DBManager {
 	 		p.addBatch();
 	 		p.executeUpdate();
 	 		status = closeConnection();
-			if(status == Constants.connectionFailure) return -1;
 			return 0;
 	 		
 	 	} catch (SQLException sqle) {
 			System.out.println(sqle);
 		}
 		return -1;
+	}
+	
+	public int addExperiment(Experiment e){
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return -1;
+		try {
+	 		PreparedStatement p1=conn.prepareStatement("insert into experiments(name,location,description) values(?,?,?);");
+			p1.setString(1, e.Name);
+			p1.setString(2, e.Location);
+			p1.setString(3, e.Description);
+			p1.executeUpdate();
+			status = closeConnection();
+			return 0;
+			
+		} catch (SQLException sqle) {
+			status = -1;
+			System.out.println(sqle);
+		}
+		return -1;
+	}
+	
+	public ResultSet getExperiments(){
+		ResultSet rs = null;
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return rs;
+		PreparedStatement p;
+		
+		try {
+			String Query ="SELECT * FROM experiments;";
+			p=conn.prepareStatement(Query);
+			p.addBatch();				
+			rs = p.executeQuery();
+			//status = closeConnection();
+			
+
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+			return rs;
+		}
+		return rs;
+
 	}
 };

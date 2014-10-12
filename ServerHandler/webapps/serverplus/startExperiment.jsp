@@ -1,13 +1,25 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="serverplus.*" %>
-
 <%@ include file="checksession.jsp" %>
-
-<% 
-	String username = (String)session.getAttribute("username");
-	String password = (String)session.getAttribute("password");
+<% 	
+	String ename=request.getParameter("expname");
+	String loc=request.getParameter("location");
+	String des=request.getParameter("description");
+	int result=0;
+	if(ename==null || loc==null || des==null) result =-1;
+	
+	Experiment e = null;
+	
+	if(Main.isExperimentRunning()){
+		result = -2;
+	}
+	else{
+		e=new Experiment(ename, loc, des);
+		result = Handlers.StartExperiment(e);
+	}
 	
 %>
+
 
 <html lang="en">
   <head>
@@ -40,39 +52,31 @@
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span6">
-<%
-	if(!Main.isRegistrationWindowOpen()){
-%>
-					 <div>
-						 <h4>Click to start the Registration</h4>
-						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
-							<input type="submit" name="startRegistration" value="Start Registration" class="btn btn-primary btn-large">
+<%	if(result>=0 && e!=null){
+%>	
+					<div>
+						 <h4>Experiment Started.. <% out.print(result + " " + e.getName() + " " + e.getLocation() + " " + e.getDescription()); %></h4>
+						 <form method="post" action="stopExperiment.jsp" class="form-horizontal form-signin-signup">
+							<input type="submit" name="stopExperiment" value="Stop Experiment" class="btn btn-primary btn-large">
 						</form>
 					</div>
-					
+<%
+	}
+	else if(result==-2){
+%>
 					 <div>
-						 <h4>Click to add a Experiment</h4>
-						<form method="post" action="addExperiment.jsp" class="form-horizontal form-signin-signup">
-							<input type="submit" name="addExperiment" value="Add Experiment" class="btn btn-primary btn-large">
-						</form>
+						 <h4>A Experiment with id <%out.print(Main.getCurrentExperiment());%> already running</h4>
 					</div>
 <%
 	}
 	else{
 %>
-
-					 <div>
-						 <h4>Click to stop the Registration</h4>
-						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
-							<input type="submit" name="stopRegistration" value="Stop Registration" class="btn btn-primary btn-large">
-						</form>
+					<div>
+						 <h4>Experiment Failed to Start</h4>
 					</div>
-					
-<%	
+<%
 	}
 %>
-					 
-					 
 					</div>
 					<div class="span6">
 						<div>
@@ -95,3 +99,4 @@
 </html>
 
       
+
