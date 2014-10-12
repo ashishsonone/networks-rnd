@@ -1,11 +1,20 @@
 package com.example.background_test;
 
-import android.content.Intent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Calendar;
+
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -58,9 +67,46 @@ public class MainActivity extends ActionBarActivity {
     
     //!called on button click
     public void startBackgroundTask(View view){
-    	Intent mServiceIntent = new Intent(this, BackgroundService.class);
+    	File storage = new File("/sdcard/com.iitb.back/");
+    	storage.mkdirs();
+    	//storage.d
+    	File[] files = storage.listFiles();
+    	
+    	for(int i=0; i<files.length; i++){
+    		File c = files[i];
+    		try {
+				BufferedReader reader = new BufferedReader(new FileReader(c));
+				Log.d("background-test", reader.readLine());
+				reader.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		Log.d("filename :", c.getName());
+    		//c.delete();
+    	}
+    	
+    	Calendar cal = Calendar.getInstance();
+    	String filename = Long.toString(cal.getTimeInMillis());
+    	File file = new File(storage, filename);
+    	try {
+    		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+			writer.write(file.getAbsolutePath());
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	/*Intent mServiceIntent = new Intent(this, BackgroundService.class);
     	button.setEnabled(false);
-    	startService(mServiceIntent);
+    	startService(mServiceIntent);*/
 
     }
 }
