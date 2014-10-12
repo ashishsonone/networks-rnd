@@ -1,9 +1,15 @@
+package serverplus;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.sql.*;
+import java.io.FileReader;
+import java.util.StringTokenizer;
+import java.util.Scanner;
+import java.io.File;
+import java.util.Scanner;
+import java.util.*;
 
 /**
  *
@@ -22,7 +28,7 @@ public class DBManager {
 	static final String USER = "root";
 	static final String PASS = "p";
     	
-	public int createConnection() {
+	private int createConnection() {
  
 		try{
 			Class.forName(JDBC_DRIVER);
@@ -42,17 +48,49 @@ public class DBManager {
 		return Constants.connectionFailure;
 	}
 	
-	public int closeConnection(){
+	private int closeConnection(){
 		
 		try{
 			if(conn!=null){
 				conn.close();
+				System.out.println("Connection Closed successfullly");
 			}
 			return Constants.connectionSuccess;
 		}catch(SQLException se){
 			se.printStackTrace();
 		}
 		return Constants.connectionFailure;
+	}
+	
+	public int authenticate(String u, String p) {
+		int result = createConnection();
+		
+		if(result==Constants.connectionFailure){
+			return result;
+		}
+			
+		try {
+			PreparedStatement p1=conn.prepareStatement("select password from users where username=?;");
+			p1.setString(1, u);
+			ResultSet rs=p1.executeQuery();
+			if(!rs.next()) {
+				result=Constants.loginFailure;//1
+			}
+			else {
+				if(p.compareTo((String)rs.getString(1)) == 0) {
+					result=Constants.loginSuccess;//0
+				}
+			}
+		} catch (Exception sqle) {
+			result = Constants.internalError;
+			System.out.println(sqle);
+		}
+		
+		int con_result = closeConnection();
+		if(con_result==Constants.connectionFailure){
+			return con_result;
+		}
+		return result;
 	}
 	
 	public int getMaxExperimentID(){
@@ -132,5 +170,4 @@ public class DBManager {
 		}
 		return -1;
 	}
-	
 };
