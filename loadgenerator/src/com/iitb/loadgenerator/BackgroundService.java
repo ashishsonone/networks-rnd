@@ -1,17 +1,24 @@
 package com.iitb.loadgenerator;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
-import java.net.Socket;
+import java.util.List;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
 
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+
 
 public class BackgroundService extends IntentService{
 	
@@ -22,21 +29,21 @@ public class BackgroundService extends IntentService{
 	@Override
     protected void onHandleIntent(Intent workIntent) {
 		String msg = "Now Listening ... ";
+		int toEnableStart = 0; //whether or not to enable start button
+
 		try
 		{
-			Log.d(Constants.LOGTAG, "Connecting to " + MainActivity.serverip
-					+ " on port " + MainActivity.serverport);
-			Socket client = new Socket(MainActivity.serverip, MainActivity.serverport);
-			MainActivity.myip = client.getLocalAddress().getHostAddress();
+			Log.d(Constants.LOGTAG, "POST request to  " + MainActivity.serverip
+					+ ":" + MainActivity.serverport + "/serverplus/registration.jsp");
 			
 			MainActivity.listen = new ServerSocket(0);
 			MainActivity.listen.setSoTimeout(10000);
 			
-			int status = sendDeviceInfo(client);
-			client.close();
+			int status = sendDeviceInfo();
 			
-			if(status == -1){
-				msg = "Registration Request rejected(maybe window closed). Closing listen socket. Please Exit";
+			if(status != 200){
+				toEnableStart = 1;
+				msg = "Registration Request rejected(maybe window closed). Closing listen socket. Try again";
 				MainActivity.listen.close();
 			}
 			else{
@@ -53,52 +60,50 @@ public class BackgroundService extends IntentService{
 			}
 		}catch(IOException e)
 		{
+			toEnableStart = 1;
+			msg = "Can create listen socket.";
+			try {
+				MainActivity.listen.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		}
 		
+		Bundle bundle = new Bundle();
+		bundle.putInt("enable", toEnableStart);
+		bundle.putString(Constants.BROADCAST_MESSAGE,msg);
         //on complete  
         Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
-        					.putExtra(Constants.BROADCAST_MESSAGE, msg);
+        					.putExtras(bundle);
         	
         // Broadcasts the Intent to receivers in this application.
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 	
-	public static int sendDeviceInfo(Socket client){
-		Log.d(Constants.LOGTAG,"Just connected to "
-				+ client.getRemoteSocketAddress());
-		OutputStream outToServer;
+	public static int sendDeviceInfo(){
+		HttpClient client = Utils.getClient();
+		String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/registration.jsp";
+		HttpPost httppost = new HttpPost(url);
+		List <NameValuePair> params = Utils.getMyDetailsJson(MainActivity.listen);
+		int statuscode = 404; //default if something went wrong
 		try {
-			outToServer = client.getOutputStream();
-			DataOutputStream dout =
-					new DataOutputStream(outToServer);
-			DataInputStream din =
-					new DataInputStream(client.getInputStream());
-
-			//String json = "HelloWorld from " + client.getLocalSocketAddress();
-			String json = Utils.getMyDetailsJson(MainActivity.listen, MainActivity.myip);
-
-			Utils.tryParse(json);
-
-			Log.d(Constants.LOGTAG,json);
-			dout.writeInt(json.length());
-
-			dout.writeBytes(json);
+			httppost.setEntity(new UrlEncodedFormEntity(params));
+			Log.d(Constants.LOGTAG, "Trying to send device info. Params set");
 			
-			Log.d(Constants.LOGTAG,"waiting for response code");
-			int rescode = din.readInt();
-			System.out.println(rescode);
-			if(rescode == 404){
-				Log.d(Constants.LOGTAG, "Registration Declined");
-				MainActivity.experimentOn = false;
-				return -1;
-			}
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			try {
+		         HttpResponse response = client.execute(httppost);
+		         statuscode = response.getStatusLine().getStatusCode(); //will get 200 only if registration success.
+		         //String responseBody = EntityUtils.toString(response.getEntity());
+		         return statuscode; //TODO change this to handle rejection of registration
+		    } catch (ClientProtocolException e) {
+		         e.printStackTrace();
+		    } catch (IOException e) {
+		         e.printStackTrace();
+		    }
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-
-		return 0;
+		return 404;
 	}
 }

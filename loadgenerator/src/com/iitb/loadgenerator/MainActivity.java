@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,8 +34,8 @@ public class MainActivity extends ActionBarActivity {
 	static Button startbutton;
 	static WebView webview;
 	
-	static String serverip = "192.168.0.119";
-	static int serverport = 22222;
+	static String serverip = "192.168.0.104";
+	static int serverport = 8080;
 	static String myip;
 	
 	static boolean experimentOn = true; //whether to listen as server
@@ -81,6 +82,7 @@ public class MainActivity extends ActionBarActivity {
 		
 		//Set the orientation to portrait
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); //hide keyboard until actually needed 
 		
 		//Register Broadcast receiver
 		IntentFilter broadcastIntentFilter = new IntentFilter(
@@ -112,25 +114,27 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	public void startService(View v){
-		//TODO Change this to enable normal flow 
-		boolean test = false;
-		if(test){
-			String json = Utils.getMyDetailsJson(MainActivity.listen, MainActivity.myip);
-			Log.d(Constants.LOGTAG, "JSON : " + json);
-			textbox.append(json);
-		}
-		else{
-			serverip = ipbox.getText().toString();
-			serverport = Integer.parseInt(portbox.getText().toString());
-			
-			textbox.setText("");
-			textbox.append("\n1) Register \n 2)Listen  \n3)Alarms  \n4) Send log\n");
-			textbox.append("ip = " + serverip + " port" + serverport);
-			
-			Intent mServiceIntent = new Intent(this, BackgroundService.class);
-	    	startbutton.setEnabled(false);
-	    	startService(mServiceIntent);
-		}
+		serverip = ipbox.getText().toString();
+		serverport = Integer.parseInt(portbox.getText().toString());
+		
+		textbox.setText("");
+		textbox.append("\n1) Register \n 2)Listen  \n3)Alarms  \n4) Send log\n");
+		textbox.append("ip = " + serverip + " port" + serverport + "\n");
+		textbox.append("myip from wifimanager" + Utils.getIP() + "\n");
+		
+		Runnable r = new Runnable() {
+			public void run() {
+				Threads.sendLog("1");
+			}
+		};
+		Thread t = new Thread(r);
+		
+        t.start();
+        
+//		Intent mServiceIntent = new Intent(this, BackgroundService.class);
+//    	startbutton.setEnabled(false);
+//    	startService(mServiceIntent);
+
 	}
 	
 	public void exit(View v){

@@ -11,6 +11,7 @@ import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -19,6 +20,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
@@ -28,19 +36,28 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.os.StatFs;
+import android.text.format.Formatter;
 import android.util.Log;
 
 
 public class Utils {
-	static String getLogFileJson(String expID){
-		JSONObject obj = new JSONObject();
-		obj.put(Constants.action, "receiveLog");
-		obj.put("expID", expID);
-		obj.put(Constants.macAddress, Utils.getMACAddress());
-		String jsonString = obj.toJSONString();
-		System.out.println(jsonString);
-
-		return jsonString;
+	static List <NameValuePair> getLogFileJson(String expID){
+		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
+		
+		nameValuePairs.add(new BasicNameValuePair("expID", expID));
+		nameValuePairs.add(new BasicNameValuePair(Constants.macAddress, Utils.getMACAddress()));
+		
+		return nameValuePairs;
+	}
+	
+	static HttpClient getClient(){
+		HttpParams httpParameters = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParameters, Constants.timeoutConnection);
+		HttpConnectionParams.setSoTimeout(httpParameters, Constants.timeoutSocket);
+		
+		DefaultHttpClient httpClient = new DefaultHttpClient(httpParameters);
+		
+		return httpClient;
 	}
 
 	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
@@ -52,31 +69,34 @@ public class Utils {
 	
 	
 
-	public static String getMyDetailsJson(ServerSocket listen, String myip){
-		JSONObject obj = new JSONObject();
-		InetAddress IP = null; 
+	public static List <NameValuePair> getMyDetailsJson(ServerSocket listen){
+		
+		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
 		String osVersion = Integer.toString(android.os.Build.VERSION.SDK_INT);
+		
+		nameValuePairs.add(new BasicNameValuePair(Constants.ip, getIP()));
+		nameValuePairs.add(new BasicNameValuePair(Constants.port, Integer.toString(listen.getLocalPort())));
+		nameValuePairs.add(new BasicNameValuePair(Constants.osVersion, osVersion));
+		nameValuePairs.add(new BasicNameValuePair(Constants.wifiVersion, "802.11n"));
 
-		obj.put(Constants.action, "register");
-		//TODO remove comment following two lines
-		obj.put(Constants.ip, myip);
-		obj.put(Constants.port, Integer.toString(listen.getLocalPort()));
-		obj.put(Constants.osVersion, osVersion);
-		obj.put(Constants.wifiVersion, "802.11n");
+		nameValuePairs.add(new BasicNameValuePair(Constants.macAddress, getMACAddress()));
+		nameValuePairs.add(new BasicNameValuePair(Constants.processorSpeed, getProcessorSpeed()));
+		nameValuePairs.add(new BasicNameValuePair(Constants.numberOfCores, Integer.toString(getNumCores())));
+		nameValuePairs.add(new BasicNameValuePair(Constants.wifiSignalStrength, getWifiStrength()));
 
-		obj.put(Constants.macAddress, getMACAddress());
-		obj.put(Constants.processorSpeed, getProcessorSpeed());
-		obj.put(Constants.numberOfCores, Integer.toString(getNumCores()));
-		obj.put(Constants.wifiSignalStrength, getWifiStrength());
+		nameValuePairs.add(new BasicNameValuePair(Constants.storageSpace, getAvailableStorage()));
+		nameValuePairs.add(new BasicNameValuePair(Constants.memory, getTotalRAM()));
+		nameValuePairs.add(new BasicNameValuePair(Constants.packetCaptureAppUsed, (new Boolean(false)).toString()));
 
-		obj.put(Constants.storageSpace, getAvailableStorage());
-		obj.put(Constants.memory, getTotalRAM());
-		obj.put(Constants.packetCaptureAppUsed, (new Boolean(false)).toString());
-
-		String jsonString = obj.toJSONString();
-		System.out.println(jsonString);
-
-		return jsonString;
+		return nameValuePairs;
+	}
+	
+	public static String getIP(){
+		WifiInfo info = MainActivity.wifimanager.getConnectionInfo();
+		int ip = info.getIpAddress();
+		@SuppressWarnings("deprecation")
+		String ipString = Formatter.formatIpAddress(ip);
+		return ipString;
 	}
 
 	public static String getMACAddress(){

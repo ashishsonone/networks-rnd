@@ -9,10 +9,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Map;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 
 import android.content.Context;
 import android.content.Intent;
@@ -223,40 +232,51 @@ public class Threads {
 		if(num+1 == MainActivity.load.events.size()){
 			//send the consolidated log file
 			Log.d(Constants.LOGTAG, "handle event thread . Sending the log file");
-			Threads.sendLog(logfilename);
+			int ret = Threads.sendLog(logfilename);
 		}
 		return 0;
 	}
 
-	static void sendLog(String logFileName){
-		Socket client;
-
-		OutputStream outToServer;
+	@SuppressWarnings("deprecation")
+	static int sendLog(String logFileName){
+		int statusCode = 404;
+		
+		String logFilePath = Constants.logDirectory + "/" + logFileName;
+		//String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/upload.jsp";
+		String url = "http://192.168.0.107/fup.php";
+		
+		File logFile = new File(logFilePath);
+		MultipartEntity mpEntity  = new MultipartEntity();
+		HttpClient client = Utils.getClient();
+		
 		try {
-			client = new Socket(MainActivity.serverip, MainActivity.serverport);
-			outToServer = client.getOutputStream();
-			DataOutputStream dout =
-					new DataOutputStream(outToServer);
-			//			DataInputStream din =
-			//					new DataInputStream(client.getInputStream());
-
-			//String json = "HelloWorld from " + client.getLocalSocketAddress();
-
-			String json = Utils.getLogFileJson(logFileName); //send expID = log file name and mac Address = getMac()
-
-			dout.writeInt(json.length());
-
-			dout.writeBytes(json); //json sent
-			Log.d(Constants.LOGTAG,"sendLog() : JSON sent");
-			//Now send log file
-
-
-			Utils.SendFile(dout, Constants.logDirectory + "/" + logFileName);
-			client.close();
-
-		} catch (IOException e) {
+			mpEntity.addPart("expID", new StringBody(logFileName));
+			mpEntity.addPart(Constants.macAddress, new StringBody(Utils.getMACAddress()));
+			mpEntity.addPart("file", new FileBody(logFile));
+			
+			HttpPost httppost = new HttpPost(url);
+			httppost.setEntity(mpEntity);
+			try {
+				HttpResponse response = client.execute( httppost );
+				statusCode = response.getStatusLine().getStatusCode();
+				if(statusCode == 200){
+					Log.d(Constants.LOGTAG, "Log file named " + logFileName + " deleted");
+					//logFile.delete();
+				}
+				else{
+					Log.d(Constants.LOGTAG, "Sending Log file " + logFileName + " failed");
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		return statusCode;
 	}
 }

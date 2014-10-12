@@ -2,6 +2,7 @@ package com.iitb.loadgenerator;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
@@ -19,7 +20,9 @@ public class ResponseReceiver extends WakefulBroadcastReceiver
     
     @Override
     public void onReceive(final Context context, Intent intent) {
-    	final String msg = (String) intent.getExtras().get(Constants.BROADCAST_MESSAGE);
+    	Bundle bundle = intent.getExtras();
+    	final String msg = (String) bundle.getString(Constants.BROADCAST_MESSAGE);
+    	final int enable = bundle.getInt("enable");
     	Log.d("On Receive", msg);
     	handler.post(new Runnable() {
             @Override
@@ -27,6 +30,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver
                 //MainActivity.button.setEnabled(true);
             	//Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
             	MainActivity.textbox.append("\n" + msg + "\n");
+            	if(enable == 1) MainActivity.startbutton.setEnabled(true);
             }
         });
     }
