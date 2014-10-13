@@ -37,15 +37,18 @@ public class Handlers {
 	//returns max id enterd in database
 	public static int StartExperiment(Experiment e){
 		//make enrty in database about experiment
-
+/*
 		int result = Utils.addExperiment(e);
 		if(result==-1){
 			System.out.print("adding experiment to database failed...");
 			return -1;
 		}
-		result = Utils.getCurrentExperimentID();
-		if(result==-1){
-			System.out.print("getting max experiment id from database failed...");
+
+*/
+		Main.currentExperiment=e.ID;
+		Main.experimentRunning=true;
+		if(Main.currentExperiment<0){
+			System.out.print("Kuch th Panga hai");
 			return -1;
 		}
 		
@@ -54,13 +57,11 @@ public class Handlers {
 		final int expectedFilterCount = 5;		//need to get from web
 		
 		
-		e.ID=result;
-		
 		final int timeoutWindow = 10000;	//10 seconds
 		int filteredCount = 0;
 		Vector<DeviceValidation> devices = FilterDevices();
 		DataOutputStream dout = null;
-		Main.currentExperiment = result;
+		//Main.currentExperiment = result;
 		
 		
 		for(DeviceValidation d : devices){
@@ -75,10 +76,9 @@ public class Handlers {
 				dout.writeInt(jsonString.length());
 				dout.writeBytes(jsonString);
 				
-				int eventid = result;
 				
 				String events = EventGen.generateEvents(1);
-				events = Integer.toString(eventid) + "\n" + events;
+				events = Integer.toString(Main.currentExperiment) + "\n" + events;
 				System.out.println(events);
 				
 				
@@ -88,7 +88,7 @@ public class Handlers {
 				DataInputStream din = new DataInputStream(s.getInputStream());
 				int response = din.readInt();
 				if(response == Constants.responseOK){
-					int status = Utils.addExperimentDetails(e.ID, d.device, false);
+					int status = Utils.addExperimentDetails(Main.currentExperiment, d.device, false);
 					if(status<0){
 						System.out.println("StartExperiment: Error occured during inserting experiment details for device: " 
 												+ d.device.ip + ", " + d.device.macAddress);
@@ -110,7 +110,7 @@ public class Handlers {
 									"'DataInputStream(s.getInputStream())' Failed...");
 			}
 		}
-		return result;
+		return Main.currentExperiment;
 	}
 	
 	public static void StopExperiment(){
@@ -120,6 +120,7 @@ public class Handlers {
 		//send all filtered devices the stop signal
 	}
 	
+	/*
 	public static void ReceiveLogFile(Socket client, Map<String,String> jsonMap){
 
 		System.out.println("\nReceiving Log File....");
@@ -156,7 +157,9 @@ public class Handlers {
 			se.printStackTrace();
 	    } 
 	}
+	*/ 
 	
+	/*
 	public static void ReceiveEventFile(Socket client, Map<String,String> jsonMap){
 
 		System.out.println("\nReceiving Event File....");
@@ -193,6 +196,7 @@ public class Handlers {
 			se.printStackTrace();
 	    } 
 	}
+	*/ 
 	
 	public static int RegisterClient(DeviceInfo d){
 		System.out.println("\nRegistering Client....");

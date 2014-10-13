@@ -63,7 +63,8 @@ public class Constants {
 	
 	static final String noOfFilteringDevices = "filteringDevicesCount";
 	static final String timeoutWindow = "timeoutWindow";
-	static final String expID = "expID";
-	static final String mainExpLogsDir = "/home/sanchit/Desktop/experimentLogs/";
+	static final @Getter String expID = "expID";
+	static final @Getter String mainExpLogsDir = "/home/sanchit/Desktop/experimentLogs/";
+	static final @Getter String tempFiles = "/home/sanchit/Desktop/tempFilesforRnD/";
 	
 }

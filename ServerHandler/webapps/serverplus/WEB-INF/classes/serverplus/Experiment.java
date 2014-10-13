@@ -3,7 +3,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class Experiment{
-	@Getter @Setter int ID=0;
+	@Getter @Setter int ID=-1;
 	@Getter @Setter String Name="";
 	@Getter @Setter String Location="IIT Bombay";
 	@Getter @Setter String Description="";

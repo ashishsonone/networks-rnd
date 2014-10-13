@@ -42,11 +42,11 @@
 				<div class="span6">
 					 <div>
 						 <h4>Add Experiment</h4>
-						<form method="post" action="startExperiment.jsp" class="form-horizontal form-signin-signup">
-							<input type="file" name="eventsFile" placeholder="Upload Event File" required> <br>
+						<form method="post" action="addExperimentHandler.jsp" enctype="multipart/form-data" class="form-horizontal form-signin-signup">
+							<input type="file" name="eventsFile" placeholder="Upload Event File" size="20" required> <br>
 							<input type="text" name="expname" placeholder="Experiment Name" required>
 							<input type="text" name="location" placeholder="Location of Experiment" required>
-							<input type="text" name="description" placeholder="Add Description">
+							<input type="text" name="description" placeholder="Add Description" required> Max 1000 characters
 							<input type="submit" name="startExperiment" value="Start Experiment" class="btn btn-primary btn-large">
 						</form>
 					</div>

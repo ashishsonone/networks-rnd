@@ -185,31 +185,28 @@ public class Utils {
 		}
 	}
 	
-	static int getCurrentExperimentID(){
+	public static int getCurrentExperimentID(){
 		DBManager db = new DBManager();
 		int res = db.getMaxExperimentID();
-		db.closeConnection();
+		System.out.println("Utils.getCurrentExperimentID: maximum exp id = " + res);
 		return res;
 	}
 	
-	static int addExperimentDetails(int expID, DeviceInfo d, boolean fileReceived){
+	public static int addExperimentDetails(int expID, DeviceInfo d, boolean fileReceived){
 		DBManager db = new DBManager();
 		int res = db.addExperimentDetail(expID, d, fileReceived); 
-		db.closeConnection();
 		return res;
 	}
 	
-	static int updateFileReceivedField(int expID, String macAddress, boolean fileReceived){
+	public static int updateFileReceivedField(int expID, String macAddress, boolean fileReceived){
 		DBManager db = new DBManager();
 		int res = db.updateFileReceivedField(expID, macAddress, fileReceived); 
-		db.closeConnection();
 		return res;
 	}
 	
-	static int addExperiment(Experiment e){
+	public static int addExperiment(Experiment e){
 		DBManager db = new DBManager();
 		int res = db.addExperiment(e); 
-		db.closeConnection();
 		return res;
 	}
 	

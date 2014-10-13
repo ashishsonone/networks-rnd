@@ -95,6 +95,7 @@
 							<h4>Summary</h4>
 							<p> Number of <a title="click here to list devices" href="listDevices.jsp">Devices </a> registered: <% out.print(Main.getRegisteredClients().size()); %> </p>
 							<p> List all <a title="click here to list experiments" href="listExperiments.jsp">Experiments </a> </p>
+							<%if (Main.getCurrentExperiment() > 0) out.print("<p> Experiment number " +  Main.getCurrentExperiment()  +  " is running  </p>");%>
 							<p> .... </p>
 						</div>
 						
