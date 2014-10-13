@@ -11,6 +11,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.util.EntityUtils;
 
 import android.app.IntentService;
 import android.content.Context;
@@ -33,8 +34,6 @@ public class BackgroundService extends IntentService{
 
 		try
 		{
-			Log.d(Constants.LOGTAG, "POST request to  " + MainActivity.serverip
-					+ ":" + MainActivity.serverport + "/serverplus/registration.jsp");
 			
 			MainActivity.listen = new ServerSocket(0);
 			MainActivity.listen.setSoTimeout(10000);
@@ -83,7 +82,8 @@ public class BackgroundService extends IntentService{
 	
 	public static int sendDeviceInfo(){
 		HttpClient client = Utils.getClient();
-		String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/registration.jsp";
+		String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/registerClient.jsp";
+		Log.d(Constants.LOGTAG, url);
 		HttpPost httppost = new HttpPost(url);
 		List <NameValuePair> params = Utils.getMyDetailsJson(MainActivity.listen);
 		int statuscode = 404; //default if something went wrong
@@ -94,7 +94,9 @@ public class BackgroundService extends IntentService{
 			try {
 		         HttpResponse response = client.execute(httppost);
 		         statuscode = response.getStatusLine().getStatusCode(); //will get 200 only if registration success.
-		         //String responseBody = EntityUtils.toString(response.getEntity());
+		         
+		         String responseBody = EntityUtils.toString(response.getEntity());
+		         Log.d(Constants.LOGTAG, statuscode+"");
 		         return statuscode; //TODO change this to handle rejection of registration
 		    } catch (ClientProtocolException e) {
 		         e.printStackTrace();

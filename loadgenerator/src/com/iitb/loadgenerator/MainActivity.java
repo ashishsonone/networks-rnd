@@ -34,7 +34,7 @@ public class MainActivity extends ActionBarActivity {
 	static Button startbutton;
 	static WebView webview;
 	
-	static String serverip = "192.168.0.104";
+	static String serverip = "192.168.0.110";
 	static int serverport = 8080;
 	static String myip;
 	
@@ -122,19 +122,19 @@ public class MainActivity extends ActionBarActivity {
 		textbox.append("ip = " + serverip + " port" + serverport + "\n");
 		textbox.append("myip from wifimanager" + Utils.getIP() + "\n");
 		
-		Runnable r = new Runnable() {
-			public void run() {
-				Threads.sendLog("1");
-			}
-		};
-		Thread t = new Thread(r);
-		
-        t.start();
+//		Runnable r = new Runnable() {
+//			public void run() {
+//				Threads.sendLog("10");
+//			}
+//		};
+//		Thread t = new Thread(r);
+//		
+//        t.start();
         
-//		Intent mServiceIntent = new Intent(this, BackgroundService.class);
-//    	startbutton.setEnabled(false);
-//    	startService(mServiceIntent);
-
+        
+		Intent mServiceIntent = new Intent(this, BackgroundService.class);
+    	startbutton.setEnabled(false);
+    	startService(mServiceIntent);
 	}
 	
 	public void exit(View v){

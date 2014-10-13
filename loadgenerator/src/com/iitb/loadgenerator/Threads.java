@@ -242,8 +242,8 @@ public class Threads {
 		int statusCode = 404;
 		
 		String logFilePath = Constants.logDirectory + "/" + logFileName;
-		//String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/upload.jsp";
-		String url = "http://192.168.0.107/fup.php";
+		String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/receiveLogFile.jsp";
+//		String url = "http://192.168.0.107/fup.php";
 		
 		File logFile = new File(logFilePath);
 		MultipartEntity mpEntity  = new MultipartEntity();

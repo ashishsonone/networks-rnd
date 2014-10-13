@@ -22,7 +22,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver
     public void onReceive(final Context context, Intent intent) {
     	Bundle bundle = intent.getExtras();
     	final String msg = (String) bundle.getString(Constants.BROADCAST_MESSAGE);
-    	final int enable = bundle.getInt("enable");
+    	final int enable = bundle.getInt("enable"); //returns 0 if no suck key exists
     	Log.d("On Receive", msg);
     	handler.post(new Runnable() {
             @Override

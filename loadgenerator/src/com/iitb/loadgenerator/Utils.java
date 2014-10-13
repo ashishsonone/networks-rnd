@@ -114,8 +114,8 @@ public class Utils {
 	public static String getAvailableStorage(){
 		File path = Environment.getDataDirectory(); //internal storage
 		StatFs sf = new StatFs(path.getPath());
-		long blocks = sf.getAvailableBlocksLong();
-		long blocksize = sf.getBlockSizeLong();
+		int blocks = sf.getAvailableBlocks();
+		int blocksize = sf.getBlockSize();
 		long availStorage = blocks * blocksize/(1024 * 1024); //Mega bytes
 		return Long.toString(availStorage);
 	}
