@@ -7,7 +7,7 @@ import java.io.InterruptedIOException;
 import java.net.Socket;
 import java.util.Map;
 import java.util.Vector;
-
+import java.util.Iterator;
 
 public class Handlers {
 	
@@ -117,6 +117,7 @@ public class Handlers {
 		Main.experimentRunning = false;
 		Main.currentExperiment = -1;
 		System.out.println("Experiment Stopped...");
+		//send all filtered devices the stop signal
 	}
 	
 	public static void ReceiveLogFile(Socket client, Map<String,String> jsonMap){
@@ -229,6 +230,10 @@ public class Handlers {
 			System.out.println("SendStatus: 'DataOutputStream(client.getOutputStream())' Failed...");
 			e.printStackTrace();
 		}
+	}
+	
+	public static void ClearRegistrations(){
+		Main.registeredClients.clear();
 	}
 	
 	/*

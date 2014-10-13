@@ -6,6 +6,7 @@
 <% 
 	String username = (String)session.getAttribute("username");
 	String password = (String)session.getAttribute("password");
+	int size = Main.getRegisteredClients().size();
 	
 %>
 
@@ -40,8 +41,20 @@
 		<div class="container-fluid">
 			<div class="row-fluid">
 				<div class="span6">
+
 <%
-	if(!Main.isRegistrationWindowOpen()){
+	if(Main.isExperimentRunning()){
+%>
+					<div>
+						 <h4>Click to stop the Experiment</h4>
+						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
+							<input type="submit" name="stopExperiment" value="Stop Experiment" class="btn btn-primary btn-large">
+						</form>
+					</div>
+
+<%
+	}
+	else if(!Main.isRegistrationWindowOpen()){
 %>
 					 <div>
 						 <h4>Click to start the Registration</h4>
@@ -49,7 +62,9 @@
 							<input type="submit" name="startRegistration" value="Start Registration" class="btn btn-primary btn-large">
 						</form>
 					</div>
-					
+<%
+		if(size>0){
+%>					
 					 <div>
 						 <h4>Click to add a Experiment</h4>
 						<form method="post" action="addExperiment.jsp" class="form-horizontal form-signin-signup">
@@ -57,6 +72,7 @@
 						</form>
 					</div>
 <%
+		}
 	}
 	else{
 %>
@@ -77,10 +93,21 @@
 					<div class="span6">
 						<div>
 							<h4>Summary</h4>
-							<p> Number of <a title="click here to list devices" href="listDevices.jsp">Devices </a> registed: <% out.print(Main.getRegisteredClients().size()); %> </p>
+							<p> Number of <a title="click here to list devices" href="listDevices.jsp">Devices </a> registered: <% out.print(Main.getRegisteredClients().size()); %> </p>
 							<p> List all <a title="click here to list experiments" href="listExperiments.jsp">Experiments </a> </p>
 							<p> .... </p>
 						</div>
+						
+<%if(!Main.isRegistrationWindowOpen() && size>0 && !Main.isExperimentRunning()) {%>						
+						<div>
+							<h4>Click to clear registrations</h4>
+							<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
+								<input type="submit" name="clearRegistration" value="Clear Registration" class="btn btn-primary btn-large">
+							</form>
+						</div>
+<%
+	}
+%>	
 					</div>
 				</div>
 			</div>     
