@@ -14,6 +14,23 @@ public class DeviceInfo {
 	@Getter @Setter int processorSpeed = 0;
 	@Getter @Setter int  wifiSignalStrength = 1;
 	
+	public DeviceInfo(){
+	
+	}
+	
+	public DeviceInfo(DeviceInfo d){
+		port=d.port;
+		ip=d.ip;
+		macAddress=d.macAddress;
+		osVersion=d.osVersion;
+		wifiVersion=d.wifiVersion;
+		numberOfCores=d.numberOfCores;
+		storageSpace=d.storageSpace;
+		memory=d.memory;
+		processorSpeed=d.processorSpeed;
+		wifiSignalStrength=d.wifiSignalStrength;
+	}
+	
 	void print(){
 		System.out.println("IP: " + ip);
 		System.out.println("Port: " + port);

@@ -1,13 +1,13 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="serverplus.*" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="java.util.concurrent.ConcurrentHashMap" %>
-<%@ page import="java.sql.*" %>
+<%@ page import="java.util.concurrent.CopyOnWriteArrayList" %>
+
 <%@ include file="checksession.jsp" %>
 
 <%
-	ConcurrentHashMap<String, DeviceInfo> registeredClients = Main.getRegisteredClients();
-	int size = registeredClients.size();
+	CopyOnWriteArrayList<DeviceInfo> filteredDevices = Main.getFilteredDevices();
+	int size = filteredDevices.size();
 
 %>
 
@@ -43,41 +43,30 @@
 			</div>
 			
 			<div>
-				
-<%
-	DBManager db = new DBManager();
-	ResultSet rs = db.getExperiments();
-	
-	
-	if(rs==null){
-		out.print("<h4>There are no experiments yet...</h4>");
-	}
-	else{
-%>		
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Id</th>
-							<th>Name</th>
-							<th>Location</th>
-							<th>Description</th>
+							<th>Mac Address</th>
+							<th>OS Version</th>
+							<th>WiFi Version</th>
+							<th>Processor Speed</th>
+							<th>Signal Strength</th>
 						</tr>
 					</thead>
 					<tbody>
 <%
-		while(rs.next()){
-%>				
-					<tr>
-						<td><%out.print(""+rs.getInt(1));%></td>  
-						<td><%out.print(""+rs.getString(2));%></td>   
-						<td><%out.print(""+rs.getString(3));%></td>   
-						<td><%out.print(""+rs.getString(4));%></td>   
-					</tr>
-<%				
-		}
-		db.closeConnection();
-	}
+	for (DeviceInfo d : filteredDevices) {
 %>
+						<tr>
+							<td><%out.print(d.getMacAddress());%></td>  
+							<td><%out.print(""+d.getOsVersion());%></td>  
+							<td><%out.print(d.getWifiVersion());%></td>
+							<td><%out.print(d.getProcessorSpeed());%></td>
+							<td><%out.print(d.getWifiSignalStrength());%></td>
+						</tr>
+<% 
+	}
+%>  
 					</tbody>
 				</table>
 			</div>

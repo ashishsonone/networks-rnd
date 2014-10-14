@@ -48,7 +48,7 @@
 					<div>
 						 <h4>Click to stop the Experiment</h4>
 						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
-							<input type="submit" name="stopExperiment" value="Stop Experiment" class="btn btn-primary btn-large">
+							<input type="submit" onclick="return confirm('Press OK to stop Experiment')"  name="stopExperiment" value="Stop Experiment" class="btn btn-primary btn-large">
 						</form>
 					</div>
 
@@ -67,7 +67,7 @@
 %>					
 					 <div>
 						 <h4>Click to add a Experiment</h4>
-						<form method="post" action="addExperiment.jsp" class="form-horizontal form-signin-signup">
+						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
 							<input type="submit" name="addExperiment" value="Add Experiment" class="btn btn-primary btn-large">
 						</form>
 					</div>
@@ -91,13 +91,8 @@
 					 
 					</div>
 					<div class="span6">
-						<div>
-							<h4>Summary</h4>
-							<p> Number of <a title="click here to list devices" href="listDevices.jsp">Devices </a> registered: <% out.print(Main.getRegisteredClients().size()); %> </p>
-							<p> List all <a title="click here to list experiments" href="listExperiments.jsp">Experiments </a> </p>
-							<%if (Main.getCurrentExperiment() > 0) out.print("<p> Experiment number " +  Main.getCurrentExperiment()  +  " is running  </p>");%>
-							<p> .... </p>
-						</div>
+						<%@ include file="summary.jsp" %>
+						
 						
 <%if(!Main.isRegistrationWindowOpen() && size>0 && !Main.isExperimentRunning()) {%>						
 						<div>

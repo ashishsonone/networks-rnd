@@ -1,10 +1,10 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="serverplus.*" %>
 
-<%@ include file="checksession.jsp" %>
+
 <%@ include file="checkDevicesCount.jsp" %>
 
-<% 
+<%
 	String username = (String)session.getAttribute("username");
 	String password = (String)session.getAttribute("password");
 	
@@ -47,7 +47,18 @@
 							<input type="file" name="eventsFile" placeholder="Upload Event File" size="20" required> <br>
 							<input type="text" name="expname" placeholder="Experiment Name" required>
 							<input type="text" name="location" placeholder="Location of Experiment" required>
-							<input type="text" name="description" placeholder="Add Description" required> Max 1000 characters
+							<input type="text" name="description" placeholder="Add Description (Max 1000 characters)" required>
+							<fieldset>          
+								<div class="form-group">
+									<div class="col-lg-3">
+										<select class="form-control">
+											<option value="1">Randomize</option>
+											<option value="2">select manually</option>
+										</select>
+									</div>
+								</div>
+							</fieldset>
+							<br>
 							<input type="submit" name="startExperiment" value="Start Experiment" class="btn btn-primary btn-large">
 						</form>
 					</div>
@@ -55,12 +66,7 @@
 					 
 					</div>
 					<div class="span6">
-						<div>
-							<h4>Summary</h4>
-							<p> Number of <a title="click here to list devices" href="listDevices.jsp">Devices </a> registed: <% out.print(Main.getRegisteredClients().size()); %> </p>
-							<p> List all <a title="click here to list experiments" href="listExperiments.jsp">Experiments </a> </p>
-							<p> .... </p>
-						</div>
+						<%@ include file="summary.jsp" %>
 					</div>
 				</div>
 			</div>     

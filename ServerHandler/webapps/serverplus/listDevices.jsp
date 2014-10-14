@@ -43,19 +43,32 @@
 			</div>
 			
 			<div>
-				<table width="59%" border="1">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Mac Address</th>
+							<th>OS Version</th>
+							<th>WiFi Version</th>
+							<th>Processor Speed</th>
+							<th>Signal Strength</th>
+						</tr>
+					</thead>
+					<tbody>
 <%
 	for (Map.Entry<String, DeviceInfo> e : registeredClients.entrySet()) {
 		DeviceInfo d = e.getValue();
 %>
-					<tr>
-						<td><%out.print(d.getMacAddress());%></td>  
-						<td><%out.print(""+d.getOsVersion());%></td>  
-						<td><%out.print(d.getWifiVersion());	%></td>
-					</tr>
+						<tr>
+							<td><%out.print(d.getMacAddress());%></td>  
+							<td><%out.print(""+d.getOsVersion());%></td>  
+							<td><%out.print(d.getWifiVersion());%></td>
+							<td><%out.print(d.getProcessorSpeed());%></td>
+							<td><%out.print(d.getWifiSignalStrength());%></td>
+						</tr>
 <% 
 	}
 %>  
+					</tbody>
 				</table>
 			</div>
 		</div>

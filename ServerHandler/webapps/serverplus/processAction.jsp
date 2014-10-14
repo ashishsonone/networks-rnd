@@ -15,6 +15,17 @@
 		if(result == 0)
 			response.sendRedirect("index.jsp");
 	}
+	
+	else if(request.getParameter("stopExperiment")!=null){
+		result = Handlers.StopExperiment();
+		if(result == 0)
+			response.sendRedirect("index.jsp");
+	}
+	
+	else if(request.getParameter("addExperiment")!=null){
+		response.sendRedirect("addExperiment.jsp");
+	}
+	
 	else if(request.getParameter("clearRegistration")!=null){
 		Handlers.ClearRegistrations();
 		response.sendRedirect("index.jsp");

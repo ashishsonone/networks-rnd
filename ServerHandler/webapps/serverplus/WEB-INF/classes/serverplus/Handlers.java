@@ -11,15 +11,14 @@ import java.util.Iterator;
 
 public class Handlers {
 	
-	private static Vector<DeviceValidation> FilterDevices(){
+	private static void FilterDevices(){
 		System.out.println("Filtereing Devices....");
-		Vector<DeviceValidation> filteredDevices = new Vector<DeviceValidation>();
+		
 		for (Map.Entry<String, DeviceInfo> e : Main.registeredClients.entrySet()) {
 			System.out.println("filterDevices: " + e.getValue().ip + " " + e.getValue().port);
-		    filteredDevices.add(new DeviceValidation(e.getValue(), true));
+		    Main.filteredDevices.add(new DeviceInfo(e.getValue()));
 		}
 			
-		return filteredDevices;
 	}
 	
 	public static int StartRegistration(){
@@ -36,15 +35,7 @@ public class Handlers {
 	
 	//returns max id enterd in database
 	public static int StartExperiment(Experiment e){
-		//make enrty in database about experiment
-/*
-		int result = Utils.addExperiment(e);
-		if(result==-1){
-			System.out.print("adding experiment to database failed...");
-			return -1;
-		}
-
-*/
+		
 		Main.currentExperiment=e.ID;
 		Main.experimentRunning=true;
 		if(Main.currentExperiment<0){
@@ -57,27 +48,27 @@ public class Handlers {
 		final int expectedFilterCount = 5;		//need to get from web
 		
 		
-		final int timeoutWindow = 10000;	//10 seconds
+		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;	//10 seconds
 		int filteredCount = 0;
-		Vector<DeviceValidation> devices = FilterDevices();
+		
+		FilterDevices();
+		
 		DataOutputStream dout = null;
-		//Main.currentExperiment = result;
+		String jsonString = Utils.getControlFileJson();
+		//String events = EventGen.generateEvents(1);
+		String events = EventGen.generateEvents(Main.currentExperiment);
 		
-		
-		for(DeviceValidation d : devices){
+		for(DeviceInfo d : Main.filteredDevices){
 			try {
 				System.out.println("StartExperiment: while sending control files to devices...");
-				System.out.println("StartExperiment: IP: " + d.device.ip + 
-						" and Port" + d.device.port);
-				Socket s = new Socket(d.device.ip, d.device.port);
+				System.out.println("StartExperiment: IP: " + d.ip + 
+										" and Port" + d.port);
+				Socket s = new Socket(d.ip, d.port);
 				s.setSoTimeout(timeoutWindow);
 				dout = new DataOutputStream(s.getOutputStream());
-				String jsonString = Utils.getControlFileJson();
 				dout.writeInt(jsonString.length());
 				dout.writeBytes(jsonString);
 				
-				
-				String events = EventGen.generateEvents(1);
 				events = Integer.toString(Main.currentExperiment) + "\n" + events;
 				System.out.println(events);
 				
@@ -88,10 +79,10 @@ public class Handlers {
 				DataInputStream din = new DataInputStream(s.getInputStream());
 				int response = din.readInt();
 				if(response == Constants.responseOK){
-					int status = Utils.addExperimentDetails(Main.currentExperiment, d.device, false);
+					int status = Utils.addExperimentDetails(Main.currentExperiment, d, false);
 					if(status<0){
 						System.out.println("StartExperiment: Error occured during inserting experiment details for device: " 
-												+ d.device.ip + ", " + d.device.macAddress);
+												+ d.ip + ", " + d.macAddress);
 					}
 					else{
 						filteredCount++;
@@ -104,7 +95,7 @@ public class Handlers {
 				
 			} catch (InterruptedIOException ie){
 				System.out.println("StartExperiment: Timeout occured for sending control file to device with ip: "
-											+ d.device.ip + " and Port: " + d.device.port);
+											+ d.ip + " and Port: " + d.port);
 			} catch (IOException ioe) {
 				System.out.println("StartExperiment: 'new DataOutputStream(out)' or " +
 									"'DataInputStream(s.getInputStream())' Failed...");
@@ -113,11 +104,60 @@ public class Handlers {
 		return Main.currentExperiment;
 	}
 	
-	public static void StopExperiment(){
+	public static int StopExperiment(){
 		Main.experimentRunning = false;
 		Main.currentExperiment = -1;
 		System.out.println("Experiment Stopped...");
-		//send all filtered devices the stop signal
+
+		final int timeoutWindow = Constants.sendStopSignalTimeoutWindow;	//10 seconds
+		
+		System.out.println("StopExperiment: while sending stop signal to devices...");
+		
+		for(DeviceInfo d : Main.filteredDevices){
+			try {
+				System.out.println("StopExperiment: IP: " + d.ip + " and Port" + d.port);
+				Socket s = new Socket(d.ip, d.port);
+				s.setSoTimeout(timeoutWindow);
+				DataOutputStream dout = new DataOutputStream(s.getOutputStream());
+				
+				String jsonString = Utils.getStopSignalJson();
+				System.out.println(jsonString);
+				dout.writeInt(jsonString.length());
+				dout.writeBytes(jsonString);
+				
+				DataInputStream din = new DataInputStream(s.getInputStream());
+				int response = din.readInt();
+				if(response == Constants.responseOK){
+					System.out.println("StopExperiment: device with ip: " + d.ip + " and Port: " + d.port 
+											+ " stopped experiment");
+				}
+				s.close();
+				
+			} catch (InterruptedIOException ie){
+				System.out.println("StopExperiment: Timeout occured for sending stop Signal to device with ip: "
+											+ d.ip + " and Port: " + d.port);
+			} catch (IOException ioe) {
+				System.out.println("StopExperiment: 'new DataOutputStream(out)' or " +
+									"'DataInputStream(s.getInputStream())' Failed...");
+			}	
+		}
+		
+		//clearing all filtered devices;
+		Main.filteredDevices.clear();
+		System.out.println("StopExperiment: Filtered devices....");
+		return 0;
+		
+	}
+	
+	public static int RegisterClient(DeviceInfo d){
+		System.out.println("\nRegistering Client....");
+		Main.registeredClients.put(d.macAddress, d);
+		System.out.println("Client Registered....");
+		return 0;
+	}
+	
+	public static void ClearRegistrations(){
+		Main.registeredClients.clear();
 	}
 	
 	/*
@@ -157,9 +197,7 @@ public class Handlers {
 			se.printStackTrace();
 	    } 
 	}
-	*/ 
-	
-	/*
+
 	public static void ReceiveEventFile(Socket client, Map<String,String> jsonMap){
 
 		System.out.println("\nReceiving Event File....");
@@ -196,14 +234,9 @@ public class Handlers {
 			se.printStackTrace();
 	    } 
 	}
-	*/ 
+
 	
-	public static int RegisterClient(DeviceInfo d){
-		System.out.println("\nRegistering Client....");
-		Main.registeredClients.put(d.macAddress, d);
-		System.out.println("Client Registered....");
-		return 0;
-	}
+	
 	
 	//if not registration process started: send Status
 	//if registration process started: send status and the devices which are registered
@@ -212,14 +245,6 @@ public class Handlers {
 	public static void SendStatus(Socket client, Map<String,String> jsonMap){
 		System.out.println("\nSending Status Client....");
 		int msg=Constants.responseOK;
-		/*
-		String status ="22";
-		int cas=0, msg=Constants.responseOK;
-		if(!Main.registrationWindowOpen && !Main.experimentRunning) {status="00"; cas = 0;}
-		if(!Main.registrationWindowOpen && Main.experimentRunning) {status="01"; cas = 1;}
-		if(Main.registrationWindowOpen && !Main.experimentRunning) {status="10"; cas = 2;}
-		if(Main.registrationWindowOpen && Main.experimentRunning) {status="11"; cas = 3;msg=Constants.responseError;}
-		*/
 		
 		DataOutputStream dout = null;
 		try {
@@ -235,12 +260,7 @@ public class Handlers {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void ClearRegistrations(){
-		Main.registeredClients.clear();
-	}
-	
-	/*
+
 	public static void MasterHandler(Socket client){
 		DataInputStream dis = null;
 		String data = "";
