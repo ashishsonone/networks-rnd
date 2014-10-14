@@ -2,6 +2,7 @@
 <%@ page import="serverplus.*" %>
 
 <%@ include file="checksession.jsp" %>
+<%@ include file="checkDevicesCount.jsp" %>
 
 <% 
 	String username = (String)session.getAttribute("username");
