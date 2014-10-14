@@ -29,6 +29,17 @@ public class BackgroundService extends IntentService{
 	
 	@Override
     protected void onHandleIntent(Intent workIntent) {
+		//Trigger thread to send log files pending
+		Runnable logSender = new Runnable() {
+			public void run() {
+				Threads.sendLogFilesBackground(getApplicationContext());
+			}
+		};
+		Thread logSenderThread = new Thread(logSender);
+		
+	    logSenderThread.start();
+	    
+	    //Now resume normal flow of sending device registration request
 		String msg = "Now Listening ... ";
 		int toEnableStart = 0; //whether or not to enable start button
 

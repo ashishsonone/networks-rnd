@@ -14,6 +14,10 @@ public class DownloaderService extends IntentService{
 
 	@Override
     protected void onHandleIntent(Intent intent) {
+		if(!MainActivity.running){
+			Log.d(Constants.LOGTAG, "DownloaderService : entered. But experiment not running");
+			return;
+		}
 		Log.d(Constants.LOGTAG, "DownloaderService : just entered");
 		Bundle bundle = intent.getExtras();
         final int eventid = bundle.getInt("eventid");

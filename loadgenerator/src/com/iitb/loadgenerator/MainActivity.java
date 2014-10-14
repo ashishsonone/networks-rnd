@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -34,7 +35,7 @@ public class MainActivity extends ActionBarActivity {
 	static Button startbutton;
 	static WebView webview;
 	
-	static String serverip = "192.168.0.110";
+	static String serverip = "192.168.0.104";
 	static int serverport = 8080;
 	static String myip;
 	
@@ -45,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
 	static ServerSocket listen = null;
 	
 	//Alarm specific
-	static Load load;
+	static Load load = null;
 	static int currEvent = 0;
 	
 	static AlarmManager am ;
@@ -98,6 +99,19 @@ public class MainActivity extends ActionBarActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(alarmReceiver, alarmIntentFilter);
 	}
 	
+	public static void reset(Context ctx){
+		if(running){
+			load = null;
+			currEvent = 0;
+			running = false;
+			numDownloadOver = 0;
+			
+			//cancel all alarms
+			Intent intent = new Intent(ctx, AlarmReceiver.class);
+			PendingIntent sender = PendingIntent.getBroadcast(ctx, Constants.alarmRequestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+			am.cancel(sender);
+		}
+	}
 	@Override
 	public void onBackPressed() {
 	   Log.d(Constants.LOGTAG, "onBackPressed Called");

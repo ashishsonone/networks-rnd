@@ -22,11 +22,16 @@ public class AlarmReceiver extends WakefulBroadcastReceiver
     
     @Override
     public void onReceive(final Context context, Intent intent) {
-    	Log.d(Constants.LOGTAG, "Alarm Receiver : alarm just received. Now setting up to handle event");
+    	if(!MainActivity.running){
+    		Log.d(Constants.LOGTAG, "Alarm Receiver : alarm just received. But experiment not running");
+    		return;
+    	}
+    	
     	Bundle bundle = intent.getExtras();
         int eventid = bundle.getInt("eventid");
         
         if(eventid >= 0){
+        	Log.d(Constants.LOGTAG, "Alarm Receiver : alarm just received (eventid=" + eventid + ") Now preparing to handle event");
 	    	Intent callingIntent = new Intent(context, DownloaderService.class);
 	
 	        callingIntent.putExtra("eventid", (int)eventid);
@@ -34,15 +39,22 @@ public class AlarmReceiver extends WakefulBroadcastReceiver
 	        startWakefulService(context, callingIntent);
 	        Log.d(Constants.LOGTAG, "Alarm Receiver : started the Downloader Service");
         }
+        else{
+        	Log.d(Constants.LOGTAG, "Alarm Receiver :(eventid=" + eventid + ") Setting up first alarm");
+        }
 		
 		scheduleNextAlarm(context);
 		
     }
     
     void scheduleNextAlarm(Context context){
+    	if(!MainActivity.running){
+    		Log.d(Constants.LOGTAG, "scheduleNextAlarm : Experiment not 'running'");
+    		return;
+    	}
+    	
 		if(MainActivity.currEvent >= MainActivity.load.events.size()) {
-			Log.d(Constants.LOGTAG, "scheduleNextAlarm : All alarms over. Experiment finished");
-			MainActivity.experimentOn = false;
+			Log.d(Constants.LOGTAG, "scheduleNextAlarm : All alarms over. Curr Experiment finished");
 			return;
 		}
 		
@@ -52,7 +64,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver
 		Intent intent = new Intent(context, AlarmReceiver.class);
 		intent.putExtra("eventid", (int)MainActivity.currEvent);
 		
-		PendingIntent sender = PendingIntent.getBroadcast(context, 192837 + MainActivity.currEvent, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent sender = PendingIntent.getBroadcast(context, Constants.alarmRequestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 		
 		
 		//just for now while control file is getting ready

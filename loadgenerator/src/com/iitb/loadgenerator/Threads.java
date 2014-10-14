@@ -42,11 +42,8 @@ public class Threads {
 					}
 				};
 
-				if(MainActivity.running == false){
-					MainActivity.running = true; //At a time only one downloading activity in background can take place
-					Thread t = new Thread(r);
-					t.start();
-				}
+				Thread t = new Thread(r);
+				t.start();
 
 				//Log.d(Constants.LOGTAG,"Registration request rejected");
 
@@ -57,6 +54,12 @@ public class Threads {
 			}
 		}
 		Log.d(Constants.LOGTAG, "ListenServer : Experiment Over, Stopped listening ... ");
+		Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+				.putExtra(Constants.BROADCAST_MESSAGE, 
+				"Experiment Over, Stopped listening ...\n");
+
+		// Broadcasts the Intent to receivers in this application.
+		LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
 	}
 
 	public static void eventRunner(Socket server, final Context ctx){
@@ -78,6 +81,13 @@ public class Threads {
 
 			String action = jsonMap.get(Constants.action);
 			if(action.compareTo(Constants.action_controlFile) == 0){
+				if(MainActivity.running == true){
+					//this should not happen. As one experiment is already running Send 300 response
+					Log.d(Constants.LOGTAG,"Experiment running but received another control file request");
+					dout.writeInt(300);
+					return;
+				}
+				MainActivity.running = true;
 				boolean textFileFollow = Boolean.parseBoolean((String) jsonMap.get(Constants.textFileFollow));
 				if(textFileFollow){
 					int fileSize = dis.readInt();
@@ -100,10 +110,9 @@ public class Threads {
 					//Thread.sleep(10000); //Alarms are set and events processed during this time. Also log file gets generated
 					MainActivity.load = RequestEventParser.parseEvents(controlFile);
 					MainActivity.numDownloadOver = 0; //reset it
-					//on complete  
-
-					Log.d(Constants.LOGTAG,"eventRunner : Experiment over. Now sending log file");
-
+					MainActivity.currEvent = 0;
+					
+					
 					Intent localIntent = new Intent(Constants.BROADCAST_ALARM_ACTION);
 					localIntent.putExtra("eventid", (int) -1); //this is just to trigger first scheduleNextAlarm
 
@@ -119,10 +128,28 @@ public class Threads {
 					Log.d(Constants.LOGTAG,"eventRunner : No control file in response");
 				}
 			}
+			else if (action.compareTo(Constants.action_stopExperiment) == 0){
+				Log.d(Constants.LOGTAG, "MainActivity.running boolean set to false. Reset()");
+				
+				if(MainActivity.running && MainActivity.load != null){
+					final String logFileName = Long.toString(MainActivity.load.loadid);
+					Runnable r = new Runnable() {
+						public void run() {
+							Threads.sendLog(logFileName);
+						}
+					};
+					Thread t = new Thread(r);
+			        t.start();
+					
+					MainActivity.reset(ctx);
+				}
+				dout.writeInt(200);
+				server.close();
+			}
 			else{
 				Log.d(Constants.LOGTAG,"eventRunner() : Wrong action code");
 			}
-
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			//Somehow experiment could not be started due to some IOException in socket transfer. So again reset running variable to false
@@ -133,7 +160,10 @@ public class Threads {
 
 	static int HandleEvent(int eventid, final Context context){
 		//Log file will be named   <eventid> . <loadid>
-		
+		if(!MainActivity.running){
+			Log.d(Constants.LOGTAG, "HandleEvent : But experiment not running");
+			return -1;
+		}
 		RequestEvent event = MainActivity.load.events.get(eventid);
 		String logfilename = "" + MainActivity.load.loadid;
 		File logfile = new File(MainActivity.logDir, logfilename);
@@ -236,6 +266,40 @@ public class Threads {
 		}
 		return 0;
 	}
+	
+	static void sendLogFilesBackground(final Context ctx){
+		File storage = new File(Constants.logDirectory); //log dir has already been created in onCreate
+    	File[] files = storage.listFiles();
+    	int sent = 0;
+    	int errors = 0;
+    	
+    	String currExpLogFile = "-1" ;
+		if(MainActivity.load != null) {
+			currExpLogFile = Long.toString(MainActivity.load.loadid); 
+		}
+		
+    	for(int i=0; i<files.length; i++){
+    		File c = files[i];
+    		String logFileName = c.getName();
+    		
+    		
+    		if(!logFileName.equals(currExpLogFile)){ //pending log file is not current experiment's log
+    			int status = Threads.sendLog(logFileName);
+    			if(status == 200){
+    				sent++;
+    			}
+    			else{
+    				errors++;
+    			}
+    		}
+    	}
+    	Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+							.putExtra(Constants.BROADCAST_MESSAGE, 
+							"Background log file sending : success "+ sent + " Fail " + errors + "\n");
+
+    	// Broadcasts the Intent to receivers in this application.
+    	LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
+	}
 
 	@SuppressWarnings("deprecation")
 	static int sendLog(String logFileName){
@@ -243,9 +307,15 @@ public class Threads {
 		
 		String logFilePath = Constants.logDirectory + "/" + logFileName;
 		String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/receiveLogFile.jsp";
+		Log.d(Constants.LOGTAG, "Upload url " + url);
 //		String url = "http://192.168.0.107/fup.php";
 		
 		File logFile = new File(logFilePath);
+		if(!logFile.exists()){
+			Log.d(Constants.LOGTAG, "sendLog : File not found " + logFilePath + " May be sent earlier");
+			return 200; //already sent sometime earlier
+		}
+		
 		MultipartEntity mpEntity  = new MultipartEntity();
 		HttpClient client = Utils.getClient();
 		
@@ -261,7 +331,7 @@ public class Threads {
 				statusCode = response.getStatusLine().getStatusCode();
 				if(statusCode == 200){
 					Log.d(Constants.LOGTAG, "Log file named " + logFileName + " deleted");
-					//logFile.delete();
+					logFile.delete(); //now deleting log file
 				}
 				else{
 					Log.d(Constants.LOGTAG, "Sending Log file " + logFileName + " failed");
