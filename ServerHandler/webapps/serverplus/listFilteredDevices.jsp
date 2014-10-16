@@ -6,7 +6,7 @@
 <%@ include file="checksession.jsp" %>
 
 <%
-	CopyOnWriteArrayList<DeviceInfo> filteredDevices = Main.getFilteredDevices();
+	CopyOnWriteArrayList<DeviceInfo> filteredDevices = Main.getActualFilteredDevices();
 	int size = filteredDevices.size();
 
 %>

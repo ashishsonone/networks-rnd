@@ -69,7 +69,8 @@ public class EventGen{
 			}
 		} catch (IOException e) {
 			System.err.println(e);
+			return "error";
 		}
-		return data;
+		return expid + "\n" + data;
 	}
 }

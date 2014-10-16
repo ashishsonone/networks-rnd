@@ -58,6 +58,9 @@ public class Handlers {
 		//String events = EventGen.generateEvents(1);
 		String events = EventGen.generateEvents(Main.currentExperiment);
 		
+		System.out.println(events);
+		if(events.equals("error")) return -1;
+		
 		for(DeviceInfo d : Main.filteredDevices){
 			try {
 				System.out.println("StartExperiment: while sending control files to devices...");
@@ -69,9 +72,6 @@ public class Handlers {
 				dout.writeInt(jsonString.length());
 				dout.writeBytes(jsonString);
 				
-				events = Integer.toString(Main.currentExperiment) + "\n" + events;
-				System.out.println(events);
-				
 				
 				dout.writeInt(events.length());
 				dout.writeBytes(events);
@@ -80,6 +80,7 @@ public class Handlers {
 				int response = din.readInt();
 				if(response == Constants.responseOK){
 					int status = Utils.addExperimentDetails(Main.currentExperiment, d, false);
+					Main.actualFilteredDevices.add(d);
 					if(status<0){
 						System.out.println("StartExperiment: Error occured during inserting experiment details for device: " 
 												+ d.ip + ", " + d.macAddress);
@@ -113,7 +114,7 @@ public class Handlers {
 		
 		System.out.println("StopExperiment: while sending stop signal to devices...");
 		
-		for(DeviceInfo d : Main.filteredDevices){
+		for(DeviceInfo d : Main.actualFilteredDevices){
 			try {
 				System.out.println("StopExperiment: IP: " + d.ip + " and Port" + d.port);
 				Socket s = new Socket(d.ip, d.port);
@@ -144,6 +145,7 @@ public class Handlers {
 		
 		//clearing all filtered devices;
 		Main.filteredDevices.clear();
+		Main.actualFilteredDevices.clear();
 		System.out.println("StopExperiment: Filtered devices....");
 		return 0;
 		
