@@ -175,6 +175,7 @@ public class Threads {
 		HttpURLConnection connection = null;
 		String filename = "unknown";
 		BufferedWriter logwriter = null;
+		boolean success = false;
 
 		try {
 			URL url = new URL(event.url);
@@ -184,6 +185,9 @@ public class Threads {
 			Log.d(Constants.LOGTAG, "HandleEvent : " + event.url + " " + filename);
 			
 			connection = (HttpURLConnection) url.openConnection();
+			connection.setReadTimeout(10000); //10 seconds timeout for reading from input stream
+			connection.setConnectTimeout(10000); //10 seconds before connection can be established
+			
 			connection.connect();
 
 			// expect HTTP 200 OK, so we don't mistakenly save error report
@@ -233,13 +237,9 @@ public class Threads {
 			}
 			logwriter.write(Constants.LINEDELIMITER); //this marks the end of this log
 			
+			success = true;
 			//File download over
 			//on complete  
-	        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
-	        					.putExtra(Constants.BROADCAST_MESSAGE, "File  ... " + filename + "\n");
-	        	
-	        // Broadcasts the Intent to receivers in this application.
-	        LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
 	        
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -257,6 +257,17 @@ public class Threads {
 			if (connection != null)
 				connection.disconnect();
 		}
+		
+		String msg = "File  ... " + filename;
+		if(success) msg += " SUCCESS\n";
+		else msg += "FAILED connection problem/timeout";
+		
+		Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+			.putExtra(Constants.BROADCAST_MESSAGE, msg);
+
+		// Broadcasts the Intent to receivers in this application.
+		LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
+
 		int num = MainActivity.numDownloadOver++;
 		Log.d(Constants.LOGTAG, "handle event thread : END . Incrementing numDownloadOver to " + MainActivity.numDownloadOver + " #events is "+ MainActivity.load.events.size());
 		if(num+1 == MainActivity.load.events.size()){

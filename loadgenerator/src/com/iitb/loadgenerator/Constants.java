@@ -40,4 +40,7 @@ public class Constants {
     public static final int timeoutConnection = 3000; //timeout in milliseconds until a connection is established.
     public static final int timeoutSocket = 5000; //timeout for waiting for data.
     public static final String SERVLET_NAME = "serverplus";
+    public static final String SHARED_PREFS = "serverDetails";
+    public static final String keyServerAdd = "serverAdd";
+    public static final String keyServerPort = "serverPort";
 }

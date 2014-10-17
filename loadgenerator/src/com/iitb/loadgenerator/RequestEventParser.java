@@ -115,7 +115,7 @@ public class RequestEventParser {
 		while (scanner.hasNextLine()) {
 		  line = scanner.nextLine();
 		  RequestEvent event = parseLine(line);
-		  events.add(event);
+		  if(event != null) events.add(event);
 		  // process the line
 		}
 		scanner.close();

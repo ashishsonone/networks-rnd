@@ -11,6 +11,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.wifi.WifiManager;
@@ -54,6 +56,7 @@ public class MainActivity extends ActionBarActivity {
 	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
 	
 	static File logDir; //directory containing log files
+	SharedPreferences sharedPreferences;	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +68,16 @@ public class MainActivity extends ActionBarActivity {
 		portbox = (EditText) findViewById(R.id.serverport);
 		webview = (WebView) findViewById(R.id.webview);
 		
-		ipbox.setText(serverip);
-		portbox.setText(Integer.toString(serverport));
+		sharedPreferences = getSharedPreferences(Constants.SHARED_PREFS, Context.MODE_PRIVATE);
+		if(sharedPreferences.contains(Constants.keyServerAdd)){
+			ipbox.setText(sharedPreferences.getString(Constants.keyServerAdd, ""));
+		}
+		if(sharedPreferences.contains(Constants.keyServerPort)){
+			portbox.setText(sharedPreferences.getString(Constants.keyServerPort, ""));
+		}
+		
+		//ipbox.setText(serverip);
+		//portbox.setText(Integer.toString(serverport));
 		
 		
 		startbutton = (Button) findViewById(R.id.startbutton);
@@ -128,8 +139,14 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	public void startService(View v){
+		//save the server ip and port into shared prefs
 		serverip = ipbox.getText().toString();
 		serverport = Integer.parseInt(portbox.getText().toString());
+		
+		Editor editor = sharedPreferences.edit();
+	    editor.putString(Constants.keyServerAdd, serverip);
+	    editor.putString(Constants.keyServerPort, Integer.toString(serverport));
+	    editor.commit();
 		
 		textbox.setText("");
 		textbox.append("\n1) Register \n 2)Listen  \n3)Alarms  \n4) Send log\n");
