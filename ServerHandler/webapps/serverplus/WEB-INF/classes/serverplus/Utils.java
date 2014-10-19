@@ -218,5 +218,11 @@ public class Utils {
 		return res;
 	}
 	
+	public static String getEventFileOfExperiment(int expid){
+		DBManager db = new DBManager();
+		String res = db.getEventFileOfExperiment(expid); 
+		return res;
+	}
+	
 	
 }

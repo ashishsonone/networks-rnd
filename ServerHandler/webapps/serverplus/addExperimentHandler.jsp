@@ -8,15 +8,16 @@
 
 <%@ page import="serverplus.*" %>
 
+<%@ include file="checksession.jsp" %>
+
 <%
+	String username= (String)session.getAttribute("username");
 	if(Main.isExperimentRunning()){
 		response.sendRedirect("index.jsp");
 	}
 	
 	
-	String ename=null,loc=null,des=null;
-	
-
+	String ename=null,loc=null,des=null,filename=null;
 
 
 	File file ;
@@ -54,11 +55,16 @@
 						des = fieldValue;
 					}
 				}
+				else if(!fi.isFormField()){
+					filename = fi.getName();
+				}
 			}
 
-			if(ename==null || loc==null || des==null) response.sendRedirect("addExperiment.jsp");
+			if(ename==null || loc==null || des==null || filename==null) response.sendRedirect("addExperiment.jsp");
 			
-			Experiment e = new Experiment(ename,loc,des);
+			Experiment e = new Experiment(ename,loc,des,username,filename);
+			System.out.println("addExperimentHandler:");
+			e.print();
 			
 			int result = Utils.addExperiment(e);
 			if(result==-1){

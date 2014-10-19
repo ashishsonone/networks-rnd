@@ -170,10 +170,12 @@ public class DBManager {
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
 		try {
-	 		PreparedStatement p1=conn.prepareStatement("insert into experiments(name,location,description) values(?,?,?);");
+	 		PreparedStatement p1=conn.prepareStatement("insert into experiments(name,location,description,user,filename) values(?,?,?,?,?);");
 			p1.setString(1, e.Name);
 			p1.setString(2, e.Location);
 			p1.setString(3, e.Description);
+			p1.setString(4, e.User);
+			p1.setString(5, e.FileName);
 			p1.executeUpdate();
 			status = closeConnection();
 			return 0;
@@ -185,14 +187,14 @@ public class DBManager {
 		return -1;
 	}
 	
-	public ResultSet getExperiments(){
+	public ResultSet getExperiments(String username){
 		ResultSet rs = null;
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return rs;
 		PreparedStatement p;
 		
 		try {
-			String Query ="SELECT * FROM experiments;";
+			String Query ="SELECT * FROM experiments where user='" +username+ "';";
 			p=conn.prepareStatement(Query);
 			p.addBatch();				
 			rs = p.executeQuery();
@@ -206,4 +208,35 @@ public class DBManager {
 		return rs;
 
 	}
+	
+	public String getEventFileOfExperiment(int expid){
+		String result=Constants.ERRORFILE;
+		int res = createConnection();
+		
+		if(res==Constants.connectionFailure){
+			return Constants.ERRORFILE;
+		}
+			
+		try {
+			PreparedStatement p1=conn.prepareStatement("select filename from experiments where id=?;");
+			p1.setInt(1, expid);
+			ResultSet rs=p1.executeQuery();
+			if(rs.next()) {
+				result=(String)rs.getString(1);
+			}
+			else {
+				result=Constants.ERRORFILE;
+			}
+		} catch (Exception sqle) {
+			result = Constants.ERRORFILE;
+			System.out.println(sqle);
+		}
+		
+		int con_result = closeConnection();
+		if(con_result==Constants.connectionFailure){
+			return Constants.ERRORFILE;
+		}
+		return result;
+		
+	}	
 };

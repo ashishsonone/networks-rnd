@@ -6,6 +6,7 @@
 <%@ include file="checksession.jsp" %>
 
 <%
+	String username = (String)session.getAttribute("username");
 	ConcurrentHashMap<String, DeviceInfo> registeredClients = Main.getRegisteredClients();
 	int size = registeredClients.size();
 
@@ -46,7 +47,7 @@
 				
 <%
 	DBManager db = new DBManager();
-	ResultSet rs = db.getExperiments();
+	ResultSet rs = db.getExperiments(username);
 	
 	
 	if(rs==null){

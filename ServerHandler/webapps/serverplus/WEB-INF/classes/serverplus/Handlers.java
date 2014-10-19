@@ -8,16 +8,19 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Iterator;
+import java.util.Collections;
+import java.util.Random;
 
 public class Handlers {
 	
-	private static void FilterDevices(){
+	private static void RandomFilterDevices(){
 		System.out.println("Filtereing Devices....");
 		
 		for (Map.Entry<String, DeviceInfo> e : Main.registeredClients.entrySet()) {
 			System.out.println("filterDevices: " + e.getValue().ip + " " + e.getValue().port);
 		    Main.filteredDevices.add(new DeviceInfo(e.getValue()));
 		}
+		Collections.shuffle(Main.filteredDevices, new Random(System.nanoTime()));
 			
 	}
 	
@@ -51,11 +54,10 @@ public class Handlers {
 		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;	//10 seconds
 		int filteredCount = 0;
 		
-		FilterDevices();
+		RandomFilterDevices();
 		
 		DataOutputStream dout = null;
 		String jsonString = Utils.getControlFileJson();
-		//String events = EventGen.generateEvents(1);
 		String events = EventGen.generateEvents(Main.currentExperiment);
 		
 		System.out.println(events);
@@ -161,174 +163,5 @@ public class Handlers {
 	public static void ClearRegistrations(){
 		Main.registeredClients.clear();
 	}
-	
-	/*
-	public static void ReceiveLogFile(Socket client, Map<String,String> jsonMap){
 
-		System.out.println("\nReceiving Log File....");
-		
-		int expID = Integer.parseInt((String)jsonMap.get(Constants.expID));
-		String macAddress = (String)jsonMap.get(Constants.Device.macAddress);
-		String dir = Constants.mainExpLogsDir + expID + "/";
-		String fileName = dir + macAddress;
-		
-		File theDir = new File(dir);
-
-		try {
-			if (!theDir.exists()) {
-				theDir.mkdir();
-			}
-			DataInputStream dis = new DataInputStream(client.getInputStream());
-			Utils.ReceiveFile(dis, client.getReceiveBufferSize(), fileName);
-			
-			int status = Utils.updateFileReceivedField(expID, macAddress, true);
-			if(status < 0){
-				Utils.SendResponse(client, Constants.responseError);
-				System.out.println("ReceiveLogFile: Error while updating Database....");
-			}
-			else{
-				Utils.SendResponse(client, Constants.responseOK);
-				System.out.println("ReceiveLogFile: Log File Received....");
-			}
-			
-		} catch (IOException e) {
-			System.out.println("Error in Receiving Log File....");
-			e.printStackTrace();
-		} catch(SecurityException se){
-			System.out.println("Error in Creating Directory" + dir +"....");
-			se.printStackTrace();
-	    } 
-	}
-
-	public static void ReceiveEventFile(Socket client, Map<String,String> jsonMap){
-
-		System.out.println("\nReceiving Event File....");
-		
-		int expID = Integer.parseInt((String)jsonMap.get(Constants.expID));
-		String macAddress = (String)jsonMap.get(Constants.Device.macAddress);
-		String dir = Constants.mainExpLogsDir + expID + "/";
-		String fileName = dir + macAddress;
-		
-		File theDir = new File(dir);
-
-		try {
-			if (!theDir.exists()) {
-				theDir.mkdir();
-			}
-			DataInputStream dis = new DataInputStream(client.getInputStream());
-			Utils.ReceiveFile(dis, client.getReceiveBufferSize(), fileName);
-			
-			int status = Utils.updateFileReceivedField(expID, macAddress, true);
-			if(status < 0){
-				Utils.SendResponse(client, Constants.responseError);
-				System.out.println("ReceiveLogFile: Error while updating Database....");
-			}
-			else{
-				Utils.SendResponse(client, Constants.responseOK);
-				System.out.println("ReceiveLogFile: Log File Received....");
-			}
-			
-		} catch (IOException e) {
-			System.out.println("Error in Receiving Log File....");
-			e.printStackTrace();
-		} catch(SecurityException se){
-			System.out.println("Error in Creating Directory" + dir +"....");
-			se.printStackTrace();
-	    } 
-	}
-
-	
-	
-	
-	//if not registration process started: send Status
-	//if registration process started: send status and the devices which are registered
-	//if experiment started: send status, registered devices and devices which are filtered
-	
-	public static void SendStatus(Socket client, Map<String,String> jsonMap){
-		System.out.println("\nSending Status Client....");
-		int msg=Constants.responseOK;
-		
-		DataOutputStream dout = null;
-		try {
-			dout = new DataOutputStream(client.getOutputStream());
-			//String json = Utils.getStatusResponse(status, msg);
-			//dout.writeInt(json.length());
-			dout.writeInt(msg);
-			//dout.writeBytes(json);
-			dout.close();
-	
-		} catch (IOException e) {
-			System.out.println("SendStatus: 'DataOutputStream(client.getOutputStream())' Failed...");
-			e.printStackTrace();
-		}
-	}
-
-	public static void MasterHandler(Socket client){
-		DataInputStream dis = null;
-		String data = "";
-		Map<String, String> jsonMap;
-		try {
-			dis = new DataInputStream(client.getInputStream());
-			
-			int lengthJson = dis.readInt();
-			
-			for(int i=0;i<lengthJson;++i){
-				data += (char)dis.readByte();
-			}
-			
-		} catch (IOException e) {
-			System.out.println("MasterHandler: 'client.getInputStream()' Failed...");
-			e.printStackTrace();
-		}
-		
-		jsonMap = Utils.ParseJson(data);
-		
-		String action = (String)jsonMap.get(Constants.action);
-		
-		switch(action){
-			case Constants.Action.startRegistration:
-				StartRegistration(client, jsonMap);
-				break;
-				
-			case Constants.Action.stopRegistration:
-				StopRegistration(client, jsonMap);
-				break;
-				
-			case Constants.Action.registerClient:
-				RegisterClient(client, jsonMap);
-				break;
-				
-			case Constants.Action.startExperiment:
-				StartExperiment(client, jsonMap);
-				break;
-			
-			case Constants.Action.stopExperiment:
-				StopExperiment(client, jsonMap);
-				break;
-			
-			case Constants.Action.receiveLogFile:
-				ReceiveLogFile(client, jsonMap);
-				break;
-			
-			case Constants.Action.receiveEventFile:
-				ReceiveEventFile(client, jsonMap);
-				break;
-				
-			case Constants.sendStatus:
-				SendStatus(client, jsonMap);
-				
-		}
-		
-		try {
-			client.close();
-		} catch (IOException e) {
-			System.out.println("MasterHandler: 'client.close()' Failed...");
-			e.printStackTrace();
-		}
-		
-	}
-	
-	*/
-	
-	
 }

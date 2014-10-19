@@ -70,5 +70,6 @@ public class Constants {
 	static final @Getter String eventFile = "events.txt";
 	static final @Getter String mainExpLogsDir = "/home/sanchit/Desktop/experimentLogs/";
 	static final @Getter String tempFiles = "/home/sanchit/Desktop/tempFilesforRnD/";
+	static final @Getter String ERRORFILE = "ERRORFILE";
 	
 }

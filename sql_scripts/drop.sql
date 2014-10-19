@@ -1,3 +1,3 @@
-drop table users;
-drop table experiments;
 drop table experimentdetails;
+drop table experiments;
+drop table users;

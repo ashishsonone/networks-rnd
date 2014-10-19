@@ -26,35 +26,15 @@ public class EventGen{
         return line + "\n";
     }
     
-    /*
-    public static String generateEvents(int count){
-    	String data ="";
-        Random rand = new Random();
-        Calendar cal = Calendar.getInstance();
-        //data += Long.toString(cal.getTimeInMillis());		//id of events
-        //data += Integer.toString(Main.experimentID+1);	//generate events with id one more than the current experimentID
-        //data +="\n";
-        
-        cal.add(Calendar.SECOND, 60*1); 
-        for(int i=0; i<count; i++){
-        	//String link = "http://www.cse.iitb.ac.in/~ashishsonone/video.mp4";
-        	//String link = "http://192.168.150.1/video.mp4";
-        	//String link = "http://www.cse.iitb.ac.in/~ashishsonone/video.mp4";
-        	String link = "http://www.cse.iitb.ac.in/~ashishsonone/gaana.mp3";
-            String line = generateLine(cal, "GET", link);
-            data+=line;
-            cal.add(Calendar.SECOND, 5 + rand.nextInt(15));
-            cal.add(Calendar.MILLISECOND, rand.nextInt(1000));
-        }
-        
-        return data;
-    }
-    */
-    
     public static String generateEvents(int expid){
+		String error="error";
 		String data="";
-		String folderPath = Constants.mainExpLogsDir + Integer.toString(expid) + "/";
-		Path path = Paths.get(folderPath, Constants.eventFile);
+		//String folderPath = Constants.mainExpLogsDir + Integer.toString(expid) + "/";
+		String folderPath = Constants.mainExpLogsDir + expid + "/";
+		String eventFile = Utils.getEventFileOfExperiment(expid);
+		if(eventFile.equals(Constants.ERRORFILE)) return error;
+		//Path path = Paths.get(folderPath, Constants.eventFile);
+		Path path = Paths.get(folderPath, eventFile);
 		Charset charset = Charset.forName("UTF-8");
 		Calendar cal = Calendar.getInstance();
 		try (BufferedReader reader = Files.newBufferedReader(path , charset)) {
@@ -69,8 +49,9 @@ public class EventGen{
 			}
 		} catch (IOException e) {
 			System.err.println(e);
-			return "error";
+			return error;
 		}
+		if(data.equals("")) return error;
 		return expid + "\n" + data;
 	}
 }

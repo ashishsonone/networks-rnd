@@ -9,8 +9,11 @@ create table users(
 create table experiments(
 	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	name varchar(100) NOT NULL,
-	location varchar(100) DEFAULT 'IIT Bombay',
-	description varchar(1000)
+	location varchar(100) NOT NULL,
+	description varchar(1000),
+	user VARCHAR(100) NOT NULL,
+	filename VARCHAR(100) NOT NULL,
+	FOREIGN KEY(user) REFERENCES users(username) ON DELETE CASCADE
 );
 
 -- table for experiment details
@@ -25,6 +28,6 @@ create table experimentdetails(
 	processorspeed INT NOT NULL,
 	wifisignalstrength INT NOT NULL,
 	filereceived BOOL NOT NULL,
-	FOREIGN KEY(expid) REFERENCES experiments(id),
+	FOREIGN KEY(expid) REFERENCES experiments(id) ON DELETE CASCADE,
 	PRIMARY KEY(expid, macaddress)
 );

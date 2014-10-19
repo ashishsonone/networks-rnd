@@ -6,6 +6,7 @@
 <%@ include file="checksession.jsp" %>
 
 <%
+	String username = (String)session.getAttribute("username");
 	CopyOnWriteArrayList<DeviceInfo> filteredDevices = Main.getActualFilteredDevices();
 	int size = filteredDevices.size();
 

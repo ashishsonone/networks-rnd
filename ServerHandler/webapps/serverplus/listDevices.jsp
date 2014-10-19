@@ -6,6 +6,7 @@
 <%@ include file="checksession.jsp" %>
 
 <%
+	String username = (String)session.getAttribute("username");
 	ConcurrentHashMap<String, DeviceInfo> registeredClients = Main.getRegisteredClients();
 	int size = registeredClients.size();
 
