@@ -3,10 +3,16 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.concurrent.ConcurrentHashMap" %>
 <%@ page import="java.sql.*" %>
+<%@ page import="java.net.URL" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ include file="checksession.jsp" %>
 
 <%
 	String username = (String)session.getAttribute("username");
+	String exp = (String)request.getParameter(Constants.getExpID());
+	if(exp==null) response.sendRedirect("index.jsp");
+	int expid = Integer.parseInt(exp);
+
 %>
 
 <html lang="en">
@@ -37,30 +43,33 @@
 				<h1>Load Generator's Server Handler</h1>
 			</div>
 			<div>
-				<a href="index.jsp">Back</a> 
+				<a href="listExperiments.jsp">Back</a> 
 			</div>
 			
 			<div>
 				
 <%
 	DBManager db = new DBManager();
-	ResultSet rs = db.getExperiments(username);
+	ResultSet rs = db.getExperimentDetails(expid);
 	
 	
 	if(rs==null){
-		out.print("<h4>There are no experiments yet...</h4>");
+		out.print("<h4>There are no experiment details yet...</h4>");
 	}
 	else{
 %>		
 				<table class="table">
 					<thead>
 						<tr>
-							<th>Id</th>
-							<th>Name</th>
-							<th>Location</th>
-							<th>Description</th>
-							<th>Event File </th>
-							<th>Delete Experiment</th>
+							<th>Mac Address</th>
+							<th>OS Build</th>
+							<th>Wifi</th>
+							<th>Cores</th>
+							<th>Space </th>
+							<th>Memory </th>
+							<th>Processor Speed </th>
+							<th>Signal Strength </th>
+							<th>Log File</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -68,19 +77,28 @@
 		while(rs.next()){
 %>				
 					<tr>
-						<td><%out.print("<a href=\"experimentDetails.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
-							+ "\">" + rs.getInt(1) + " </a>");%>
-						</td> 
-						
-						<td><%out.print(""+rs.getString(2));%></td>   
-						<td><%out.print(""+rs.getString(3));%></td>   
+						<td><%out.print(""+rs.getString(2));%></td>  
+						<td><%out.print(""+rs.getInt(3));%></td>   
 						<td><%out.print(""+rs.getString(4));%></td>
-						<td><%out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
-							+ "&download=event\" > Download </a>");%>
-						</td>
-						<td><%out.print("<a href=\"deleteExperiment.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
-							+ "\" > Delete</a>");%>
-						</td>
+						<td><%out.print(""+rs.getInt(5));%></td>   
+						<td><%out.print(""+rs.getInt(6));%></td>
+						<td><%out.print(""+rs.getInt(7));%></td>
+						<td><%out.print(""+rs.getInt(8));%></td>
+						<td><%out.print(""+rs.getInt(9));%></td>
+						<td>
+						<%
+							boolean received = (boolean)rs.getBoolean(10);
+							if(!received) out.print("Not Received");
+							else{
+							String url = "download.jsp?" + URLEncoder.encode("random word £500 bank $", "UTF-8");
+								out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
+								+ "&download=log&" + Constants.getMacAddress() + "="
+								+ URLEncoder.encode((String)rs.getString(2), "UTF-8")   
+								+ "\" > Download </a>");
+							}
+						%>
+						</td>	
+						 
 					</tr>
 <%				
 		}

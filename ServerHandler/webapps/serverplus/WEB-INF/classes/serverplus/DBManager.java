@@ -208,6 +208,42 @@ public class DBManager {
 		return rs;
 
 	}
+	public ResultSet getExperimentDetails(int expid){
+		ResultSet rs = null;
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return rs;
+		PreparedStatement p;
+		
+		try {
+			String Query ="SELECT * FROM experimentdetails where expid=" +expid+ ";";
+			p=conn.prepareStatement(Query);
+			p.addBatch();				
+			rs = p.executeQuery();
+			
+
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+			return rs;
+		}
+		return rs;
+
+	}
+
+	public int deleteExperiment(int expid){
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return -1;
+		try {
+	 		PreparedStatement p1=conn.prepareStatement("delete from experiments where id=?;");
+			p1.setInt(1, expid);
+			p1.executeUpdate();
+			status = closeConnection();
+			return 1;
+			
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+		}
+		return -1;
+	}
 	
 	public String getEventFileOfExperiment(int expid){
 		String result=Constants.ERRORFILE;
@@ -237,6 +273,5 @@ public class DBManager {
 			return Constants.ERRORFILE;
 		}
 		return result;
-		
 	}	
 };

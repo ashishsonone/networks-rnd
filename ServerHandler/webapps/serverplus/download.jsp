@@ -4,6 +4,8 @@
 <%@ page import="javax.servlet.ServletOutputStream" %>
 <%@ page import="serverplus.*" %>
 <%@ page import="org.apache.commons.io.*" %>
+<%@ page import="java.net.URL" %>
+<%@ page import="java.net.URLEncoder" %>
 
 <%@ include file="checksession.jsp" %>
 
@@ -14,18 +16,21 @@
 	String download = (String)request.getParameter("download");
 	String filePath = Constants.getMainExpLogsDir()+expid+"/";
 	
-	System.out.println("expid: " + expid + ". download: " + download + ". filePath: "+filePath);
+	
 
 	response.setContentType("application/octet-stream");
 
 	if(download.equals("event")){
 		filePath = filePath+Constants.getEventFile();
+		System.out.println("expid: " + expid + ". download: " + download + ". filePath: "+filePath);
 		response.setHeader("Content-Disposition", "attachment;filename=Exp" + expid + "_" + Constants.getEventFile());
 	}
 	else if(download.equals("log")){
 		String macAddress = (String)request.getParameter(Constants.getMacAddress());
 		filePath = filePath + macAddress;
-		response.setHeader("Content-Disposition", "attachment;filename=Exp" + expid + "_" + macAddress + ".log");
+		System.out.println("expid: " + expid + ". download: " + download + "macAddress: " + macAddress +". filePath: "+filePath);
+		response.setHeader("Content-Disposition", "attachment;filename=Exp" + expid + "_" 
+							+ macAddress + ".log");
 	}
 
 	File file = new File(filePath);
@@ -34,13 +39,6 @@
 	 
 	IOUtils.copy(fileIn, out1);
 
-/*
-	byte[] outputByte = new byte[4096];
-	//copy binary contect to output stream
-	while(fileIn.read(outputByte, 0, 4096) != -1){
-		out1.write(outputByte, 0, 4096);
-	}
-*/
 	fileIn.close();
 	out1.flush();
 	out1.close();

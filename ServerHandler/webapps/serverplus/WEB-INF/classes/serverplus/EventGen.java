@@ -40,6 +40,8 @@ public class EventGen{
 		try (BufferedReader reader = Files.newBufferedReader(path , charset)) {
 			String line=null;
 			while ((line = reader.readLine()) != null ) {
+				if (line.isEmpty() || line.trim().equals("") || line.trim().equals("\n")) continue;
+
 				String[] lineVariables = line.split(" ");
 				int offset = Integer.parseInt(lineVariables[1]);
 				cal.add(Calendar.SECOND, offset);
