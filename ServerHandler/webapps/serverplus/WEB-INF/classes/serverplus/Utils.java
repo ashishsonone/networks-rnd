@@ -90,10 +90,20 @@ public class Utils {
 		System.out.println(jsonString);
 		return jsonString;
 	}
+
 	@SuppressWarnings("unchecked")
 	static String getStopSignalJson(){
 		JSONObject obj = new JSONObject();
 		obj.put(Constants.action, Constants.Action.stopExperiment);
+		String jsonString = obj.toJSONString();
+		System.out.println(jsonString);
+		return jsonString;
+	}
+
+	@SuppressWarnings("unchecked")
+	static String getClearRegistrationJson(){
+		JSONObject obj = new JSONObject();
+		obj.put(Constants.action, Constants.Action.clearRegistration);
 		String jsonString = obj.toJSONString();
 		System.out.println(jsonString);
 		return jsonString;

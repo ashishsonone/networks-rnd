@@ -23,6 +23,43 @@ public class Handlers {
 		Collections.shuffle(Main.filteredDevices, new Random(System.nanoTime()));
 			
 	}
+
+	public static int ClientExit(String macAddress){
+		System.out.println("ClientExit: " + "macAddress is " + macAddress);
+		if(macAddress==null || macAddress.equals("")){
+			return -1;	
+		} 
+
+		DeviceInfo d = Main.registeredClients.remove(macAddress);
+		if(d==null) return 0;
+
+		System.out.println("ClientExit: " + "macAddress " + macAddress + " deleted from Main.registeredClients");
+
+		Iterator<DeviceInfo> failSafeIterator = Main.filteredDevices.iterator();
+		while(failSafeIterator.hasNext()){
+			d = failSafeIterator.next();
+			if(d.macAddress.equals(macAddress)){
+				Main.filteredDevices.remove(d);
+				break;
+			}
+		}
+
+		if(! failSafeIterator.hasNext()) return 1;
+		
+		System.out.println("ClientExit: " + "macAddress " + macAddress + " deleted from Main.filteredDevices");
+
+		failSafeIterator = Main.actualFilteredDevices.iterator();
+		while(failSafeIterator.hasNext()){
+			d = failSafeIterator.next();
+			if(d.macAddress.equals(macAddress)){
+				Main.actualFilteredDevices.remove(d);
+				break;
+			}
+		}
+		if(! failSafeIterator.hasNext()) return 2;
+		System.out.println("ClientExit: " + "macAddress " + macAddress + " deleted from Main.actualFilteredDevices");
+		return 3;
+	}
 	
 	public static int StartRegistration(){
 		Main.registrationWindowOpen = true;
@@ -161,7 +198,37 @@ public class Handlers {
 	}
 	
 	public static void ClearRegistrations(){
+		String jsonString = Utils.getClearRegistrationJson();
+		System.out.println("ClearRegistrations: " + "jsonString= " + jsonString);
+		
+		final int timeoutWindow = Constants.clearRegistrationTimeoutWindow;	//10 seconds
+
+		for (Map.Entry<String, DeviceInfo> e : Main.registeredClients.entrySet()) {
+			DeviceInfo d = e.getValue();
+			try {
+				Socket s = new Socket(d.ip, d.port);
+				s.setSoTimeout(timeoutWindow);
+				DataOutputStream dout = new DataOutputStream(s.getOutputStream());
+				dout = new DataOutputStream(s.getOutputStream());
+				dout.writeInt(jsonString.length());
+				dout.writeBytes(jsonString);	
+				s.close();
+			} catch (InterruptedIOException ie){
+				System.out.println("ClearRegistrations: Timeout occured for sending stop Signal to device with ip: "
+											+ d.ip + " and Port: " + d.port);
+			} catch (IOException ioe) {
+				System.out.println("ClearRegistrations: 'new DataOutputStream(out)' or " +
+									"'DataInputStream(s.getInputStream())' Failed...");
+			}	
+		}
+
+
 		Main.registeredClients.clear();
+		Main.filteredDevices.clear();
+		Main.actualFilteredDevices.clear();
+		//! TODO send signal to devices about clearing registratons.
+
+
 	}
 
 }

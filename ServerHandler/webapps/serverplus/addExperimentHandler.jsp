@@ -62,7 +62,8 @@
 
 			if(ename==null || loc==null || des==null || filename==null) response.sendRedirect("addExperiment.jsp");
 			
-			Experiment e = new Experiment(ename,loc,des,username,filename);
+			//Experiment e = new Experiment(ename,loc,des,username,filename);
+			Experiment e = new Experiment(ename,loc,des,username,Constants.getEventFile());
 			System.out.println("addExperimentHandler:");
 			e.print();
 			
@@ -95,6 +96,7 @@
 				String fileName = fi.getName();
 				boolean isInMemory = fi.isInMemory();
 				long sizeInBytes = fi.getSize();
+				/*
 				if( fileName.lastIndexOf("\\") >= 0 ){
 					file = new File( filePath + 
 					fileName.substring( fileName.lastIndexOf("\\"))) ;
@@ -102,6 +104,8 @@
 					file = new File( filePath + 
 					fileName.substring(fileName.lastIndexOf("\\")+1)) ;
 				}
+				*/
+				file = new File(filePath + Constants.getEventFile());
 				fi.write( file ) ;
 			}
 		 }

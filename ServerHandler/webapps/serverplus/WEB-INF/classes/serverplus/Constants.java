@@ -19,6 +19,7 @@ public class Constants {
 		static final String receiveEventFile = "receiveEventFile";		
 		static final String registerClient = "register";
 		static final String ping = "ping";
+		static final String clearRegistration = "clearRegistration";
 	}
 	
 	public class Device{
@@ -40,7 +41,7 @@ public class Constants {
 	
 	static final @Getter int sendControlFileTimeoutWindow = 10000;	//10 seconds
 	static final @Getter int sendStopSignalTimeoutWindow = 10000;	//10 seconds
-	
+	static final @Getter int clearRegistrationTimeoutWindow = 10000;	//10 seconds
 	
 	static final @Getter String action = "action";
 	static final @Getter String ip = "ip";
@@ -71,5 +72,5 @@ public class Constants {
 	static final @Getter String mainExpLogsDir = "/home/sanchit/Desktop/experimentLogs/";
 	static final @Getter String tempFiles = "/home/sanchit/Desktop/tempFilesforRnD/";
 	static final @Getter String ERRORFILE = "ERRORFILE";
-	
+
 }

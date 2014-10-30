@@ -62,6 +62,7 @@
 							<th>Name</th>
 							<th>Location</th>
 							<th>Description</th>
+							<th>Event File </th>
 						</tr>
 					</thead>
 					<tbody>
@@ -72,7 +73,10 @@
 						<td><%out.print(""+rs.getInt(1));%></td>  
 						<td><%out.print(""+rs.getString(2));%></td>   
 						<td><%out.print(""+rs.getString(3));%></td>   
-						<td><%out.print(""+rs.getString(4));%></td>   
+						<td><%out.print(""+rs.getString(4));%></td>
+						<td><%out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
+							+ "&download=event\" > Download </a>");%>
+						</td>   
 					</tr>
 <%				
 		}
