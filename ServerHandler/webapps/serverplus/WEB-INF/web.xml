@@ -6,8 +6,11 @@ xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns
  <servlet>
    <display-name>serverplus</display-name>
    <servlet-name>serverplus</servlet-name>
-
+   <servlet-class>serverplus.Initializer</servlet-class>
+    <load-on-startup>1</load-on-startup>
  </servlet>
+
+
  
  <servlet-mapping>
    <servlet-name>serverplus</servlet-name>

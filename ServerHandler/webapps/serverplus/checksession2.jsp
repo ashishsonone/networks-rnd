@@ -1,0 +1,6 @@
+<%
+String ssid = (String)request.getParameter("session");
+if(session.getAttribute("username")== null || session.getAttribute("username")== "" ){
+    response.sendRedirect("login.jsp");
+}
+%>

@@ -7,6 +7,7 @@
 	String username = (String)session.getAttribute("username");
 	String password = (String)session.getAttribute("password");
 	int size = Main.getRegisteredClients().size();
+	String sessionid= (String)session.getAttribute("session");
 	
 %>
 
@@ -42,6 +43,10 @@
       
         <div class="page-header">        
 			<h1>Load Generator's Server Handler</h1>
+		</div>
+		<div>
+			<a href="session.jsp">Back</a>
+			<h4>Session ID <%  out.print(sessionid); %>  </h4>
 		</div>
 			
 		<div class="container-fluid">

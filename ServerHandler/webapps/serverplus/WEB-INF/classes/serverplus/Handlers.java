@@ -231,4 +231,37 @@ public class Handlers {
 
 	}
 
+	public static int CreateSession(String username, String sessionName){
+		if(Main.freeSessions.size() == 0){
+			System.out.println("CreateSession: " + "Free Sessions list size is zero");
+			return Constants.NOTOK;	
+		} 
+
+		Integer sessionID = Main.freeSessions.remove(0);
+		Session s = new Session(sessionID, sessionName,username);
+		System.out.println(s.sessionID + s.name + s.user);
+		Main.SessionMap.put(sessionID,s);
+		System.out.println("CreateSession: " + "Free Sessions list size is: " + Main.freeSessions.size());
+
+
+		for (Map.Entry<Integer, Session> e : (Main.SessionMap).entrySet()) {
+			Session ss = e.getValue();
+			System.out.println(ss.sessionID + ss.name + ss.user);
+		}
+
+		return sessionID;
+	}
+
+	public static int DeleteSession(Integer session){
+		//! to variables cleaning first
+		Session s = (Main.SessionMap).remove(session);
+		if(s!=null){
+			Main.freeSessions.add(session);
+			return Constants.OK;
+		}
+		else{
+			return Constants.NOTOK;
+		}
+	}
+
 }
