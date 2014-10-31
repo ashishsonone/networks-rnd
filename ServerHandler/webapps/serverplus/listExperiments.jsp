@@ -7,6 +7,8 @@
 
 <%
 	String username = (String)session.getAttribute("username");
+	Integer _ssid = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+	Session _session = (Main.getSessionMap()).get(_ssid);
 %>
 
 <html lang="en">

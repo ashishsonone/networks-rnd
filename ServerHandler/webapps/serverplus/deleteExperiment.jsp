@@ -10,9 +10,13 @@
 <%
 	String username= (String)session.getAttribute("username");
 	String exp = (String)request.getParameter(Constants.getExpID());
+
+	Integer _ssid = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+	Session _session = (Main.getSessionMap()).get(_ssid);
+
 	if(exp==null) response.sendRedirect("index.jsp");
 	int expid = Integer.parseInt(exp);
-	if(Main.isExperimentRunning() && Main.getCurrentExperiment()==expid){
+	if(_session.isExperimentRunning() && _session.getCurrentExperiment()==expid){
 		response.sendRedirect("index.jsp");
 	}
 	

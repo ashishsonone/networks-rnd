@@ -5,17 +5,20 @@
 	String ename=request.getParameter("expname");
 	String loc=request.getParameter("location");
 	String des=request.getParameter("description");
+	int sessionID = Integer.parseInt(request.getParameter("session"));
+	Integer ssid = new Integer(sessionID);
 	int result=0;
 	if(ename==null || loc==null || des==null) result =-1;
 	
 	Experiment e = null;
 	
-	if(Main.isExperimentRunning()){
+	Session curSession = (Main.getSessionMap()).get(ssid);
+	if(curSession.isExperimentRunning()){
 		result = -2;
 	}
 	else{
 		e=new Experiment(ename, loc, des);
-		result = Handlers.StartExperiment(e);
+		result = Handlers.StartExperiment(e,curSession);
 	}
 	
 %>
@@ -65,7 +68,7 @@
 	else if(result==-2){
 %>
 					 <div>
-						 <h4>A Experiment with id <%out.print(Main.getCurrentExperiment());%> already running</h4>
+						 <h4>A Experiment with id <%out.print(curSession.getCurrentExperiment());%> already running</h4>
 					</div>
 <%
 	}
@@ -81,7 +84,7 @@
 					<div class="span6">
 						<div>
 							<h4>Summary</h4>
-							<p> Number of <a title="click here to list devices" href="listDevices.jsp">Devices </a> registed: <% out.print(Main.getRegisteredClients().size()); %> </p>
+							<p> Number of <a title="click here to list devices" href="listDevices.jsp">Devices </a> registed: <% out.print((curSession.getRegisteredClients()).size()); %> </p>
 							<p> List all <a title="click here to list experiments" href="listExperiments.jsp">Experiments </a> </p>
 							<p> .... </p>
 						</div>

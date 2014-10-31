@@ -12,6 +12,8 @@
 	String exp = (String)request.getParameter(Constants.getExpID());
 	if(exp==null) response.sendRedirect("index.jsp");
 	int expid = Integer.parseInt(exp);
+	Integer _ssid = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+	Session _session = (Main.getSessionMap()).get(_ssid);
 
 %>
 

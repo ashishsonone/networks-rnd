@@ -15,8 +15,8 @@
 		response.sendRedirect("session.jsp");
 	}
 	else{
-		session.setAttribute("session", sessionID);
+		session.setAttribute("session", Integer.toString(sessionID));
 		response.sendRedirect("index.jsp");
 	}
-
+}
 %>

@@ -2,12 +2,15 @@
 <%@ page import="serverplus.*" %>
 
 <% 	
-	if(!Main.isRegistrationWindowOpen()){
+	String s = (String)request.getParameter(Constants.getSessionID());
+	System.out.println(s);
+	Integer ssid = new Integer(Integer.parseInt(s));
+	Session curSession = (Main.getSessionMap()).get(ssid);
+	if(!curSession.isRegistrationWindowOpen()){
 		response.setStatus(response.SC_REQUEST_URI_TOO_LONG);
 	}
 	else{
 		DeviceInfo d = new DeviceInfo();
-		
 		d.setIp(request.getParameter(Constants.getIp()));
 		d.setPort(Integer.parseInt(request.getParameter(Constants.getPort())));
 		d.setMacAddress(request.getParameter(Constants.getMacAddress()));
@@ -19,6 +22,6 @@
 		d.setMemory(Integer.parseInt(request.getParameter(Constants.getMemory())));
 		d.setWifiSignalStrength(Integer.parseInt(request.getParameter(Constants.getWifiSignalStrength())));
 		
-		Handlers.RegisterClient(d);
+		Handlers.RegisterClient(d,curSession);
 	}
 %>

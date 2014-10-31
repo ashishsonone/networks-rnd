@@ -6,8 +6,10 @@
 <%@ include file="checksession.jsp" %>
 
 <%
+	Integer _ssid = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+	Session _session = (Main.getSessionMap()).get(_ssid);
 	String username = (String)session.getAttribute("username");
-	CopyOnWriteArrayList<DeviceInfo> filteredDevices = Main.getActualFilteredDevices();
+	CopyOnWriteArrayList<DeviceInfo> filteredDevices = _session.getActualFilteredDevices();
 	int size = filteredDevices.size();
 
 %>

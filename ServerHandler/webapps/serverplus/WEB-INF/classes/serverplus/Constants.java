@@ -74,6 +74,7 @@ public class Constants {
 	static final @Getter String ERRORFILE = "ERRORFILE";
 
 	static final @Getter int maxSessions = 10000;
+	static final @Getter String sessionID = "sessionID";
 	static final @Getter int OK = 1000;
 	static final @Getter int NOTOK = -1000;
 }

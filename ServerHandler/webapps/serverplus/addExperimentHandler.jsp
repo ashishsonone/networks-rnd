@@ -12,11 +12,13 @@
 
 <%
 	String username= (String)session.getAttribute("username");
-	if(Main.isExperimentRunning()){
+	Integer _ssid = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+	Session _session = (Main.getSessionMap()).get(_ssid);
+	if(_session.isExperimentRunning()){
 		response.sendRedirect("index.jsp");
 	}
 	
-	
+else{	
 	String ename=null,loc=null,des=null,filename=null;
 
 
@@ -111,7 +113,7 @@
 		 }
 		 
 		 
-		 result = Handlers.StartExperiment(e);
+		 result = Handlers.StartExperiment(e,_session);
 		 if(result>0)
 			response.sendRedirect("index.jsp");
 		
@@ -124,6 +126,7 @@
 	  } 
 	  
 	}
-
+}
+}//ckecksession wala
 	
 %>

@@ -6,8 +6,14 @@
 <% 
 	String username = (String)session.getAttribute("username");
 	String password = (String)session.getAttribute("password");
-	int size = Main.getRegisteredClients().size();
 	String sessionid= (String)session.getAttribute("session");
+
+
+	Integer ssid1 = new Integer(Integer.parseInt(sessionid));
+	Session curSession = (Main.getSessionMap()).get(ssid1);
+
+	int size = (curSession.getRegisteredClients()).size();
+	
 	
 %>
 
@@ -54,7 +60,7 @@
 				<div class="span6">
 
 <%
-	if(Main.isExperimentRunning()){
+	if(curSession.isExperimentRunning()){
 %>
 					<div>
 						 <h4>Click to stop the Experiment</h4>
@@ -65,7 +71,7 @@
 
 <%
 	}
-	else if(!Main.isRegistrationWindowOpen()){
+	else if(!curSession.isRegistrationWindowOpen()){
 %>
 					 <div>
 						 <h4>Click to start the Registration</h4>
@@ -105,7 +111,7 @@
 						<%@ include file="summary.jsp" %>
 						
 						
-<%if(!Main.isRegistrationWindowOpen() && size>0 && !Main.isExperimentRunning()) {%>						
+<%if(!curSession.isRegistrationWindowOpen() && size>0 && !curSession.isExperimentRunning()) {%>						
 						<div>
 							<h4>Click to clear registrations</h4>
 							<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
