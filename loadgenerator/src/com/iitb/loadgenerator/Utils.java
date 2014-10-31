@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.text.SimpleDateFormat;
@@ -20,13 +21,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
@@ -41,6 +47,64 @@ import android.util.Log;
 
 
 public class Utils {
+	
+	static void sendExitSignal(){
+		HttpClient client = Utils.getClient();
+		String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/clientExit.jsp";
+		Log.d(Constants.LOGTAG, url);
+		HttpPost httppost = new HttpPost(url);
+		List <NameValuePair> params = Utils.getExitDetails();
+		int statuscode = 404; //default if something went wrong
+		try {
+			httppost.setEntity(new UrlEncodedFormEntity(params));
+			Log.d(Constants.LOGTAG, "Trying to send device info. Params set");
+			
+			try {
+		         HttpResponse response = client.execute(httppost);
+		         statuscode = response.getStatusLine().getStatusCode(); //will get 200 only if registration success.
+		         
+		         String responseBody = EntityUtils.toString(response.getEntity());
+		         Log.d(Constants.LOGTAG, "Exit with statuscode " +  statuscode);
+		    } catch (ClientProtocolException e) {
+		         e.printStackTrace();
+		    } catch (IOException e) {
+		         e.printStackTrace();
+		    }
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static boolean ping(String net){
+        Log.d(Constants.LOGTAG, "ping() : entered.");
+        Runtime runtime = Runtime.getRuntime();
+        try
+        {
+        	String pingcommand = "/system/bin/ping -c 1 " + net;
+            Log.d(Constants.LOGTAG, "ping() command : " + pingcommand);
+
+            Process  mIpAddrProcess = runtime.exec(pingcommand);
+            int exitValue = mIpAddrProcess.waitFor();
+            Log.d(Constants.LOGTAG, "ping() mExitValue " + exitValue);
+            if(exitValue==0){ //exit value 0 means normal termination
+                return true;
+            }else{
+                return false;
+            }
+        }
+        catch (InterruptedException ignore)
+        {
+            ignore.printStackTrace();
+            System.out.println(" Exception:"+ignore);
+        } 
+        catch (IOException e) 
+        {
+            e.printStackTrace();
+            System.out.println(" Exception:"+e);
+        }
+        return false;
+    }
+	
 	static List <NameValuePair> getLogFileJson(String expID){
 		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
 		
@@ -67,7 +131,11 @@ public class Utils {
 		return sdf.format(cal.getTime());
 	}
 	
-	
+	public static List <NameValuePair> getExitDetails(){
+		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
+		nameValuePairs.add(new BasicNameValuePair(Constants.macAddress, getMACAddress()));
+		return nameValuePairs;
+	}
 
 	public static List <NameValuePair> getMyDetailsJson(ServerSocket listen){
 		

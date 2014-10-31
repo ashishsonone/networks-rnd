@@ -87,8 +87,6 @@ public class MainActivity extends ActionBarActivity {
 		
 		wifimanager.setWifiEnabled(true); //Switch on the wifi if not already
 		
-		experimentOn = true;
-		
 		logDir = new File(Constants.logDirectory);
 		logDir.mkdirs();
 		
@@ -110,6 +108,7 @@ public class MainActivity extends ActionBarActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(alarmReceiver, alarmIntentFilter);
 	}
 	
+	//reset all alarms, load, etc. Continue to listen for new experiment again from scratch
 	public static void reset(Context ctx){
 		if(running){
 			load = null;
@@ -123,6 +122,7 @@ public class MainActivity extends ActionBarActivity {
 			am.cancel(sender);
 		}
 	}
+	
 	@Override
 	public void onBackPressed() {
 	   Log.d(Constants.LOGTAG, "onBackPressed Called");
@@ -143,15 +143,18 @@ public class MainActivity extends ActionBarActivity {
 		serverip = ipbox.getText().toString();
 		serverport = Integer.parseInt(portbox.getText().toString());
 		
+		//every time start button is pressed
+		experimentOn = true;
+		
 		Editor editor = sharedPreferences.edit();
 	    editor.putString(Constants.keyServerAdd, serverip);
 	    editor.putString(Constants.keyServerPort, Integer.toString(serverport));
 	    editor.commit();
 		
 		textbox.setText("");
-		textbox.append("\n1) Register \n 2)Listen  \n3)Alarms  \n4) Send log\n");
-		textbox.append("ip = " + serverip + " port" + serverport + "\n");
-		textbox.append("myip from wifimanager" + Utils.getIP() + "\n");
+		textbox.append("Server : IP = " + serverip + " port" + serverport + "\n");
+		textbox.append("My IP : " + Utils.getIP() + "\n");
+		textbox.append("My MAC Address : " + Utils.getMACAddress() + "\n");
 		
 //		Runnable r = new Runnable() {
 //			public void run() {
@@ -163,12 +166,21 @@ public class MainActivity extends ActionBarActivity {
 //        t.start();
         
         
+		//ping check 3 times
+		for(int i=0; i<3 ;i++){
+			boolean success = Utils.ping(serverip);
+			Log.d(Constants.LOGTAG, "ping attempt=" + i + " ;result="+ success);
+			textbox.append("ping " + i + " ; result=" + success);
+			if(success) break;
+		}
+		
 		Intent mServiceIntent = new Intent(this, BackgroundService.class);
     	startbutton.setEnabled(false);
     	startService(mServiceIntent);
 	}
 	
 	public void exit(View v){
+		Utils.sendExitSignal();
 		finish();
         android.os.Process.killProcess(android.os.Process.myPid());
 	}

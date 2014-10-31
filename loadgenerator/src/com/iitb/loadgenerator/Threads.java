@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
@@ -25,6 +26,7 @@ import org.apache.http.entity.mime.content.StringBody;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -146,6 +148,26 @@ public class Threads {
 				dout.writeInt(200);
 				server.close();
 			}
+			else if (action.compareTo(Constants.action_clearRegistration) == 0){
+				Log.d(Constants.LOGTAG, "action clearRegistration");
+				MainActivity.reset(ctx); //reset all variables and state
+				
+				//also stop server. 
+				MainActivity.experimentOn = false;
+				if(MainActivity.listen != null) MainActivity.listen.close();
+				
+				//Enable StartButton (send broadcast)
+				Bundle bundle = new Bundle();
+				bundle.putInt("enable", 1);
+				bundle.putString(Constants.BROADCAST_MESSAGE,"clear Registration. Resetting everything.\nPlease Register Again");
+		        //on complete  
+		        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+		        					.putExtras(bundle);
+		        	
+		        // Broadcasts the Intent to receivers in this application.
+		        LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
+				server.close();
+			}
 			else{
 				Log.d(Constants.LOGTAG,"eventRunner() : Wrong action code");
 			}
@@ -177,6 +199,9 @@ public class Threads {
 		BufferedWriter logwriter = null;
 		boolean success = false;
 
+		Calendar startTime = null, endTime = null;
+		long responseTime = -1;
+		
 		try {
 			URL url = new URL(event.url);
 
@@ -187,6 +212,9 @@ public class Threads {
 			connection = (HttpURLConnection) url.openConnection();
 			connection.setReadTimeout(10000); //10 seconds timeout for reading from input stream
 			connection.setConnectTimeout(10000); //10 seconds before connection can be established
+			
+			//note start time 
+			startTime = Calendar.getInstance();
 			
 			connection.connect();
 
@@ -235,11 +263,18 @@ public class Threads {
 				}
 				output.write(data, 0, count);
 			}
+			//File download over
+			
 			logwriter.write(Constants.LINEDELIMITER); //this marks the end of this log
 			
 			success = true;
-			//File download over
-			//on complete  
+			
+			//note end time take the difference as response time
+			endTime = Calendar.getInstance();
+			
+			responseTime = endTime.getTimeInMillis() - startTime.getTimeInMillis();
+			logwriter.write("RT " +  responseTime + "\n");
+			
 	        
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -258,8 +293,8 @@ public class Threads {
 				connection.disconnect();
 		}
 		
-		String msg = "File  ... " + filename;
-		if(success) msg += " SUCCESS\n";
+		String msg = "File : " + filename;
+		if(success) msg += " SUCCESS with RT=" + responseTime + "\n";
 		else msg += "FAILED connection problem/timeout";
 		
 		Intent localIntent = new Intent(Constants.BROADCAST_ACTION)

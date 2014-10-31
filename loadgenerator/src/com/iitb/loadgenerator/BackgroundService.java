@@ -45,7 +45,7 @@ public class BackgroundService extends IntentService{
 
 		try
 		{
-			
+			//Create listen socket before sending device info since we need to send listen port also
 			MainActivity.listen = new ServerSocket(0);
 			MainActivity.listen.setSoTimeout(10000);
 			
@@ -57,6 +57,8 @@ public class BackgroundService extends IntentService{
 				MainActivity.listen.close();
 			}
 			else{
+				
+				
 				final Context ctx = getApplicationContext();
 				
 				Runnable r = new Runnable() {

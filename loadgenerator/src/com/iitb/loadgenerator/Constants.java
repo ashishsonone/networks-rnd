@@ -19,6 +19,7 @@ public class Constants {
 	static final String action_controlFile = "controlFile";
 	static final String textFileFollow = "textFileFollow";
 	static final String action_stopExperiment = "stopExperiment";
+	static final String action_clearRegistration = "clearRegistration";
 	
 	static final int alarmRequestCode = 192837;
 	static final String logDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/loadgenerator/logs";
