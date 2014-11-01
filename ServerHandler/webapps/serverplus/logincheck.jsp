@@ -11,7 +11,8 @@
     if(v == Constants.getLoginSuccess()){
         session.setAttribute( "username", username );
         response.sendRedirect("index.jsp");
-    }
+    }else{
+
 %>
 
 
@@ -78,6 +79,10 @@
     <script type="text/javascript" src="./js/boot-business.js"></script>
   </body>
 </html>
+
+<%
+  }
+%>  
 
       
 

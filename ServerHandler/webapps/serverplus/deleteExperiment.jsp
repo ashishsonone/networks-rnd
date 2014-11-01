@@ -30,5 +30,7 @@
 	else{
 		response.sendRedirect("index.jsp");
 	}
+
+}	//checksession.jsp ke if wala
 	
 %>

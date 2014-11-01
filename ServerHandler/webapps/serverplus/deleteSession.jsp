@@ -10,11 +10,15 @@
 <%
 	String username= (String)session.getAttribute("username");
 	String ss = (String)request.getParameter("session");
-	if(ss==null) response.sendRedirect("index.jsp");
-	Integer ssid1 = Integer.parseInt(ss);
+	if(ss==null){
+		response.sendRedirect("index.jsp");
+	}
+	else{
+		Integer ssid1 = Integer.parseInt(ss);
+		int res = Handlers.DeleteSession(ssid1);
+		System.out.println("deletesession.jsp: DeleteSession result= " + res);
+		response.sendRedirect("session.jsp");
+	}
 	
-	int res = Handlers.DeleteSession(ssid1);
-	
-	System.out.println("deletesession.jsp: DeleteSession result= " + res);
-	response.sendRedirect("session.jsp");
+}	//checksession2.jsp ke if wala
 %>
