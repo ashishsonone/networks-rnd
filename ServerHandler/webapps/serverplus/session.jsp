@@ -7,7 +7,6 @@
 <% 
 	String username = (String)session.getAttribute("username");
 	String password = (String)session.getAttribute("password");
-	int size = Main.getRegisteredClients().size();
 	session.removeAttribute("session");
 	
 %>

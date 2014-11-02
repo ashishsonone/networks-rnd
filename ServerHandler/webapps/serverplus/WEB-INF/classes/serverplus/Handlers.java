@@ -108,6 +108,9 @@ public class Handlers {
 			return -1;
 		}
 
+		Boolean b = new Boolean(true);
+		Main.RunningExperimentMap.put(session.currentExperiment,b);
+
 		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;	//10 seconds
 		int filteredCount = 0;
 		
@@ -166,6 +169,7 @@ public class Handlers {
 	
 	public static int StopExperiment(Session session){
 
+		Main.RunningExperimentMap.remove(session.currentExperiment);
 		System.out.println("Experiment Stopped...");
 		session.experimentRunning = false;
 		session.currentExperiment = -1;
