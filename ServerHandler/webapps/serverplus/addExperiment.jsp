@@ -2,12 +2,13 @@
 <%@page import="java.util.Map" %>
 <%@ page import="serverplus.*" %>
 
-
 <%@ include file="checkDevicesCount.jsp" %>
 
 <%
 	String username = (String)session.getAttribute("username");
 	String password = (String)session.getAttribute("password");
+	Integer _sid_ = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+	Session _session_ = (Main.getSessionMap()).get(_sid_);
 	
 %>
 
@@ -45,25 +46,59 @@
 		    window.location.hash = select.getElementsByTagName('option')[select.selectedIndex].value;
 		}
 
-		$('#popoverData').popover({placement : 'right'});
-		$('#popoverOption').popover({ trigger: "hover" });
+	</script>
 
-	</script>	
+	<script type="text/javascript">
+
+		function check_checkboxes(){
+		  var c = document.getElementsByTagName('input');
+		  for (var i = 0; i < c.length; i++){
+		    if (c[i].type == 'checkbox'){
+		       if (c[i].checked) {return true}
+		    }
+		  }
+		  return false;
+		}
+
+		function validate(){
+		 	var range = <%out.print("" + _session_.getRegisteredClients().size());%>;
+		   	if( document.addExperiment.filter.value == "random" ){
+		   	 	if(document.addExperiment.filterNumber.validity && document.addExperiment.filterNumber.validity.valid){
+		   	 		if(document.addExperiment.filterNumber.value > range || document.addExperiment.filterNumber.value <1){
+		   	 			alert("Select number of devices in Range 1 to Total Device Registered");
+		   	 			document.addExperiment.filterNumber.focus();
+		   	 			return false;
+		   	 		}
+		   	 		else{
+		   	 			alert("value selected is" + document.addExperiment.filterNumber.value);
+		   	 			return true;
+		   	 		}
+		   		}
+		   		else{
+		   			alert("Enter number in positive integer");
+		   			return false;
+		   		}
+		   	}
+		   	else if(document.addExperiment.filter.value == "manual"){
+		   		if(!check_checkboxes()){
+        			alert("Select atleast one device for Experiment");  
+        			return false;
+    			}
+    			return true;
+		   	}
+		   else{
+		   		return true;
+		   }	
+		}
+	</script>
+
+
   </head>
 
   	<script>
 		$(document).ready(function(){
-		    $("#popoverData").popover({
-		        placement : 'top'
-		    });
 		    $(".pop-right").popover({
 		        placement : 'right'
-		    });
-		    $(".pop-bottom").popover({
-		        placement : 'bottom'
-		    });
-		    $(".pop-left").popover({
-		        placement : 'left'
 		    });
 		});
 	</script>
@@ -87,7 +122,7 @@
 				<div class="span6">
 					 <div>
 						 <h4>Add Experiment</h4>
-						<form method="post" action="addExperimentHandler.jsp" enctype="multipart/form-data" class="form-horizontal form-signin-signup">
+						<form method="post" action="addExperimentHandler.jsp" enctype="multipart/form-data" class="form-horizontal form-signin-signup" name="addExperiment" onsubmit="return(validate());">
 							<input type="file" name="eventsFile" placeholder="Upload Event File" size="20" required> <br>
 							<input type="text" name="expname" placeholder="Experiment Name" required>
 							<input type="text" name="location" placeholder="Location of Experiment" required>
@@ -105,10 +140,7 @@
 									<div id="random" style="display:none;">
 										<br>
 					<%
-					Integer _sid_ = new Integer(Integer.parseInt((String)session.getAttribute("session")));
-					Session _session_ = (Main.getSessionMap()).get(_sid_);
 					out.print("<input type=\"number\" name=\"filterNumber\" id=\"replynumber\" class=\"form-control\" " 
-						+  "min=\"0\" max=\"" + _session_.getRegisteredClients().size() 
 						+ "\" step=\"1\" value= \"0\""  + "/>");
 					%>			
 
@@ -135,7 +167,6 @@
 									<tbody>
 
 			<%
-
 				for(Map.Entry<String, DeviceInfo> e : _session_.getRegisteredClients().entrySet()){
 					DeviceInfo d = e.getValue();
 					out.print("<tr>");
@@ -152,7 +183,6 @@
 						+ "</td>");
 					out.print("</tr>");
 				}
-
 			%>
 
 									</tbody>	
