@@ -64,7 +64,11 @@
 		 	var range = <%out.print("" + _session_.getRegisteredClients().size());%>;
 		   	if( document.addExperiment.filter.value == "random" ){
 		   	 	if(document.addExperiment.filterNumber.validity && document.addExperiment.filterNumber.validity.valid){
-		   	 		if(document.addExperiment.filterNumber.value > range || document.addExperiment.filterNumber.value <1){
+		   	 		if(range==0){
+						alert("There are no device registered");
+						return false;
+					}
+		   	 		else if(document.addExperiment.filterNumber.value > range || document.addExperiment.filterNumber.value <1){
 		   	 			alert("Select number of devices in Range 1 to Total Device Registered");
 		   	 			document.addExperiment.filterNumber.focus();
 		   	 			return false;
