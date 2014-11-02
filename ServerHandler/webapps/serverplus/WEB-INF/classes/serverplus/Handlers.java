@@ -10,18 +10,24 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.util.Collections;
 import java.util.Random;
+import java.util.List;
 
 public class Handlers {
-	
-	private static void RandomFilterDevices(Session session){
+
+	private static void RandomFilterDevices(Session session, int number){
 		System.out.println("Filtereing Devices....");
-		
+		Vector<DeviceInfo> devices = new Vector<DeviceInfo>();
 		for (Map.Entry<String, DeviceInfo> e : session.registeredClients.entrySet()) {
 			System.out.println("filterDevices: " + e.getValue().ip + " " + e.getValue().port);
-		    session.filteredDevices.add(new DeviceInfo(e.getValue()));
+		    devices.add(new DeviceInfo(e.getValue()));
 		}
-		Collections.shuffle(session.filteredDevices, new Random(System.nanoTime()));
-			
+		Collections.shuffle(devices, new Random(System.nanoTime()));
+		int count=0;
+		for(DeviceInfo d : devices){
+			if(count>=number) break;
+			session.filteredDevices.add(d);
+			count++;
+		}			
 	}
 
 	public static int ClientExit(String macAddress, Session session){
@@ -72,34 +78,40 @@ public class Handlers {
 		System.out.println("StopRegistration: Registration is now closed....");
 		return 0;
 	}
+
+	public static int StartRandomExperiment(Experiment e, Session session, int number){
+		RandomFilterDevices(session,number);
+		int expectedFilterCount = number;
+		int result = StartExperiment(e, session, expectedFilterCount);
+		System.out.println("StartRandomExperiment: " +"count: "+number+" result: "+result);
+		return result;
+	}
+
+	public static int StartManualExperiment(Experiment e, Session session, Vector<String> devices){
+		for (String macAddress : devices) {
+			DeviceInfo d = session.registeredClients.get(macAddress);
+			if(d!=null) session.filteredDevices.add(d);
+		}
+		int expectedFilterCount = devices.size();
+		int result = StartExperiment(e, session, expectedFilterCount);
+		System.out.println("StartRandomExperiment: " +"count: "+devices.size()+" result: "+result);
+		return result;
+	}
 	
 	//returns max id enterd in database
-	public static int StartExperiment(Experiment e, Session session){
-		
-		/*
-		Main.currentExperiment=e.ID;
-		Main.experimentRunning=true;
-		if(Main.currentExperiment<0){
-			System.out.print("Kuch th Panga hai");
-			return -1;
-		}
-		*/
+	public static int StartExperiment(Experiment e, Session session, int expectedFilterCount){
+		System.out.println("\n"+"StartExperiment: "+"Starting Experiment....");
 		session.currentExperiment=e.ID;
 		session.experimentRunning=true;
 		if(session.currentExperiment<0){
 			System.out.print("Kuch th Panga hai");
 			return -1;
 		}
-		
-		System.out.println("\nStarting Experiment....");
 
-		final int expectedFilterCount = 5;		//need to get from web
-		
-		
 		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;	//10 seconds
 		int filteredCount = 0;
 		
-		RandomFilterDevices(session);
+		//RandomFilterDevices(session);
 		
 		DataOutputStream dout = null;
 		String jsonString = Utils.getControlFileJson();
@@ -153,8 +165,7 @@ public class Handlers {
 	}
 	
 	public static int StopExperiment(Session session){
-		//Main.experimentRunning = false;
-		//Main.currentExperiment = -1;
+
 		System.out.println("Experiment Stopped...");
 		session.experimentRunning = false;
 		session.currentExperiment = -1;
@@ -163,7 +174,6 @@ public class Handlers {
 		
 		System.out.println("StopExperiment: while sending stop signal to devices...");
 		
-		//for(DeviceInfo d : Main.actualFilteredDevices){
 		for(DeviceInfo d : session.actualFilteredDevices){
 			try {
 				System.out.println("StopExperiment: IP: " + d.ip + " and Port" + d.port);
@@ -194,8 +204,6 @@ public class Handlers {
 		}
 		
 		//clearing all filtered devices;
-		//Main.filteredDevices.clear();
-		//Main.actualFilteredDevices.clear();
 		session.filteredDevices.clear();
 		session.actualFilteredDevices.clear();
 		System.out.println("StopExperiment: Filtered devices....");
@@ -204,12 +212,9 @@ public class Handlers {
 	}
 	
 	public static int RegisterClient(DeviceInfo d, Session session){
-		//Integer ssid = new Integer(ss);
 		System.out.println("\nRegistering Client....");
-		//Main.registeredClients.put(d.macAddress, d);
 		(session.registeredClients).put(d.macAddress, d);
-		//(Main.SessionMap).put(ss,session);
-
+		
 		System.out.println("Client Registered....");
 		return 0;
 	}
@@ -220,8 +225,6 @@ public class Handlers {
 		
 		final int timeoutWindow = Constants.clearRegistrationTimeoutWindow;	//10 seconds
 
-
-		//for (Map.Entry<String, DeviceInfo> e : Main.registeredClients.entrySet()) {
 		for (Map.Entry<String, DeviceInfo> e : (session.registeredClients).entrySet()) {
 			DeviceInfo d = e.getValue();
 			try {
@@ -240,11 +243,6 @@ public class Handlers {
 									"'DataInputStream(s.getInputStream())' Failed...");
 			}	
 		}
-
-
-		//Main.registeredClients.clear();
-		//Main.filteredDevices.clear();
-		//Main.actualFilteredDevices.clear();
 
 		session.registeredClients.clear();
 		session.filteredDevices.clear();

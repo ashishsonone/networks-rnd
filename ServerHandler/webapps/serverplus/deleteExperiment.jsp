@@ -20,15 +20,16 @@
 		response.sendRedirect("index.jsp");
 	}
 	
-
-	DBManager db = new DBManager();
-	int res = db.deleteExperiment(expid);
-	
-	FileUtils.deleteDirectory(new File(Constants.getMainExpLogsDir() + expid));
-	
-	if(res>0) response.sendRedirect("listExperiments.jsp");
 	else{
-		response.sendRedirect("index.jsp");
+		DBManager db = new DBManager();
+		int res = db.deleteExperiment(expid);
+		
+		FileUtils.deleteDirectory(new File(Constants.getMainExpLogsDir() + expid));
+		
+		if(res>0) response.sendRedirect("listExperiments.jsp");
+		else{
+			response.sendRedirect("index.jsp");
+		}
 	}
 
 }	//checksession.jsp ke if wala

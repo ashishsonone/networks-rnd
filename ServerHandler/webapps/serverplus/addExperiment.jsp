@@ -1,4 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page import="java.util.Map" %>
 <%@ page import="serverplus.*" %>
 
 
@@ -23,9 +24,52 @@
 	<link type="text/css" rel="stylesheet" href="./css/font-awesome.css" />
 	<link type="text/css" rel="stylesheet" href="./css/font-awesome-ie7.css" />
 	<link type="text/css" rel="stylesheet" href="./css/boot-business.css" />
-	
-	
+    <script type="text/javascript" src="./js/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-popover.js"></script>
+
+
+	<script>
+    
+		var sections = {
+		    'random': 'random',
+		    'manual': 'manual'  
+		};
+    
+		var deviceFilter = function(select) {
+		    for(i in sections)
+		        document.getElementById(sections[i]).style.display = "none";    
+
+		    document.getElementById(sections[select.value]).style.display = "block";
+		    window.location.hash = select.getElementsByTagName('option')[select.selectedIndex].value;
+		}
+
+		$('#popoverData').popover({placement : 'right'});
+		$('#popoverOption').popover({ trigger: "hover" });
+
+	</script>	
   </head>
+
+  	<script>
+		$(document).ready(function(){
+		    $("#popoverData").popover({
+		        placement : 'top'
+		    });
+		    $(".pop-right").popover({
+		        placement : 'right'
+		    });
+		    $(".pop-bottom").popover({
+		        placement : 'bottom'
+		    });
+		    $(".pop-left").popover({
+		        placement : 'left'
+		    });
+		});
+	</script>
+
+
+
   <body>
 
   <%@ include file="header.jsp" %>  
@@ -51,15 +95,74 @@
 							<fieldset>          
 								<div class="form-group">
 									<div class="col-lg-3">
-										<select class="form-control">
-											<option value="1">Randomize</option>
-											<option value="2">select manually</option>
+										<label for="filtering"><h4>Select your device filtering method</h4></label>
+										<select class="form-control" name = "filter" id="filtering" onchange="deviceFilter(this);">
+											<option value="random" selected>Randomize</option>
+											<option value="manual" >select manually</option>
 										</select>
 									</div>
+
+									<div id="random" style="display:none;">
+										<br>
+					<%
+					Integer _sid_ = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+					Session _session_ = (Main.getSessionMap()).get(_sid_);
+					out.print("<input type=\"number\" name=\"filterNumber\" id=\"replynumber\" class=\"form-control\" " 
+						+  "min=\"0\" max=\"" + _session_.getRegisteredClients().size() 
+						+ "\" step=\"1\" value= \"0\""  + "/>");
+					%>			
+
+
+										<!--<input type="number" id="replyNumber" class="form-control bfh-number" min="1" max="10" step="1" data-bind="value:replyNumber" /> -->
+								        <br>
+								    </div>
+
 								</div>
 							</fieldset>
+							
+
+
+						    <div id="manual" style="display:none;">
+						        <h4>Select from following registered devices</h4> 
+							<div class="bs-example-tooltips">
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Select</th>
+											<th>Device</th>
+										</tr>
+									</thead>
+									<tbody>
+
+			<%
+
+				for(Map.Entry<String, DeviceInfo> e : _session_.getRegisteredClients().entrySet()){
+					DeviceInfo d = e.getValue();
+					out.print("<tr>");
+					out.print("<td><input type=\"checkbox\" name=\"devices\" value=\""+d.getMacAddress()+"\" /></td>");
+					out.print("<td>"
+						+ "<button type=\"button\" class=\"btn btn-success btn-xs pop-right\"" 
+						+ " data-container=\"body\" data-original-title=\"" +d.getMacAddress()
+						+ "\" data-toggle=\"popover\" data-placement=\"right\" data-content=\"OS Version: "
+						+ d.getOsVersion()+"<br> Wifi Version: "+ d.getWifiVersion() 
+			            + "<br> Number of cores: " +d.getNumberOfCores() +"<br> Storage Space: "+d.getStorageSpace()
+			            + "<br> Memory: "+d.getMemory()+"<br> Processor Speed: "+d.getProcessorSpeed()
+			            + "<br> Signal Strength: "+d.getWifiSignalStrength()+"\"> "
+			            + d.getMacAddress()+"</button>"
+						+ "</td>");
+					out.print("</tr>");
+				}
+
+			%>
+
+									</tbody>	
+								</table>
+							</div>
+
+						    </div>
 							<br>
 							<input type="submit" name="startExperiment" value="Start Experiment" class="btn btn-primary btn-large">
+							<input type="reset" name="reset" value="     Reset Fields      " class="btn btn-warning btn-large">
 						</form>
 					</div>
 									 
@@ -74,8 +177,7 @@
     </div>
 
 	<%@ include file="footer.jsp" %>
-    <script type="text/javascript" src="./js/jquery.min.js"></script>
-    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+
    
   </body>
 </html>

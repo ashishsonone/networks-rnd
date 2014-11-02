@@ -10,6 +10,7 @@
 
 		<div class="nav navbar-nav navbar-right">
 			<ul class="nav navbar-nav navbar-right">
+				<li><a href="index.jsp">Home</a> </li>
 				<li ><a href="listExperiments.jsp">Experiments</a></li>
 				<li><%@ include file="logout_button.jsp" %></li>
 			</ul>

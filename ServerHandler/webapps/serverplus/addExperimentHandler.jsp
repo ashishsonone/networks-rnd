@@ -20,7 +20,9 @@
 	
 else{	
 	String ename=null,loc=null,des=null,filename=null;
-
+	String filter = null;
+	int filterNumber=-1;
+	Vector<String> devices=new Vector<String>();
 
 	File file ;
 	int maxFileSize = 5 * 1024 * 1024;	
@@ -55,6 +57,19 @@ else{
 					}
 					else if(fieldName.equals("description")){
 						des = fieldValue;
+					}
+					else if(fieldName.equals("filter")){
+						filter = fieldValue;
+					}
+					else if(fieldName.equals("filterNumber")){
+						System.out.println("-------filterNumber: " +  fieldValue);
+						filterNumber = Integer.parseInt(fieldValue);
+						System.out.println("-------filterNumber: " +  filterNumber);
+					}else if(fieldName.equals("devices")){
+						devices.addElement(fieldValue);
+					}
+					else{
+						System.out.println("else");
 					}
 				}
 				else if(!fi.isFormField()){
@@ -98,22 +113,25 @@ else{
 				String fileName = fi.getName();
 				boolean isInMemory = fi.isInMemory();
 				long sizeInBytes = fi.getSize();
-				/*
-				if( fileName.lastIndexOf("\\") >= 0 ){
-					file = new File( filePath + 
-					fileName.substring( fileName.lastIndexOf("\\"))) ;
-				}else{
-					file = new File( filePath + 
-					fileName.substring(fileName.lastIndexOf("\\")+1)) ;
-				}
-				*/
 				file = new File(filePath + Constants.getEventFile());
 				fi.write( file ) ;
 			}
 		 }
 		 
-		 
-		 result = Handlers.StartExperiment(e,_session);
+		 System.out.println("addExperimenthandler.jsp:" + "filter value=" + filter);
+		 i = fileItems.iterator();
+		 int rand_number=0;
+		if(filter.equals("random")){
+			System.out.println("addExperimenthandler.jsp:" + "filter Number=" + filterNumber);
+			result = Handlers.StartRandomExperiment(e,_session,filterNumber);
+		}
+		else if(filter.equals("manual")){
+			for(String mac : devices){
+				System.out.println(mac);
+			}
+			result=Handlers.StartManualExperiment(e,_session,devices);
+		}
+
 		 if(result>0)
 			response.sendRedirect("index.jsp");
 		

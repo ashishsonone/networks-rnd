@@ -3,12 +3,10 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.concurrent.ConcurrentHashMap" %>
 <%@ page import="java.sql.*" %>
-<%@ include file="checksession.jsp" %>
+<%@ include file="checksession2.jsp" %>
 
 <%
 	String username = (String)session.getAttribute("username");
-	Integer _ssid = new Integer(Integer.parseInt((String)session.getAttribute("session")));
-	Session _session = (Main.getSessionMap()).get(_ssid);
 %>
 
 <html lang="en">
