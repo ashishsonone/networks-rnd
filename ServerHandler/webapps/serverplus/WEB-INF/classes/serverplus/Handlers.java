@@ -279,8 +279,9 @@ public class Handlers {
 
 	public static int DeleteSession(Integer session){
 		//! to variables cleaning first
-		Session s = (Main.SessionMap).remove(session);
-		if(s!=null){
+		Session s = (Main.SessionMap).get(session);
+		if(s!=null && !s.experimentRunning){
+			s= (Main.SessionMap).remove(session);
 			Main.freeSessions.add(session);
 			return Constants.OK;
 		}
