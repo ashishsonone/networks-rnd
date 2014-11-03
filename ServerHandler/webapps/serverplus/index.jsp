@@ -39,7 +39,7 @@
 		//   -->
 	</script>
   </head>
-  <body onload="JavaScript:AutoRefresh(10000);">
+  <body onload="JavaScript:AutoRefresh(5000);">
 
   <%@ include file="header.jsp" %>  
     
