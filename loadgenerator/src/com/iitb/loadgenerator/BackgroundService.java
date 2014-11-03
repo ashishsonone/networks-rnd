@@ -45,6 +45,13 @@ public class BackgroundService extends IntentService{
 
 		try
 		{
+			//ping check 3 times
+			for(int i=0; i<3 ;i++){
+				boolean success = Utils.ping(MainActivity.serverip);
+				Log.d(Constants.LOGTAG, "ping attempt=" + i + " ;result="+ success + "\n");
+				if(success) break;
+			}
+			
 			//Create listen socket before sending device info since we need to send listen port also
 			MainActivity.listen = new ServerSocket(0);
 			MainActivity.listen.setSoTimeout(10000);

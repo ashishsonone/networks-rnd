@@ -133,6 +133,7 @@ public class Utils {
 	
 	public static List <NameValuePair> getExitDetails(){
 		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
+		nameValuePairs.add(new BasicNameValuePair(Constants.sessionID, Integer.toString(MainActivity.sessionid)));
 		nameValuePairs.add(new BasicNameValuePair(Constants.macAddress, getMACAddress()));
 		return nameValuePairs;
 	}
@@ -142,6 +143,7 @@ public class Utils {
 		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
 		String osVersion = Integer.toString(android.os.Build.VERSION.SDK_INT);
 		
+		nameValuePairs.add(new BasicNameValuePair(Constants.sessionID, Integer.toString(MainActivity.sessionid)));
 		nameValuePairs.add(new BasicNameValuePair(Constants.ip, getIP()));
 		nameValuePairs.add(new BasicNameValuePair(Constants.port, Integer.toString(listen.getLocalPort())));
 		nameValuePairs.add(new BasicNameValuePair(Constants.osVersion, osVersion));

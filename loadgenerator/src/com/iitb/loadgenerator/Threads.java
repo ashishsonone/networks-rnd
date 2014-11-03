@@ -102,29 +102,31 @@ public class Threads {
 
 					dout.writeInt(200);
 
-
 					Log.d(Constants.LOGTAG,controlFile);
 
 					server.close();
 
 					Log.d(Constants.LOGTAG,"eventRunner : Now setting up alarms");
-
-					//Thread.sleep(10000); //Alarms are set and events processed during this time. Also log file gets generated
+					//display that control file received. Setting up alarms
+					Bundle bundle = new Bundle();
+					bundle.putString(Constants.BROADCAST_MESSAGE,"## Control file received. Setting up alarms\n");
+			        
+			        Intent local = new Intent(Constants.BROADCAST_ACTION)
+			        					.putExtras(bundle);
+			        LocalBroadcastManager.getInstance(ctx).sendBroadcast(local);
+					server.close();
+					
+					//***************
+					
 					MainActivity.load = RequestEventParser.parseEvents(controlFile);
 					MainActivity.numDownloadOver = 0; //reset it
 					MainActivity.currEvent = 0;
 					
-					
+					//send broadcast to trigger alarms
 					Intent localIntent = new Intent(Constants.BROADCAST_ALARM_ACTION);
 					localIntent.putExtra("eventid", (int) -1); //this is just to trigger first scheduleNextAlarm
 
-					// Broadcasts the Intent to receivers in this application.
 					LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
-
-					//					sendLog();
-
-					//					Log.d(Constants.LOGTAG,"eventRunner : Log file sent successfully");
-
 				}
 				else{
 					Log.d(Constants.LOGTAG,"eventRunner : No control file in response");

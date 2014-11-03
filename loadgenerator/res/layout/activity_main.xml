@@ -8,13 +8,30 @@
     	android:layout_height="wrap_content"
     	android:hint="ip"
     	android:digits="0123456789."
+    	android:layout_marginRight="10dp"
+		android:layout_marginLeft="10dp"
 		android:inputType="phone"/>
-    <EditText
-  	    android:id="@+id/serverport"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-		android:hint="port"
-		android:inputType="number" />
+    <LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" 
+	    android:orientation="horizontal">
+	    <EditText
+	  	    android:id="@+id/serverport"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+			android:hint="port"
+			android:layout_marginRight="10dp"
+			android:layout_marginLeft="10dp"
+			android:inputType="number" />
+	    <EditText
+	  	    android:id="@+id/sessionid"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+			android:hint="session id"
+			android:layout_marginRight="10dp"
+			android:layout_marginLeft="10dp"
+			android:inputType="number" />
+	</LinearLayout>
     <LinearLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content" 
@@ -26,25 +43,26 @@
 	        android:onClick="startService"
 	        android:text="@string/start"
 	        android:textSize="18sp"
-	        android:layout_weight=".40" 
-	        android:layout_margin="10dp"
-	        android:paddingTop="5dp"
-	        android:paddingBottom="5dp"
+	        android:layout_weight=".30" 
+	        android:layout_marginRight="10dp"
+	        android:layout_marginLeft="10dp"
+	        android:layout_marginTop="5dp"
 	        />
-	     <!-- android:background="@android:color/background_dark" -->
+	     <!-- 	android:background="@android:color/background_dark" 
+	     		android:paddingTop="5dp"
+	        	android:paddingBottom="5dp"-->
 	    <Button
 	        android:id="@+id/stopbutton"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:onClick="exit"
 	        android:text="@string/exit"
-	        android:layout_weight=".40"
+	        android:layout_weight=".30"
 	        android:textSize="18sp"
-	        android:layout_margin="10dp"
-	        android:paddingTop="5dp"
-	        android:paddingBottom="5dp"
+	        android:layout_marginRight="10dp"
+	        android:layout_marginLeft="10dp"
+	        android:layout_marginTop="5dp"
 	     	/>
-	    <!-- android:background="@android:color/background_dark" -->
     </LinearLayout>
 
 	<ScrollView 
@@ -57,14 +75,5 @@
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
 		android:text="@string/hello_world" />
-	</ScrollView>
-	
-	<ScrollView 
-    android:layout_width="fill_parent" 
-    android:layout_height="fill_parent"
-    android:orientation="vertical"> 
-	<WebView android:id="@+id/webview"
-        android:layout_height="wrap_content"
-       	android:layout_width="wrap_content" />
 	</ScrollView>
 </LinearLayout>

@@ -3,6 +3,7 @@ package com.iitb.loadgenerator;
 
 import java.io.File;
 import java.net.ServerSocket;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
@@ -16,6 +17,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
@@ -25,20 +27,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 	static TextView textbox;
 	static EditText ipbox;
 	static EditText portbox;
+	static EditText sessionidbox;
 	static Button startbutton;
-	static WebView webview;
+	
+	static boolean exitThreadComplete; //whether exit thread successful
 	
 	static String serverip = "192.168.0.104";
 	static int serverport = 8080;
+	static int sessionid = 2312;
 	static String myip;
 	
 	static boolean experimentOn = true; //whether to listen as server
@@ -66,7 +71,7 @@ public class MainActivity extends ActionBarActivity {
 		textbox = (TextView) findViewById(R.id.response_id);
 		ipbox = (EditText) findViewById(R.id.serverip);
 		portbox = (EditText) findViewById(R.id.serverport);
-		webview = (WebView) findViewById(R.id.webview);
+		sessionidbox = (EditText) findViewById(R.id.sessionid);
 		
 		sharedPreferences = getSharedPreferences(Constants.SHARED_PREFS, Context.MODE_PRIVATE);
 		if(sharedPreferences.contains(Constants.keyServerAdd)){
@@ -138,10 +143,28 @@ public class MainActivity extends ActionBarActivity {
 	    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 	}
 	
+	boolean isEmpty(EditText et){
+		if(et.getText().toString().toString().trim().length() > 0) return false;
+		return true;
+	}
+	
 	public void startService(View v){
 		//save the server ip and port into shared prefs
+		if(isEmpty(ipbox)){
+			Toast.makeText(this, "Please enter ip", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if(isEmpty(portbox)){
+			Toast.makeText(this, "Please enter port", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		if(isEmpty(sessionidbox)){
+			Toast.makeText(this, "Please enter sessionid", Toast.LENGTH_SHORT).show();
+			return;
+		}
 		serverip = ipbox.getText().toString();
 		serverport = Integer.parseInt(portbox.getText().toString());
+		sessionid = Integer.parseInt(sessionidbox.getText().toString());
 		
 		//every time start button is pressed
 		experimentOn = true;
@@ -165,14 +188,6 @@ public class MainActivity extends ActionBarActivity {
 //		
 //        t.start();
         
-        
-		//ping check 3 times
-		for(int i=0; i<3 ;i++){
-			boolean success = Utils.ping(serverip);
-			Log.d(Constants.LOGTAG, "ping attempt=" + i + " ;result="+ success);
-			textbox.append("ping " + i + " ; result=" + success);
-			if(success) break;
-		}
 		
 		Intent mServiceIntent = new Intent(this, BackgroundService.class);
     	startbutton.setEnabled(false);
@@ -180,9 +195,8 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	public void exit(View v){
-		Utils.sendExitSignal();
-		finish();
-        android.os.Process.killProcess(android.os.Process.myPid());
+		Log.d(Constants.LOGTAG, "creating asynctask : ExitTask");
+		new ExitTask().execute();
 	}
 
 	@Override
@@ -191,6 +205,23 @@ public class MainActivity extends ActionBarActivity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
+	 private class ExitTask extends AsyncTask<URL, Integer, Integer> {
+	     protected Integer doInBackground(URL... urls) {
+	         Utils.sendExitSignal();
+	         return 0;
+	     }
+
+	     protected void onProgressUpdate(Integer... progress) {
+	     }
+
+	     protected void onPostExecute(Integer result) {
+	    	 Log.d(Constants.LOGTAG, "killing self");
+	    	 finish();
+	         android.os.Process.killProcess(android.os.Process.myPid());
+	     }
+	 }
+
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
