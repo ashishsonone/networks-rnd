@@ -28,7 +28,7 @@ public class Constants {
 	
 	//temporary
 	static final String LOGTAG = "LOADGENERATOR";
-	static final String LINEDELIMITER = "***\n";
+	static final String LINEDELIMITER = "* * * * * *\n";
 	
 	// Defines a custom intent for alarm receiver
 	public static final String BROADCAST_ALARM_ACTION = "com.iitb.loadgenerator.BROADCAST_ALARM";

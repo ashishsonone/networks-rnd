@@ -58,7 +58,12 @@ public class BackgroundService extends IntentService{
 			
 			int status = sendDeviceInfo();
 			
-			if(status != 200){
+			if(status == 408){
+				toEnableStart = 1;
+				msg = "Could not contact server. Probably network error. Closing listen socket. Try again";
+				MainActivity.listen.close();
+			}
+			else if(status != 200){
 				toEnableStart = 1;
 				msg = "Registration Request rejected(maybe window closed). Closing listen socket. Try again";
 				MainActivity.listen.close();
@@ -106,7 +111,8 @@ public class BackgroundService extends IntentService{
 		Log.d(Constants.LOGTAG, url);
 		HttpPost httppost = new HttpPost(url);
 		List <NameValuePair> params = Utils.getMyDetailsJson(MainActivity.listen);
-		int statuscode = 404; //default if something went wrong
+		int statuscode = 408; //default if no response from server due to some cause(timeout, io error)
+		
 		try {
 			httppost.setEntity(new UrlEncodedFormEntity(params));
 			Log.d(Constants.LOGTAG, "Trying to send device info. Params set");
@@ -126,6 +132,6 @@ public class BackgroundService extends IntentService{
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		return 404;
+		return statuscode;
 	}
 }

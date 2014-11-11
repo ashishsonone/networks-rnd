@@ -8,18 +8,23 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -88,9 +93,10 @@ public class MainActivity extends ActionBarActivity {
 		startbutton = (Button) findViewById(R.id.startbutton);
 		
 		am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		
 		wifimanager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		
-		wifimanager.setWifiEnabled(true); //Switch on the wifi if not already
+		//wifimanager.setWifiEnabled(true); //Switch on the wifi if not already
 		
 		logDir = new File(Constants.logDirectory);
 		logDir.mkdirs();
@@ -111,6 +117,14 @@ public class MainActivity extends ActionBarActivity {
         AlarmReceiver alarmReceiver = new AlarmReceiver();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(alarmReceiver, alarmIntentFilter);
+        
+        //check network is connected or not. if not show networkError dialog
+        if(!isNetworkAvailable()){
+        	showNetworkErrorDialog();
+        }
+        
+        textbox.append("Network status checked using ConnectivityManager");
+        
 	}
 	
 	//reset all alarms, load, etc. Continue to listen for new experiment again from scratch
@@ -233,5 +247,36 @@ public class MainActivity extends ActionBarActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private boolean isNetworkAvailable() {
+	    ConnectivityManager connectivityManager 
+	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
+	
+	private void showNetworkErrorDialog(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+	    builder.setMessage("You need a network connection to use this application. Please turn on mobile network or Wi-Fi in Settings.")
+	        .setTitle("Unable to connect")
+	        .setCancelable(false)
+	        .setPositiveButton("Settings",
+	        new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	                Intent i = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+	                startActivity(i);
+	            }
+	        }
+	    )
+	    .setNegativeButton("Cancel",
+	        new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int id) {
+	                finish();
+	            }
+	        }
+	    );
+	    AlertDialog alert = builder.create();
+	    alert.show();
 	}
 }
