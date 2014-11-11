@@ -1,5 +1,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.Map" %>
+<%@page import="java.util.Calendar" %>
+<%@page import="java.util.Date" %>
+<%@page import="java.text.SimpleDateFormat" %>
+
 <%@ page import="serverplus.*" %>
 
 <%@ include file="checksession2.jsp" %>
@@ -49,6 +53,8 @@
 									<tr>
 										<th>Id</th>
 										<th>Name</th>
+										<th>Start Time</th>
+										<th>Duration</th>
 										<th>Delete</th>
 									</tr>
 								</thead>
@@ -57,6 +63,8 @@
 									<%
 										for (Map.Entry<Integer, Session> e : Main.getSessionMap().entrySet()) {
 											Session s = e.getValue();
+											Date creationDate = s.getCal().getTime();
+											SimpleDateFormat date_format = new SimpleDateFormat("MMM dd yyyy HH:mm");
 											if(!username.equals(s.getUser())){
 												continue;
 											}
@@ -67,6 +75,8 @@
 									<%		
 											out.print("<td>" + s.getSessionID() + "</td>");
 											out.print("<td>" + link + "</td>");
+											out.print("<td>" + date_format.format(creationDate) + "</td>");
+											out.print("<td>" + s.getDuration() + "</td>");
 											out.print("<td>" + "<a href=\"deleteSession.jsp?session=" 
 											+ s.getSessionID() + "\">" + "Delete" + "</td>");
 									%>
@@ -82,9 +92,10 @@
 					<div class="span6">
 										
 						<div>
-							<h4>Create new Session</h4>
+							<h4>Create new Session and select its duration (in hr)</h4>
 							<form method="post" action="createSession.jsp" class="form-horizontal form-signin-signup">
-								<input type="text" name="sessionName" placeholder="Enter Session Name(Required)" required>
+								<input type="text" name="sessionName" placeholder="Enter Session Name(Required)" required/>
+								<input type="number" name="duration" class="form-control" step="1" value= "3" min="1"/><br>
 								<input type="submit" name="createSession" value="Create Session" class="btn btn-primary btn-large">
 							</form>
 						</div>
@@ -100,5 +111,4 @@
    
   </body>
 </html>
-
-      
+<%@ include file="closeBracket.msg" %>

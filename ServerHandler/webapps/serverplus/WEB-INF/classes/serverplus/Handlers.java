@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.Collections;
 import java.util.Random;
 import java.util.List;
+import java.util.Calendar;
 
 public class Handlers {
 
@@ -256,15 +257,15 @@ public class Handlers {
 
 	}
 
-	public static int CreateSession(String username, String sessionName){
+	public static int CreateSession(String username, String sessionName, int duration){
 		if(Main.freeSessions.size() == 0){
 			System.out.println("CreateSession: " + "Free Sessions list size is zero");
 			return Constants.NOTOK;	
 		} 
 
 		Integer sessionID = Main.freeSessions.remove(0);
-		Session s = new Session(sessionID, sessionName,username);
-		System.out.println(s.sessionID + s.name + s.user);
+		Session s = new Session(sessionID, sessionName,username, duration);
+		System.out.println("--------------"+s.sessionID + s.name + s.user + s.duration + " " + s.cal);
 		Main.SessionMap.put(sessionID,s);
 		System.out.println("CreateSession: " + "Free Sessions list size is: " + Main.freeSessions.size());
 
@@ -288,6 +289,30 @@ public class Handlers {
 		else{
 			return Constants.NOTOK;
 		}
+	}
+	
+	public static boolean SessionValidation(String ss){
+		Calendar cal = Calendar.getInstance();
+		if(ss==null || ss.equals("")) return false;
+		Integer sid = new Integer(Integer.parseInt(ss));
+		Session session = Main.SessionMap.get(sid);
+		if(session==null) return false;
+		
+		long cur = cal.getTimeInMillis();
+		long prev = (session.cal).getTimeInMillis();
+		//long hrs = (cur - prev)/(3600*1000);
+		long hrs = (cur - prev)/(60*1000);
+
+		if(hrs<session.duration) return true;
+		
+		if(session.experimentRunning){
+			System.out.println("SessionValidation: Calling Stop Experiment");
+			StopExperiment(session);
+		}
+			
+		Main.SessionMap.remove(sid);
+		Main.freeSessions.add(sid);
+		return false;
 	}
 
 }

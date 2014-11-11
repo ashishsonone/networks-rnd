@@ -117,3 +117,4 @@
    
   </body>
 </html>
+<%@ include file="closeBracket.msg" %>

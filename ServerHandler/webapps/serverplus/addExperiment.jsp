@@ -7,7 +7,8 @@
 <%
 	String username = (String)session.getAttribute("username");
 	String password = (String)session.getAttribute("password");
-	Integer _sid_ = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+	String sessionid = (String)session.getAttribute("session");
+	Integer _sid_ = new Integer(Integer.parseInt(sessionid));
 	Session _session_ = (Main.getSessionMap()).get(_sid_);
 	
 %>
@@ -122,6 +123,9 @@
 		</div>
 			
 		<div class="container-fluid">
+			<h4>Session ID <%  out.print(sessionid); %>  </h4>
+			<%@ include file="sessionValidation.jsp" %>
+
 			<div class="row-fluid">
 				<div class="span6">
 					 <div>
@@ -206,6 +210,10 @@
 						<%@ include file="summary.jsp" %>
 					</div>
 				</div>
+				
+				<%@ include file="sessionExpiredMessage.msg" %>
+				<%@ include file="closeBracket.msg" %>
+				
 			</div>     
 		</div>
     </div>
@@ -216,4 +224,5 @@
   </body>
 </html>
 
+<%@ include file="closeBracket.msg" %>
       

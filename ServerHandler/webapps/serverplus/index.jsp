@@ -52,10 +52,12 @@
 		</div>
 		<div>
 			<a href="session.jsp">Back</a>
-			<h4>Session ID <%  out.print(sessionid); %>  </h4>
 		</div>
-			
+				
 		<div class="container-fluid">
+			<h4>Session ID <%  out.print(sessionid); %>  </h4>
+			<%@ include file="sessionValidation.jsp" %>
+		
 			<div class="row-fluid">
 				<div class="span6">
 
@@ -123,6 +125,11 @@
 %>	
 					</div>
 				</div>
+				
+				
+				<%@ include file="sessionExpiredMessage.msg" %>
+				<%@ include file="closeBracket.msg" %>
+				
 			</div>     
 		</div>
     </div>
@@ -133,5 +140,6 @@
    
   </body>
 </html>
+<%@ include file="closeBracket.msg" %>
 
       

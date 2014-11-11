@@ -8,25 +8,6 @@
 
 <%@ page import="serverplus.*" %>
 
-
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ServerHandler">
-    <meta name="IITB" content="IITB Wi-Fi Load Generator">
-    <title>ServerHandler</title>
-	
-	<link type="text/css" rel="stylesheet" href="./css/bootstrap.min.css" />
-	<link type="text/css" rel="stylesheet" href="./css/bootstrap-responsive.min.css" />
-	<link type="text/css" rel="stylesheet" href="./css/font-awesome.css" />
-	<link type="text/css" rel="stylesheet" href="./css/font-awesome-ie7.css" />
-	<link type="text/css" rel="stylesheet" href="./css/boot-business.css" />
-	
-	
-  </head>
-  <body>
-
 <%
 
 	String expID=null,macAddress=null;
@@ -57,7 +38,6 @@
 					String fieldName = fi.getFieldName();
 					String fieldValue = fi.getString();
 					System.out.println("field name: " + fieldName + ", filed value: " + fieldValue);
-					out.print("</p><br>field name: " + fieldName + ", filed value: " + fieldValue + "</p><br>");
 					if(fieldName.equals(Constants.getExpID())){
 						expID= fieldValue;
 					}
@@ -69,7 +49,6 @@
 
 			if(expID==null || macAddress==null){
 				System.out.println("Error while getting parameters");
-				out.print("<p>Error while getting parameters</p>");
 			}
 			
 			
@@ -78,7 +57,6 @@
 			if (!theDir.exists()) {
 				theDir.mkdir();
 			}
-			out.println("<p>Directory : " +  filePath + "</p>");
 
 		 i = fileItems.iterator();
 			
@@ -101,7 +79,6 @@
 		 
 		 int result = Utils.updateFileReceivedField(Integer.parseInt(expID), macAddress, true);
 			System.out.println("update FIle received result: " + result);
-			out.print("update FIle received result: " + result);
 			if(result<0)
 				response.setStatus(response.SC_REQUEST_URI_TOO_LONG);
 			
@@ -116,6 +93,3 @@
 	
 %>
 
-
-</body>
-</html>

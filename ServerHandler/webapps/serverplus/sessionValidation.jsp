@@ -1,0 +1,4 @@
+<%
+	if(Handlers.SessionValidation(sessionid)){
+%>	
+

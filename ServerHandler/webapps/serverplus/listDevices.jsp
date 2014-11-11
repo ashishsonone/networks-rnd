@@ -6,7 +6,8 @@
 <%@ include file="checksession.jsp" %>
 
 <%
-	Integer _ssid = new Integer(Integer.parseInt((String)session.getAttribute("session")));
+	String sessionid = (String)session.getAttribute("session");
+	Integer _ssid = new Integer(Integer.parseInt(sessionid));
 	Session _session = (Main.getSessionMap()).get(_ssid);
 	String username = (String)session.getAttribute("username");
 	ConcurrentHashMap<String, DeviceInfo> registeredClients = _session.getRegisteredClients();
@@ -45,34 +46,42 @@
 				<a href="index.jsp">Back</a> 
 			</div>
 			
-			<div>
-				<table class="table">
-					<thead>
-						<tr>
-							<th>Mac Address</th>
-							<th>OS Version</th>
-							<th>WiFi Version</th>
-							<th>Processor Speed</th>
-							<th>Signal Strength</th>
-						</tr>
-					</thead>
-					<tbody>
+			<div class="container-fluid">	
+				<h4>Session ID <%  out.print(sessionid); %>  </h4>
+				<%@ include file="sessionValidation.jsp" %>
+				
+				<div>
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Mac Address</th>
+								<th>OS Version</th>
+								<th>WiFi Version</th>
+								<th>Processor Speed</th>
+								<th>Signal Strength</th>
+							</tr>
+						</thead>
+						<tbody>
 <%
 	for (Map.Entry<String, DeviceInfo> e : registeredClients.entrySet()) {
 		DeviceInfo d = e.getValue();
 %>
-						<tr>
-							<td><%out.print(d.getMacAddress());%></td>  
-							<td><%out.print(""+d.getOsVersion());%></td>  
-							<td><%out.print(d.getWifiVersion());%></td>
-							<td><%out.print(d.getProcessorSpeed());%></td>
-							<td><%out.print(d.getWifiSignalStrength());%></td>
-						</tr>
+							<tr>
+								<td><%out.print(d.getMacAddress());%></td>  
+								<td><%out.print(""+d.getOsVersion());%></td>  
+								<td><%out.print(d.getWifiVersion());%></td>
+								<td><%out.print(d.getProcessorSpeed());%></td>
+								<td><%out.print(d.getWifiSignalStrength());%></td>
+							</tr>
 <% 
 	}
 %>  
-					</tbody>
-				</table>
+						</tbody>
+					</table>
+				</div>
+				
+				<%@ include file="sessionExpiredMessage.msg" %>
+				<%@ include file="closeBracket.msg" %>
 			</div>
 		</div>
 	</div>
@@ -84,4 +93,4 @@
    
   </body>
 </html>
-
+<%@ include file="closeBracket.msg" %>

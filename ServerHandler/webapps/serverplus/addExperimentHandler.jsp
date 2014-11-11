@@ -144,7 +144,7 @@ else{
 	  } 
 	  
 	}
-}
-}//ckecksession wala
-	
+}	
 %>
+
+<%@ include file="closeBracket.msg" %>

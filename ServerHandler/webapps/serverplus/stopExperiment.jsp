@@ -6,7 +6,6 @@
 	Session _session = (Main.getSessionMap()).get(_ssid);
 	Handlers.StopExperiment(_session);
 	response.sendRedirect("index.jsp");
-
-}//checksesion.jsp ke if wala
 %>
 
+<%@ include file="closeBracket.msg" %>

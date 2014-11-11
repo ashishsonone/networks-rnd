@@ -2,6 +2,7 @@ package serverplus;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Calendar;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,7 +19,8 @@ public class Session {
 	@Getter @Setter CopyOnWriteArrayList<DeviceInfo> filteredDevices = new CopyOnWriteArrayList<DeviceInfo>();
 	@Getter @Setter CopyOnWriteArrayList<DeviceInfo> actualFilteredDevices = new CopyOnWriteArrayList<DeviceInfo>();
 
-
+	@Getter @Setter int duration = 3;
+	@Getter @Setter Calendar cal = Calendar.getInstance();
 	
 
 	public Session(Integer id, String u){
@@ -31,5 +33,12 @@ public class Session {
 		sessionID=id;
 		user=u;
 		name=n;
+	}
+	
+	public Session(Integer id, String n, String u, int to){
+		sessionID=id;
+		user=u;
+		name=n;
+		duration=to;
 	}
 }

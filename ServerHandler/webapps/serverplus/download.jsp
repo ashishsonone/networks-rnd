@@ -46,7 +46,6 @@
 		out1.flush();
 		out1.close();
 	}
-
-}	//checksession.jsp ke if wala
-
 %>
+
+<%@ include file="closeBracket.msg" %>

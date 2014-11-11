@@ -35,5 +35,5 @@
 		Handlers.ClearRegistrations(_session);
 		response.sendRedirect("index.jsp");
 	}
-}	//checksession.jsp wala
 %>
+<%@ include file="closeBracket.msg" %>

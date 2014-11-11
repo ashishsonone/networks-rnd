@@ -14,12 +14,14 @@
 
 	if(exp==null) response.sendRedirect("index.jsp");
 	else{
+		System.out.println("exp is not null");
 		int expid = Integer.parseInt(exp);
 		Integer _expid = new Integer(expid);
 		//check if experiment is running
 		boolean exprunning = Main.getRunningExperimentMap().containsKey(_expid);
 
 		if(exprunning){
+			System.out.println("exp is running");
 			response.sendRedirect("index.jsp");
 		}
 		
@@ -35,7 +37,6 @@
 			}
 		}
 	}
-
-}	//checksession.jsp ke if wala
-	
 %>
+
+<%@ include file="closeBracket.msg" %>

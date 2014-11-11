@@ -19,6 +19,6 @@
 		System.out.println("deletesession.jsp: DeleteSession result= " + res);
 		response.sendRedirect("session.jsp");
 	}
-	
-}	//checksession2.jsp ke if wala
 %>
+
+<%@ include file="closeBracket.msg" %>
