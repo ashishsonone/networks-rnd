@@ -5,6 +5,7 @@ import java.io.File;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
 
 import android.app.AlarmManager;
@@ -63,7 +64,7 @@ public class MainActivity extends ActionBarActivity {
 	
 	static AlarmManager am ;
 	static WifiManager wifimanager;
-	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
+	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s:S", Locale.US);
 	
 	static File logDir; //directory containing log files
 	SharedPreferences sharedPreferences;	
@@ -123,7 +124,7 @@ public class MainActivity extends ActionBarActivity {
         	showNetworkErrorDialog();
         }
         
-        textbox.append("Network status checked using ConnectivityManager");
+        textbox.append("\nNetwork status checked using ConnectivityManager");
         
 	}
 	
@@ -135,10 +136,15 @@ public class MainActivity extends ActionBarActivity {
 			running = false;
 			numDownloadOver = 0;
 			
-			//cancel all alarms
+			//cancel scheduled alarms
 			Intent intent = new Intent(ctx, AlarmReceiver.class);
 			PendingIntent sender = PendingIntent.getBroadcast(ctx, Constants.alarmRequestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			am.cancel(sender);
+			
+			//cancel timeout alarm
+			Intent timeoutintent = new Intent(ctx, ResponseReceiver.class);
+			PendingIntent timeoutsender = PendingIntent.getBroadcast(ctx, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
+			am.cancel(timeoutsender);
 		}
 	}
 	
@@ -193,19 +199,12 @@ public class MainActivity extends ActionBarActivity {
 		textbox.append("My IP : " + Utils.getIP() + "\n");
 		textbox.append("My MAC Address : " + Utils.getMACAddress() + "\n");
 		
-//		Runnable r = new Runnable() {
-//			public void run() {
-//				Threads.sendLog("10");
-//			}
-//		};
-//		Thread t = new Thread(r);
-//		
-//        t.start();
-        
-		
 		Intent mServiceIntent = new Intent(this, BackgroundService.class);
     	startbutton.setEnabled(false);
     	startService(mServiceIntent);
+    	
+    	setKillTimeoutAlarm(); //since session has started,
+    						   //start killer alarm timer which will close the session after certain time
 	}
 	
 	public void exit(View v){
@@ -258,14 +257,13 @@ public class MainActivity extends ActionBarActivity {
 	
 	private void showNetworkErrorDialog(){
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-	    builder.setMessage("You need a network connection to use this application. Please turn on mobile network or Wi-Fi in Settings.")
+	    builder.setMessage("You need a wifi network connection to use this application. Please turn on Wi-Fi in Settings.")
 	        .setTitle("Unable to connect")
 	        .setCancelable(false)
 	        .setPositiveButton("Settings",
 	        new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int id) {
-	                Intent i = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
-	                startActivity(i);
+	                startActivityForResult(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS), 0);
 	            }
 	        }
 	    )
@@ -278,5 +276,17 @@ public class MainActivity extends ActionBarActivity {
 	    );
 	    AlertDialog alert = builder.create();
 	    alert.show();
+	}
+	
+	void setKillTimeoutAlarm(){
+		Intent timeoutintent = new Intent(Constants.BROADCAST_ACTION);
+		timeoutintent.putExtra("killtimeout", 200);
+		PendingIntent timeoutsender = PendingIntent.getBroadcast(this, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MINUTE, Constants.killTimeoutDuration);
+		Log.d(Constants.LOGTAG, "Scheduling KILLTIMEOUT @" + MainActivity.sdf.format(cal.getTime()) + "\n");
+		
+		MainActivity.am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), timeoutsender);
 	}
 }

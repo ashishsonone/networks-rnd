@@ -136,6 +136,19 @@ public class Threads {
 				Log.d(Constants.LOGTAG, "MainActivity.running boolean set to false. Reset()");
 				
 				if(MainActivity.running && MainActivity.load != null){
+					
+					//Display message that experiment is being interrupted
+					Bundle bundle = new Bundle();
+					bundle.putInt("enable", 0);
+					bundle.putString(Constants.BROADCAST_MESSAGE,
+							"stop experiment message from server.\n Listening for next experiment to begin.\n Sending partial log file");
+			        //on complete  
+			        Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+			        					.putExtras(bundle);
+			        	
+			        // Broadcasts the Intent to receivers in this application.
+			        LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
+			        
 					final String logFileName = Long.toString(MainActivity.load.loadid);
 					Runnable r = new Runnable() {
 						public void run() {
@@ -318,16 +331,15 @@ public class Threads {
 		else if(!success) msg += "FAILED connection problem/timeout";
 		else msg += " SUCCESS with RT=" + responseTime + "\n";
 		
-		Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
-			.putExtra(Constants.BROADCAST_MESSAGE, msg);
-
-		// Broadcasts the Intent to receivers in this application.
-		LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
 
 		int num = MainActivity.numDownloadOver++;
 		Log.d(Constants.LOGTAG, "handle event thread : END . Incrementing numDownloadOver to " + MainActivity.numDownloadOver + " #events is "+ MainActivity.load.events.size());
 		if(num+1 == MainActivity.load.events.size() && logFileOpened){
 			//send the consolidated log file
+			String n = Integer.toString(MainActivity.load.events.size());
+			msg += "Experiment over : all GET requests (" + n + " of " + n + ") completed\n";
+			msg += "Trying to send log file\n";
+			
 			try {
 				logwriter.write("\nEOF\n"); //this indicates that all GET requests have been seen without interruption from either user/server
 				logwriter.close();
@@ -338,11 +350,20 @@ public class Threads {
 			}
 			Log.d(Constants.LOGTAG, "handle event thread . Sending the log file");
 			int ret = Threads.sendLog(logfilename);
-		}
-		else{
-			Log.d(Constants.LOGTAG, "log file opening failed . Not sending the log file");
+			if(ret == 200){
+				msg += "log file sent successfully\n";
+			}
+			else{
+				msg += "log file sending failed\n";
+			}
 		}
 		
+		Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+		.putExtra(Constants.BROADCAST_MESSAGE, msg);
+
+		// Broadcasts the Intent to receivers in this application.
+		LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
+	
 		//finally if logwriter is not null, close it.
 		if (logwriter != null){ //close logwriter here
 			try {

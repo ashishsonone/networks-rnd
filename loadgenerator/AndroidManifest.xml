@@ -42,6 +42,8 @@
             android:exported="false"/>
         <receiver android:name=".AlarmReceiver" >
         </receiver>
+        <receiver android:name=".ResponseReceiver" >
+        </receiver>
     </application>
 
 </manifest>
