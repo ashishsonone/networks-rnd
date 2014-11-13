@@ -142,7 +142,7 @@ public class MainActivity extends ActionBarActivity {
 			am.cancel(sender);
 			
 			//cancel timeout alarm
-			Intent timeoutintent = new Intent(ctx, ResponseReceiver.class);
+			Intent timeoutintent = new Intent(ctx, AlarmReceiver.class);
 			PendingIntent timeoutsender = PendingIntent.getBroadcast(ctx, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
 			am.cancel(timeoutsender);
 		}
@@ -279,7 +279,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	void setKillTimeoutAlarm(){
-		Intent timeoutintent = new Intent(Constants.BROADCAST_ACTION);
+		Intent timeoutintent = new Intent(this, AlarmReceiver.class);
 		timeoutintent.putExtra("killtimeout", 200);
 		PendingIntent timeoutsender = PendingIntent.getBroadcast(this, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
 		

@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
@@ -22,29 +23,40 @@ public class AlarmReceiver extends WakefulBroadcastReceiver
     
     @Override
     public void onReceive(final Context context, Intent intent) {
-    	if(!MainActivity.running){
-    		Log.d(Constants.LOGTAG, "Alarm Receiver : alarm just received. But experiment not running");
-    		return;
-    	}
-    	
     	Bundle bundle = intent.getExtras();
-        int eventid = bundle.getInt("eventid");
-        
-        if(eventid >= 0){
-        	Log.d(Constants.LOGTAG, "Alarm Receiver : alarm just received (eventid=" + eventid + ") Now preparing to handle event");
-	    	Intent callingIntent = new Intent(context, DownloaderService.class);
-	
-	        callingIntent.putExtra("eventid", (int)eventid);
+    	int killtimeout = bundle.getInt("killtimeout");
+    	
+    	if(killtimeout == 200){//Need to kill current running session. Send a broadcast to do so
+    		Log.d(Constants.LOGTAG, "Alarm Receiver : kill time out");
+			bundle.putString(Constants.BROADCAST_MESSAGE,"## Control file received. Setting up alarms\n");
 	        
-	        startWakefulService(context, callingIntent);
-	        Log.d(Constants.LOGTAG, "Alarm Receiver : started the Downloader Service");
-        }
-        else{
-        	Log.d(Constants.LOGTAG, "Alarm Receiver :(eventid=" + eventid + ") Setting up first alarm");
-        }
+	        Intent local = new Intent(Constants.BROADCAST_ACTION)
+	        					.putExtras(bundle);
+	        LocalBroadcastManager.getInstance(context).sendBroadcast(local);
+    	}
+    	else{
+	    	if(!MainActivity.running){
+	    		Log.d(Constants.LOGTAG, "Alarm Receiver : alarm just received. But experiment not running");
+	    		return;
+	    	}
+	    	
+	        int eventid = bundle.getInt("eventid");
+	        
+	        if(eventid >= 0){
+	        	Log.d(Constants.LOGTAG, "Alarm Receiver : alarm just received (eventid=" + eventid + ") Now preparing to handle event");
+		    	Intent callingIntent = new Intent(context, DownloaderService.class);
 		
-		scheduleNextAlarm(context);
-		
+		        callingIntent.putExtra("eventid", (int)eventid);
+		        
+		        startWakefulService(context, callingIntent);
+		        Log.d(Constants.LOGTAG, "Alarm Receiver : started the Downloader Service");
+	        }
+	        else{
+	        	Log.d(Constants.LOGTAG, "Alarm Receiver :(eventid=" + eventid + ") Setting up first alarm");
+	        }
+			
+			scheduleNextAlarm(context);
+    	}
     }
     
     void scheduleNextAlarm(Context context){
