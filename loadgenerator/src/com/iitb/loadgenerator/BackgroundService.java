@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-
+//Called when start button is pressed. Registers itself and spawns listen server thread.
 public class BackgroundService extends IntentService{
 	
 	public BackgroundService() {
@@ -105,6 +105,7 @@ public class BackgroundService extends IntentService{
         LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 	
+	//Registers itself by sending its device info such as ip, port, memory, processor, signal strength, etc
 	public static int sendDeviceInfo(){
 		HttpClient client = Utils.getClient();
 		String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/registerClient.jsp";

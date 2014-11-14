@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+//called by alarm receiver to start serving next download event
 public class DownloaderService extends IntentService{
 	public DownloaderService() {
 		super("DownloaderService");

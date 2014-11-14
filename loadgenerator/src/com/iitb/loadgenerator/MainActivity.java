@@ -39,46 +39,48 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
-	static TextView textbox;
-	static EditText ipbox;
-	static EditText portbox;
-	static EditText sessionidbox;
-	static Button startbutton;
+	static TextView textbox; //scrollable texview displays important messages
+	static EditText ipbox; //input ip
+	static EditText portbox; //input port
+	static EditText sessionidbox; //input session id
+	static Button startbutton; //start button
 	
-	static boolean exitThreadComplete; //whether exit thread successful
-	
+	//following default values of ip, port and sessionid are not used.
 	static String serverip = "192.168.0.104";
 	static int serverport = 8080;
 	static int sessionid = 2312;
 	static String myip;
 	
-	static boolean experimentOn = true; //whether to listen as server
+	static boolean experimentOn = true; //whether to listen as server(session is on)
 	static boolean running = false; //whether scheduling alarms and downloading is going on
 	static int numDownloadOver = 0; //indicates for how many events download in thread is over
 	
-	static ServerSocket listen = null;
+	static ServerSocket listen = null; //socket which listens to server for to receive control file,
+									   //or commands such as stop experiment/ clear registration
 	
 	//Alarm specific
-	static Load load = null;
-	static int currEvent = 0;
+	static Load load = null; //this stores info about current experiment such as exp id and all events(get requests) with resp scheduled time
+	static int currEvent = 0; //which event is currently being processed
 	
 	static AlarmManager am ;
 	static WifiManager wifimanager;
 	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s:S", Locale.US);
 	
 	static File logDir; //directory containing log files
-	SharedPreferences sharedPreferences;	
+	SharedPreferences sharedPreferences; //shared preferences simply serves as offline storage for last used ip, port	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+	
+		//init views
 		textbox = (TextView) findViewById(R.id.response_id);
 		ipbox = (EditText) findViewById(R.id.serverip);
 		portbox = (EditText) findViewById(R.id.serverport);
 		sessionidbox = (EditText) findViewById(R.id.sessionid);
 		
+		//fill port and ip from shared prefs
 		sharedPreferences = getSharedPreferences(Constants.SHARED_PREFS, Context.MODE_PRIVATE);
 		if(sharedPreferences.contains(Constants.keyServerAdd)){
 			ipbox.setText(sharedPreferences.getString(Constants.keyServerAdd, ""));
@@ -87,18 +89,13 @@ public class MainActivity extends ActionBarActivity {
 			portbox.setText(sharedPreferences.getString(Constants.keyServerPort, ""));
 		}
 		
-		//ipbox.setText(serverip);
-		//portbox.setText(Integer.toString(serverport));
-		
-		
 		startbutton = (Button) findViewById(R.id.startbutton);
 		
 		am = (AlarmManager) getSystemService(ALARM_SERVICE);
 		
 		wifimanager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		
-		//wifimanager.setWifiEnabled(true); //Switch on the wifi if not already
-		
+		//logDirectory is defined in Constants class. make the directory if not already exists
 		logDir = new File(Constants.logDirectory);
 		logDir.mkdirs();
 		
@@ -106,14 +103,14 @@ public class MainActivity extends ActionBarActivity {
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 		this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); //hide keyboard until actually needed 
 		
-		//Register Broadcast receiver
+		//Register Broadcast receiver. To receive messages which needs to be displayed on screen
 		IntentFilter broadcastIntentFilter = new IntentFilter(
                 Constants.BROADCAST_ACTION);
         
         ResponseReceiver broadcastReceiver = new ResponseReceiver(new Handler());
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, broadcastIntentFilter);
         
-        //Register AlarmReceiver
+        //Register AlarmReceiver.
         IntentFilter alarmIntentFilter = new IntentFilter(Constants.BROADCAST_ALARM_ACTION);
         AlarmReceiver alarmReceiver = new AlarmReceiver();
 
@@ -168,8 +165,9 @@ public class MainActivity extends ActionBarActivity {
 		return true;
 	}
 	
+	//function called on pressing start button
 	public void startService(View v){
-		//save the server ip and port into shared prefs
+		//check if input boxes are empty
 		if(isEmpty(ipbox)){
 			Toast.makeText(this, "Please enter ip", Toast.LENGTH_SHORT).show();
 			return;
@@ -189,6 +187,7 @@ public class MainActivity extends ActionBarActivity {
 		//every time start button is pressed
 		experimentOn = true;
 		
+		//store ip and port in shared prefs
 		Editor editor = sharedPreferences.edit();
 	    editor.putString(Constants.keyServerAdd, serverip);
 	    editor.putString(Constants.keyServerPort, Integer.toString(serverport));
@@ -200,13 +199,14 @@ public class MainActivity extends ActionBarActivity {
 		textbox.append("My MAC Address : " + Utils.getMACAddress() + "\n");
 		
 		Intent mServiceIntent = new Intent(this, BackgroundService.class);
-    	startbutton.setEnabled(false);
-    	startService(mServiceIntent);
+    	startbutton.setEnabled(false); //disable start button. At a time only one session can run
+    	startService(mServiceIntent); //start BackgroundService which is the main service thread running in background
     	
     	setKillTimeoutAlarm(); //since session has started,
     						   //start killer alarm timer which will close the session after certain time
 	}
 	
+	//exit app. But before exiting, send the server that you are exiting
 	public void exit(View v){
 		Log.d(Constants.LOGTAG, "creating asynctask : ExitTask");
 		new ExitTask().execute();
@@ -219,6 +219,7 @@ public class MainActivity extends ActionBarActivity {
 		return true;
 	}
 	
+	//ExitTask sends the exit signal to server telling that it is going to exit so that server can update its info about available devices
 	 private class ExitTask extends AsyncTask<URL, Integer, Integer> {
 	     protected Integer doInBackground(URL... urls) {
 	         Utils.sendExitSignal();
@@ -248,13 +249,21 @@ public class MainActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	//checks if device is connected to wifi
 	private boolean isNetworkAvailable() {
 	    ConnectivityManager connectivityManager 
 	          = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	    
+	    NetworkInfo mWifi = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+	    if (mWifi.isConnected()) {
+	    	return true;
+	    }
+	    else return false;
 	}
 	
+	
+	//this shows network error dialog box. On cliking Settings button takes to wifi settings page. On cliking cancel, exits the app
 	private void showNetworkErrorDialog(){
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 	    builder.setMessage("You need a wifi network connection to use this application. Please turn on Wi-Fi in Settings.")
@@ -278,6 +287,10 @@ public class MainActivity extends ActionBarActivity {
 	    alert.show();
 	}
 	
+	
+	//sets the kill timeout once the session has started specified by Constants.killTimeoutDuration. 
+	//Once alarms is triggered, it stops the current session closing all sockets and alarms 
+	//and returns to default state as if app has newly started.
 	void setKillTimeoutAlarm(){
 		Intent timeoutintent = new Intent(this, AlarmReceiver.class);
 		timeoutintent.putExtra("killtimeout", 200);

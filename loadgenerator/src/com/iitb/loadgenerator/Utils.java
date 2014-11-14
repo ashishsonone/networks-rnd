@@ -44,8 +44,10 @@ import android.text.format.Formatter;
 import android.util.Log;
 
 
+//Utility class defining utility functions. function names are self explanatory in what they do.
 public class Utils {
 	
+	//send the exit signal to server
 	static void sendExitSignal(){
 		HttpClient client = Utils.getClient();
 		String url = "http://" + MainActivity.serverip + ":" + MainActivity.serverport + "/" + Constants.SERVLET_NAME + "/clientExit.jsp";
@@ -73,6 +75,7 @@ public class Utils {
 		}
 	}
 	
+	//pings the given network
 	public static boolean ping(String net){
         Log.d(Constants.LOGTAG, "ping() : entered.");
         Runtime runtime = Runtime.getRuntime();
@@ -103,6 +106,7 @@ public class Utils {
         return false;
     }
 	
+	//returns key,value pairs to be sent while sending log file
 	static List <NameValuePair> getLogFileJson(String expID){
 		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
 		
@@ -112,6 +116,8 @@ public class Utils {
 		return nameValuePairs;
 	}
 	
+	
+	//returns httpclient object setting the default timeout params
 	static HttpClient getClient(){
 		HttpParams httpParameters = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(httpParameters, Constants.timeoutConnection);
@@ -122,13 +128,16 @@ public class Utils {
 		return httpClient;
 	}
 
+	//time formatter
 	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
 	
+	//returns current time in proper format as defined above
 	static String getTimeInFormat(){
 		Calendar cal = Calendar.getInstance();
 		return sdf.format(cal.getTime());
 	}
 	
+	//returns name,value pairs to send while exit signal sent to server
 	public static List <NameValuePair> getExitDetails(){
 		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
 		nameValuePairs.add(new BasicNameValuePair(Constants.sessionID, Integer.toString(MainActivity.sessionid)));
@@ -136,6 +145,7 @@ public class Utils {
 		return nameValuePairs;
 	}
 
+	//returns name, values pairs representing device information to be sent to server during registration
 	public static List <NameValuePair> getMyDetailsJson(ServerSocket listen){
 		
 		List < NameValuePair > nameValuePairs = new ArrayList <NameValuePair> ();
@@ -253,27 +263,7 @@ public class Utils {
 	    return load;
 	}
 	
-
-	public static void tryParse(String json){
-		JSONParser parser = new JSONParser();
-		ContainerFactory containerFactory = new ContainerFactory(){
-			public List creatArrayContainer() {
-				return new LinkedList();
-			}
-
-			public Map createObjectContainer() {
-				return new LinkedHashMap();
-			}
-
-		};
-		try {
-			Map dict = (Map) parser.parse(json, containerFactory);
-			System.out.println(dict.get("balance"));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-	}
-	
+	//parse the json string sent by server in form of map of key value pairs
 	@SuppressWarnings("unchecked")
 	static Map<String, String> ParseJson(String json){
 		Map<String, String> jsonMap = null;
@@ -299,6 +289,7 @@ public class Utils {
 		return jsonMap;
 	}
 	
+	//sends the file by writing file length, and then data to output stream
 	static void SendFile(DataOutputStream out, String fileName){
 		File file = new File(fileName);
 		FileInputStream fis = null;

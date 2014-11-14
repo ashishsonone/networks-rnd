@@ -17,7 +17,7 @@ enum RequestType{
 };
 
 
-
+//Event class. stores time(as Calendar object), url, request type
 class RequestEvent{
 	Calendar cal;
 	String url;
@@ -29,6 +29,7 @@ class RequestEvent{
 	}
 }
 
+//Load contains all information about an experiment i.e event id and list of all events
 class Load{
 	long loadid;
 	Vector<RequestEvent> events;
@@ -38,6 +39,7 @@ class Load{
 	}
 }
 
+//Parser class which parses lines from control file and creates event objects
 public class RequestEventParser {
 	
 	private static final Map<String, RequestType> typeMap;

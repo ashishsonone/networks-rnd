@@ -12,7 +12,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
-
+//Triggered when alarm is received. Handles two events : 1) kill timeout(time to stop session) 
+//   and 2) normal alarm event to process next download event using DownloaderService 
 public class AlarmReceiver extends WakefulBroadcastReceiver
 {
     // Prevents instantiation
@@ -58,7 +59,8 @@ public class AlarmReceiver extends WakefulBroadcastReceiver
 			scheduleNextAlarm(context);
     	}
     }
-    
+ 
+    //Looks at next event from eventlist and schedules next alarm
     void scheduleNextAlarm(Context context){
     	if(!MainActivity.running){
     		Log.d(Constants.LOGTAG, "scheduleNextAlarm : Experiment not 'running'");

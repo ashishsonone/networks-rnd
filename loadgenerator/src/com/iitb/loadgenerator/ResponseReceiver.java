@@ -27,7 +27,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver
     	
     	Log.d(Constants.LOGTAG, "ResponseReceiver called " + Integer.toString(killtimeout));
     	
-    	if(killtimeout == 200){
+    	if(killtimeout == 200){//the broadcast was to handle kill self event.
     		handler.post(new Runnable() {
 	            @Override
 	            public void run() {
@@ -47,7 +47,7 @@ public class ResponseReceiver extends WakefulBroadcastReceiver
 	            }
 	        });
     	}
-    	else{
+    	else{//broadcast was just to display a message on screen
 	    	
 	    	final String msg = (String) bundle.getString(Constants.BROADCAST_MESSAGE);
 	    	final int enable = bundle.getInt("enable"); //returns 0 if no suck key exists

@@ -32,6 +32,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class Threads {
+	
+	//keeps listening in background for messages from server and takes necessary action
 	public static void ListenServer(final Context ctx){
 		while(MainActivity.experimentOn){//listen as a server
 			try {
@@ -64,6 +66,7 @@ public class Threads {
 		LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
 	}
 
+	//called whenever server connects. handles 3 actions : receive control file, stop experiment, clear registration
 	public static void eventRunner(Socket server, final Context ctx){
 		Log.d(Constants.LOGTAG,"Server connection established");
 		String data = "";
@@ -195,6 +198,8 @@ public class Threads {
 		}
 	}
 
+	//completes get request specified in given event(identified by eventid)
+	//also writes log to logfile about progress
 	static int HandleEvent(int eventid, final Context context){
 		//Log file will be named   <eventid> . <loadid>
 		if(!MainActivity.running){
@@ -376,6 +381,8 @@ public class Threads {
 		return 0;
 	}
 	
+	//send log files pending. this is called from a background thread.
+	//looks into log folder and sends all log files(except that of current experiment)
 	static void sendLogFilesBackground(final Context ctx){
 		File storage = new File(Constants.logDirectory); //log dir has already been created in onCreate
     	File[] files = storage.listFiles();
@@ -410,6 +417,7 @@ public class Threads {
     	LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
 	}
 
+	//send the log file specified by given name
 	@SuppressWarnings("deprecation")
 	static int sendLog(String logFileName){
 		int statusCode = 404;
