@@ -14,6 +14,8 @@ import java.util.*;
 /**
  *
  * @author sanchitgarg
+ * This class deals with all the interaction required with DataBase.
+ * It establishs and closes connection with Databse Server.
  */
 public class DBManager {
 	
@@ -22,12 +24,20 @@ public class DBManager {
 	
 	// JDBC driver name and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
+
+	//Url your database server	
 	static final String DB_URL = "jdbc:mysql://localhost/server";
 	
 	//  Database credentials
-	static final String USER = "root";
-	static final String PASS = "p";
+	static final String USER = "root";	//username
+	static final String PASS = "p";		//password
     	
+
+    /**
+    * Before executing any query this method should be called. This method creates connection with 
+    * the database server
+    *
+    */	
 	private int createConnection() {
  
 		try{
@@ -48,6 +58,12 @@ public class DBManager {
 		return Constants.connectionFailure;
 	}
 	
+	/**
+	* 
+	* This method closes connection with the database server
+	* 
+	*/
+
 	public int closeConnection(){
 		
 		try{
@@ -62,6 +78,13 @@ public class DBManager {
 		return Constants.connectionFailure;
 	}
 	
+	/**
+	* This method authenticates the user credentials. This method is mainly required by 
+	* the web-client that is the experimenter. If success it returns loginSuccess else
+	* if there is connection issue, it returns connectionFailure and in case of wrong
+	* credentials it returns loginFailure
+	*/
+
 	public int authenticate(String u, String p) {
 		int result = createConnection();
 		
@@ -92,7 +115,9 @@ public class DBManager {
 		}
 		return result;
 	}
-	
+	/**
+	* returns the maximum experiment ID till now.
+	*/
 	public int getMaxExperimentID(){
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
@@ -120,6 +145,10 @@ public class DBManager {
 		return expID;
 	}
 	
+	/**
+	* Add Experiment details to the database coreesponding to experiment id 'expid' and details 
+	* are the information regarding the device registered
+	*/
 	public int addExperimentDetail(int expID, DeviceInfo d, boolean fileReceived){
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
@@ -147,6 +176,11 @@ public class DBManager {
 		return -1;
 	}
 	
+
+	/** 
+	* When the log file is received from device 'macaddress' for the experiment number expid, 
+	* corresponding fileReceived column in the relation 'experimentdetails' is set to true
+	*/ 
 	public int updateFileReceivedField(int expID, String macaddress, boolean fileReceived){
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
@@ -166,6 +200,9 @@ public class DBManager {
 		return -1;
 	}
 	
+	/**
+	* Add new entry in the 'experiments' retation for the experiment 'e'
+	*/
 	public int addExperiment(Experiment e){
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
@@ -187,6 +224,10 @@ public class DBManager {
 		return -1;
 	}
 	
+	/**
+	* Retuns the ResultSet of all the experiments corresponding to user 'username'
+	* returns null if no user with username 'username' exists
+	*/
 	public ResultSet getExperiments(String username){
 		ResultSet rs = null;
 		int status = createConnection();
@@ -208,6 +249,11 @@ public class DBManager {
 		return rs;
 
 	}
+
+	/**
+	* returns ResultSet of all experiment details for the experiment number 'expid'
+	* returns null if no details for experiment with id = expid found
+	*/
 	public ResultSet getExperimentDetails(int expid){
 		ResultSet rs = null;
 		int status = createConnection();
@@ -229,6 +275,9 @@ public class DBManager {
 
 	}
 
+	/**
+	* Delete experiment from the relation 'experiments' and remove all its details
+	*/
 	public int deleteExperiment(int expid){
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
@@ -245,6 +294,9 @@ public class DBManager {
 		return -1;
 	}
 	
+	/**
+	* returns String containing name of event control file for experiment number 'expid'
+	*/
 	public String getEventFileOfExperiment(int expid){
 		String result=Constants.ERRORFILE;
 		int res = createConnection();

@@ -13,8 +13,18 @@ import java.util.Random;
 import java.util.List;
 import java.util.Calendar;
 
+
+/**
+ *
+ * @author sanchitgarg
+ * This class holds all the handler functionalities the clients (Web or android) interacts with server
+ */
 public class Handlers {
 
+	/**
+	* This method is called when experimenter selects random filteration of devices
+	* with 'number' as number of device required
+	*/
 	private static void RandomFilterDevices(Session session, int number){
 		System.out.println("Filtereing Devices....");
 		Vector<DeviceInfo> devices = new Vector<DeviceInfo>();
@@ -31,6 +41,11 @@ public class Handlers {
 		}			
 	}
 
+
+	/**
+	* This method is called when android device presses exit button. This method removes the device from
+	* registered clients, filtered and actual filtered list in the session
+	*/
 	public static int ClientExit(String macAddress, Session session){
 		System.out.println("ClientExit: " + "macAddress is " + macAddress);
 		if(macAddress==null || macAddress.equals("")){
@@ -300,8 +315,8 @@ public class Handlers {
 		
 		long cur = cal.getTimeInMillis();
 		long prev = (session.cal).getTimeInMillis();
-		//long hrs = (cur - prev)/(3600*1000);
-		long hrs = (cur - prev)/(60*1000);
+		long hrs = (cur - prev)/(3600*1000);
+		//long hrs = (cur - prev)/(60*1000);
 
 		if(hrs<session.duration) return true;
 		

@@ -9,6 +9,7 @@ public class Constants {
 		static final String registrationStarted = "registrationStarted";
 	}
 	
+	//Actions specified for Android-Client & Server Interaction
 	public class Action{
 		static final String startRegistration = "startRegistration";
 		static final String stopRegistration = "stopRegistration";
@@ -22,6 +23,7 @@ public class Constants {
 		static final String clearRegistration = "clearRegistration";
 	}
 	
+	//key Words for the Information about the device
 	public class Device{
 		static final String ip = "ip";
 		static final String port = "port";
@@ -35,14 +37,25 @@ public class Constants {
 		static final String storageSpace = "storageSpace";		//in MB
 	}
 	
+	//response codes when client ask for Actions
+	//if Action is performed successfully responseOK is sent
+	//iin case of error responseError is sent
 	static final int responseOK = 200; 
 	static final int responseRepeat = 300;
 	static final int responseError = 404; 
 	
+	//timeout windows for each sockets
+	//in case of sending control file if connection cannot be made until 10 seconds it timeouts and proceeds
+	//similarly while sending stop experiment signal and clear registrations signal 
 	static final @Getter int sendControlFileTimeoutWindow = 10000;	//10 seconds
 	static final @Getter int sendStopSignalTimeoutWindow = 10000;	//10 seconds
 	static final @Getter int clearRegistrationTimeoutWindow = 10000;	//10 seconds
+
+	//Max Number of sessions can be created
+	static final @Getter int maxSessions = 10000;
 	
+
+	//key Words for the Information about the device
 	static final @Getter String action = "action";
 	static final @Getter String ip = "ip";
 	static final @Getter String port = "port";
@@ -57,6 +70,7 @@ public class Constants {
 	static final @Getter String action_controlFile = "controlFile";
 	static final @Getter String textFileFollow = "textFileFollow";
 	
+	//for web-client
 	static final @Getter int loginSuccess = 0;
 	static final @Getter int loginFailure = 1;
 	static final @Getter int connectionSuccess = 2;
@@ -73,7 +87,6 @@ public class Constants {
 	static final @Getter String tempFiles = "/home/sanchit/Desktop/tempFilesforRnD/";
 	static final @Getter String ERRORFILE = "ERRORFILE";
 
-	static final @Getter int maxSessions = 10000;
 	static final @Getter String sessionID = "sessionID";
 	static final @Getter int OK = 1000;
 	static final @Getter int NOTOK = -1000;

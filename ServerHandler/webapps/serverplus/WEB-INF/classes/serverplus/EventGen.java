@@ -10,7 +10,7 @@ import java.io.BufferedReader;
 
 
 public class EventGen{
-    //Just for testing parseLine
+    //generate a single event and returns it
     public static String generateLine(Calendar cal, String type, String link){
         String line = type + " ";
         
@@ -26,14 +26,17 @@ public class EventGen{
         return line + "\n";
     }
     
+    /**
+    * reads event file line-by line uploaded by web-client and genetates events
+    * which are send to the android-clients 
+    */
     public static String generateEvents(int expid){
 		String error="error";
 		String data="";
-		//String folderPath = Constants.mainExpLogsDir + Integer.toString(expid) + "/";
 		String folderPath = Constants.mainExpLogsDir + expid + "/";
 		String eventFile = Utils.getEventFileOfExperiment(expid);
 		if(eventFile.equals(Constants.ERRORFILE)) return error;
-		//Path path = Paths.get(folderPath, Constants.eventFile);
+
 		Path path = Paths.get(folderPath, eventFile);
 		Charset charset = Charset.forName("UTF-8");
 		Calendar cal = Calendar.getInstance();

@@ -22,9 +22,16 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-
+/**
+ *
+ * @author sanchitgarg
+ * This class provides some of the utility functions
+ */
 public class Utils {
 	
+	/**
+	* not used
+	*/
 	@SuppressWarnings("unchecked")
 	static String getLogFileJson(){
 		JSONObject obj = new JSONObject();
@@ -35,6 +42,9 @@ public class Utils {
 		return jsonString;
 	}
 
+	/**
+	* not used
+	*/
 	@SuppressWarnings("unchecked")
 	public static String getMyDetailsJson(ServerSocket listen, String myip){
 		JSONObject obj = new JSONObject();
@@ -60,6 +70,10 @@ public class Utils {
 		return jsonString;
 	}
 
+
+	/**
+	* not used
+	*/
 	public static void tryParse(String json){
 		JSONParser parser = new JSONParser();
 		ContainerFactory containerFactory = new ContainerFactory(){
@@ -81,6 +95,11 @@ public class Utils {
 		}
 	}
 	
+	/**
+	* genetated and returns the String in Json format.
+	* String contains information about the action for receiving control file
+	* This string is later sent to filtered devices.
+	*/
 	@SuppressWarnings("unchecked")
 	static String getControlFileJson(){
 		JSONObject obj = new JSONObject();
@@ -91,6 +110,11 @@ public class Utils {
 		return jsonString;
 	}
 
+	/**
+	* genetated and returns the String in Json format.
+	* String contains information that the experiment has been stopped by experimenter
+	* This string is later sent to filtered devices.
+	*/
 	@SuppressWarnings("unchecked")
 	static String getStopSignalJson(){
 		JSONObject obj = new JSONObject();
@@ -100,6 +124,11 @@ public class Utils {
 		return jsonString;
 	}
 
+	/**
+	* genetated and returns the String in Json format.
+	* String contains information that all the registration has been cleared by experimenter
+	* This string is later sent to filtered devices.
+	*/
 	@SuppressWarnings("unchecked")
 	static String getClearRegistrationJson(){
 		JSONObject obj = new JSONObject();
@@ -109,6 +138,9 @@ public class Utils {
 		return jsonString;
 	}
 	
+	/**
+	* not used
+	*/
 	@SuppressWarnings("unchecked")
 	static Map<String, String> ParseJson(String json){
 		Map<String, String> jsonMap = null;
@@ -134,6 +166,10 @@ public class Utils {
 		return jsonMap;
 	}
 	
+
+	/**
+	* not used
+	*/
 	static void SendFile(DataOutputStream out, String fileName){
 		File file = new File(fileName);
 		FileInputStream fis = null;
@@ -167,6 +203,10 @@ public class Utils {
 		}
 	}
 	
+
+	/**
+	* not used
+	*/
 	static void ReceiveFile(DataInputStream dis, int bufferSize, String fileName){
 		
 		System.out.println(fileName);
@@ -192,6 +232,10 @@ public class Utils {
         
 	}
 	
+
+	/**
+	* not used
+	*/
 	static void SendResponse(Socket s, int response){
 		try {
 			DataOutputStream dout = new DataOutputStream(s.getOutputStream());
@@ -203,6 +247,10 @@ public class Utils {
 		}
 	}
 	
+
+	/**
+	* returns ID of the experiment with max experimentID
+	*/
 	public static int getCurrentExperimentID(){
 		DBManager db = new DBManager();
 		int res = db.getMaxExperimentID();
@@ -210,24 +258,40 @@ public class Utils {
 		return res;
 	}
 	
+
+	/**
+	* adds device information in 'd' to the experiment corresponds to ID 'expID'
+	*/
 	public static int addExperimentDetails(int expID, DeviceInfo d, boolean fileReceived){
 		DBManager db = new DBManager();
 		int res = db.addExperimentDetail(expID, d, fileReceived); 
 		return res;
 	}
 	
+
+	/** 
+	* When the log file is received from device 'macaddress' for the experiment number expid, 
+	* corresponding fileReceived column in the relation 'experimentdetails' is set to true
+	*/ 
 	public static int updateFileReceivedField(int expID, String macAddress, boolean fileReceived){
 		DBManager db = new DBManager();
 		int res = db.updateFileReceivedField(expID, macAddress, fileReceived); 
 		return res;
 	}
 	
+	/**
+	* Add new entry in the 'experiments' retation for the experiment 'e'
+	*/
 	public static int addExperiment(Experiment e){
 		DBManager db = new DBManager();
 		int res = db.addExperiment(e); 
 		return res;
 	}
 	
+
+	/**
+	* returns String containing name of event control file for experiment number 'expid'
+	*/
 	public static String getEventFileOfExperiment(int expid){
 		DBManager db = new DBManager();
 		String res = db.getEventFileOfExperiment(expid); 

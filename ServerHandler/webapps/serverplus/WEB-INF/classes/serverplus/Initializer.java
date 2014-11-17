@@ -3,7 +3,12 @@ package serverplus;
 import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 
- 
+/**
+ *
+ * @author sanchitgarg
+ * This class initializes the pool of free Session IDs(Described in Main.java). 
+ * The method init() is called when the servlet starts.
+ */
 @SuppressWarnings("serial")
 public class Initializer extends HttpServlet{
  
