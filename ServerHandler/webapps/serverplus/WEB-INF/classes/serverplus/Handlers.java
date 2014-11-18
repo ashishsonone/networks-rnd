@@ -83,18 +83,29 @@ public class Handlers {
 		return 3;
 	}
 	
+	/**
+	* The method opens the registration window for the session. Now devices can register
+	*/
 	public static int StartRegistration(Session session){
 		session.registrationWindowOpen = true;
 		System.out.println("StartRegistration: Registrations are open. Now devices can register....");
 		return 0;
 	}
 	
+	/**
+	* The method closes the registration window for the session. Now devices cannot register
+	*/
 	public static int StopRegistration(Session session){
 		session.registrationWindowOpen = false;
 		System.out.println("StopRegistration: Registration is now closed....");
 		return 0;
 	}
 
+
+	/**
+	* Method is called if experiment demands selecting 'number' number of devices randomly.
+	* It first Filter the devices and then calls StartExperiment
+	*/
 	public static int StartRandomExperiment(Experiment e, Session session, int number){
 		RandomFilterDevices(session,number);
 		int expectedFilterCount = number;
@@ -103,6 +114,10 @@ public class Handlers {
 		return result;
 	}
 
+
+	/**
+	* Method is called if experiment demands selecting devices manually
+	*/
 	public static int StartManualExperiment(Experiment e, Session session, Vector<String> devices){
 		for (String macAddress : devices) {
 			DeviceInfo d = session.registeredClients.get(macAddress);
@@ -115,6 +130,14 @@ public class Handlers {
 	}
 	
 	//returns max id enterd in database
+	/**
+	* This method is responsible for actual starting the experiment. 'expectedFilterCount' is an 
+	* argument which is required as how many devices from list 'session.filteredDevices' experiment 
+	* is to be started with. It returns the id of the experiment started. If returns -1, there is 
+	* problem with starting experiment.
+	* The method sends control file to atmost 'expectedFilterCount' number of devices. On receiving 
+	* 200 OK message from the device, device details are added to the experiment.
+	*/
 	public static int StartExperiment(Experiment e, Session session, int expectedFilterCount){
 		System.out.println("\n"+"StartExperiment: "+"Starting Experiment....");
 		session.currentExperiment=e.ID;
@@ -183,6 +206,13 @@ public class Handlers {
 		return session.currentExperiment;
 	}
 	
+
+	/**
+	* This method is called when web-client presses Stop Experiment button or session expires.
+	* On stopping experiment, the devices which are in 'session.actualFilteredDevices' list are
+	* sent stop experiment signal and then 'session.filteredDevices' and 'session.actualFilteredDevices' 
+	* lists are emptied.
+	*/
 	public static int StopExperiment(Session session){
 
 		Main.RunningExperimentMap.remove(session.currentExperiment);
@@ -231,6 +261,10 @@ public class Handlers {
 		
 	}
 	
+	
+	/**
+	* This method adds device to the registered devices list
+	*/
 	public static int RegisterClient(DeviceInfo d, Session session){
 		System.out.println("\nRegistering Client....");
 		(session.registeredClients).put(d.macAddress, d);
@@ -239,6 +273,10 @@ public class Handlers {
 		return 0;
 	}
 	
+
+	/**
+	* This method clears the registered devices and send signal to android clients about the same
+	*/
 	public static void ClearRegistrations(Session session){
 		String jsonString = Utils.getClearRegistrationJson();
 		System.out.println("ClearRegistrations: " + "jsonString= " + jsonString);
@@ -267,11 +305,12 @@ public class Handlers {
 		session.registeredClients.clear();
 		session.filteredDevices.clear();
 		session.actualFilteredDevices.clear();
-		//! TODO send signal to devices about clearing registratons.
-
-
 	}
 
+	
+	/**
+	* This method creates session and returns id of the session created
+	*/
 	public static int CreateSession(String username, String sessionName, int duration){
 		if(Main.freeSessions.size() == 0){
 			System.out.println("CreateSession: " + "Free Sessions list size is zero");
@@ -293,6 +332,11 @@ public class Handlers {
 		return sessionID;
 	}
 
+	
+	/**
+	* This method deletes session whose id is session
+	* If the experiment is running, it doesn't delte the experiment and returns notOK
+	*/
 	public static int DeleteSession(Integer session){
 		//! to variables cleaning first
 		Session s = (Main.SessionMap).get(session);
@@ -306,6 +350,11 @@ public class Handlers {
 		}
 	}
 	
+	/**
+	* This method validates session whose id in string is ss
+	* If session duration is over it deletes the session. Also if the experiment is running, it first
+	* stop the experiment and then delete the session. 
+	*/
 	public static boolean SessionValidation(String ss){
 		Calendar cal = Calendar.getInstance();
 		if(ss==null || ss.equals("")) return false;
