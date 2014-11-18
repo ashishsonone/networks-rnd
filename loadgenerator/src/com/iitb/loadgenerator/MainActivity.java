@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
@@ -34,6 +35,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity {
 	static TextView textbox; //scrollable texview displays important messages
@@ -165,32 +167,7 @@ public class MainActivity extends ActionBarActivity {
 	//function called on pressing start button
 	static int di = 0;
 	public void startService(View v){
-		
-		final int ii = di;
-		Runnable r = new Runnable() {
-			public void run() {
-				Log.d(Constants.LOGTAG + "runnable run()", "entered thread " + ii + " Calling sendLogDummy");
-				Threads.sendLogDummy(ii);
-			}
-		};
-		textbox.append("starting thread " + ii + "\n");
-		Log.d(Constants.LOGTAG + "start", "spawning concurrent thread " + ii);
-		Thread t = new Thread(r);
-		t.start();
-		
-		Runnable r2 = new Runnable() {
-			public void run() {
-				Log.d(Constants.LOGTAG + "sendLogDummyNotSync run()", "entered thread " + ii + " Calling sendLogDummy");
-				Threads.sendLogDummyNotSync(ii);
-			}
-		};
-		textbox.append("starting thread 2" + ii + "\n");
-		Log.d(Constants.LOGTAG + "start", "spawning concurrent thread " + ii);
-		Thread t2 = new Thread(r2);
-		t2.start();
-		di++;
-		
-		/*
+
 		//check if input boxes are empty
 		if(isEmpty(ipbox)){
 			Toast.makeText(this, "Please enter ip", Toast.LENGTH_SHORT).show();
@@ -229,7 +206,6 @@ public class MainActivity extends ActionBarActivity {
     	setKillTimeoutAlarm(); //since session has started,
     						   //start killer alarm timer which will close the session after certain time
 		 
-		 */ 
 	}
 	
 	//exit app. But before exiting, send the server that you are exiting
