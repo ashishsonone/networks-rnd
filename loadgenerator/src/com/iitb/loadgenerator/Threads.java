@@ -417,6 +417,28 @@ public class Threads {
     	LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
 	}
 
+	static synchronized void sendLogDummy(int i){
+		Log.d(Constants.LOGTAG + "sendLogDummy", "enter i " + Integer.toString(i));
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log.d(Constants.LOGTAG + "sendLogDummy", "exit i " + Integer.toString(i));
+	}
+	
+	static void sendLogDummyNotSync(int i){
+		Log.d(Constants.LOGTAG + "sendLogDummyNotSync", "enter i " + Integer.toString(i));
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log.d(Constants.LOGTAG + "sendLogDummyNotSync", "exit i " + Integer.toString(i));
+	}
+	
 	//send the log file specified by given name
 	@SuppressWarnings("deprecation")
 	static int sendLog(String logFileName){
