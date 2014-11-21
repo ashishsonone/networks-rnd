@@ -21,6 +21,7 @@ public class Constants {
 		static final String registerClient = "register";
 		static final String ping = "ping";
 		static final String clearRegistration = "clearRegistration";
+		static final String sendSessionDuration = "sendSessionDuration";
 	}
 	
 	//key Words for the Information about the device
@@ -47,9 +48,12 @@ public class Constants {
 	//timeout windows for each sockets
 	//in case of sending control file if connection cannot be made until 10 seconds it timeouts and proceeds
 	//similarly while sending stop experiment signal and clear registrations signal 
+	static final @Getter int sendSessionDurationTimeoutWindow = 10000;	//10 seconds
 	static final @Getter int sendControlFileTimeoutWindow = 10000;	//10 seconds
 	static final @Getter int sendStopSignalTimeoutWindow = 10000;	//10 seconds
 	static final @Getter int clearRegistrationTimeoutWindow = 10000;	//10 seconds
+
+	static final @Getter String sessionDuration = "sessionDuration";
 
 	//Max Number of sessions can be created
 	static final @Getter int maxSessions = 10000;
@@ -88,6 +92,7 @@ public class Constants {
 	static final @Getter String ERRORFILE = "ERRORFILE";
 
 	static final @Getter String sessionID = "sessionID";
+	
 	static final @Getter int OK = 1000;
 	static final @Getter int NOTOK = -1000;
 }

@@ -12,6 +12,8 @@
 	String exp = (String)request.getParameter(Constants.getExpID());
 	if(exp==null) response.sendRedirect("index.jsp");
 		int expid = Integer.parseInt(exp);
+		
+	int filescount=0;	
 %>
 
 <html lang="en">
@@ -46,7 +48,7 @@
 			</div>
 			
 			<div>
-				
+				<h3> Experiment <% out.print(exp); %> </h3>
 <%
 	DBManager db = new DBManager();
 	ResultSet rs = db.getExperimentDetails(expid);
@@ -94,6 +96,8 @@
 								+ "&download=log&" + Constants.getMacAddress() + "="
 								+ URLEncoder.encode((String)rs.getString(2), "UTF-8")   
 								+ "\" > Download </a>");
+							
+							filescount++;
 							}
 						%>
 						</td>	
@@ -106,6 +110,14 @@
 %>
 					</tbody>
 				</table>
+			</div>
+			<div>
+			<%
+				System.out.println("<a href=\"downloadzip.jsp?" + Constants.getExpID() +"="+ expid + "\" > Download all </a>");
+				if(filescount>0){
+					out.print("<a href=\"downloadzip.jsp?" + Constants.getExpID() +"="+ expid + "\" > Download all </a>");
+				}
+			%>
 			</div>
 		</div>
 	</div>

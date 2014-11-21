@@ -267,6 +267,32 @@ public class Handlers {
 	*/
 	public static int RegisterClient(DeviceInfo d, Session session){
 		System.out.println("\nRegistering Client....");
+		
+		/*
+		
+		try {
+			System.out.println("RegisterClient: IP: " + d.ip + " and Port" + d.port);
+			Socket s = new Socket(d.ip, d.port);
+			s.setSoTimeout(Constants.sendSessionDurationTimeoutWindow);
+			DataOutputStream dout = new DataOutputStream(s.getOutputStream());
+			
+			String jsonString = Utils.getSessionDurationJson(session.duration);
+			System.out.println(jsonString);
+			dout.writeInt(jsonString.length());
+			dout.writeBytes(jsonString);
+
+			s.close();
+			
+		} catch (InterruptedIOException ie){
+			System.out.println("RegisterClient: Timeout occured for sending session duration to device with ip: "
+										+ d.ip + " and Port: " + d.port);
+		} catch (IOException ioe) {
+			System.out.println("RegisterClient: 'new DataOutputStream(out)' Failed...");
+		}	
+
+		*/
+		
+		
 		(session.registeredClients).put(d.macAddress, d);
 		
 		System.out.println("Client Registered....");
