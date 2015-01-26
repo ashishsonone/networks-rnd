@@ -197,10 +197,30 @@ public class Threads {
 			e.printStackTrace();
 		}
 	}
+	
+	//write log content to log file specified
+	static synchronized String writeToLogFile(String logfilename, String log){
+		File logfile = new File(MainActivity.logDir, logfilename);
+		BufferedWriter logwriter = null;
+		String msg = "";
+		try {
+			logwriter = new BufferedWriter(new FileWriter(logfile, true));
+			logwriter.append(log);
+			logwriter.close();
+			msg += " local log write success\n";
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			Log.d(Constants.LOGTAG, "HandleEvent() : can't open log file for writing " + logfilename);
+			msg += " Couldn't open log file " + logfilename;
+			e1.printStackTrace();
+		}
+		return msg;
+	}
 
 	//completes get request specified in given event(identified by eventid)
 	//also writes log to logfile about progress
-	static synchronized int HandleEvent(int eventid, final Context context){
+	//if all downloads over, send the log file
+	static int HandleEvent(int eventid, final Context context){
 		//Log file will be named   <eventid> . <loadid>
 		if(!MainActivity.running){
 			Log.d(Constants.LOGTAG, "HandleEvent : But experiment not running");
@@ -208,7 +228,7 @@ public class Threads {
 		}
 		RequestEvent event = MainActivity.load.events.get(eventid);
 		String logfilename = "" + MainActivity.load.loadid;
-		File logfile = new File(MainActivity.logDir, logfilename);
+		
 		
 		Log.d(Constants.LOGTAG, "HandleEvent : just entered thread");
 		
@@ -216,143 +236,123 @@ public class Threads {
 		OutputStream output = null;
 		HttpURLConnection connection = null;
 		String filename = "unknown"; //file name of file to download in GET request
-		BufferedWriter logwriter = null;
+		//BufferedWriter logwriter = null;
 		boolean success = false;
 
 		Calendar startTime = null, endTime = null;
 		long responseTime = -1;
+		StringBuilder logwriter = new StringBuilder();
 		
-		boolean logFileOpened = false;
 		try {
-			logwriter = new BufferedWriter(new FileWriter(logfile, true));
-			logFileOpened = true;
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			Log.d(Constants.LOGTAG, "HandleEvent() : can't open log file for writing " + logfilename);
-			e1.printStackTrace();
-		}
-		
-		if(logFileOpened){
-			//By here log file has been opened for writing
-			try {
-				URL url = new URL(event.url);
-				
-				logwriter.write("details: " + MainActivity.load.loadid + " " + eventid +  "\n");
-				logwriter.write("url: " + url + "\n");
-				
-				filename = event.url.substring(event.url.lastIndexOf('/') + 1);
-				
-				Log.d(Constants.LOGTAG, "HandleEvent : " + event.url + " " + filename);
-				
-				connection = (HttpURLConnection) url.openConnection();
-				connection.setReadTimeout(10000); //10 seconds timeout for reading from input stream
-				connection.setConnectTimeout(10000); //10 seconds before connection can be established
-				
-				//note start time 
-				startTime = Calendar.getInstance();
-				
-				connection.connect();
+			URL url = new URL(event.url);
+			
+			logwriter.append("details: " + MainActivity.load.loadid + " " + eventid +  "\n");
+			logwriter.append("url: " + url + "\n");
+			
+			filename = event.url.substring(event.url.lastIndexOf('/') + 1);
+			
+			Log.d(Constants.LOGTAG, "HandleEvent : " + event.url + " " + filename);
+			
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setReadTimeout(10000); //10 seconds timeout for reading from input stream
+			connection.setConnectTimeout(10000); //10 seconds before connection can be established
+			
+			//note start time 
+			startTime = Calendar.getInstance();
+			
+			connection.connect();
 	
-				// expect HTTP 200 OK, so we don't mistakenly save error report
-				// instead of the file
-				if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-					Log.d(Constants.LOGTAG, "HandleEvent : " + " connection response code error");
-					logwriter.write("connect failed : code " + connection.getResponseCode() + "\n");
-					logwriter.write(Constants.LINEDELIMITER); //this marks the end of this log
-				}
-				else{
-					// this will be useful to display download percentage
-					// might be -1: server did not report the length
-					int fileLength = connection.getContentLength();
-					logwriter.write("length: " + Integer.toString(fileLength) + " \n");
-					
-					Log.d(Constants.LOGTAG, "HandleEvent : " + " filelength " + fileLength);
-		
-					// download the file
-					input = connection.getInputStream();
-					output = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + filename);
-		
-					byte data[] = new byte[4096];
-					long total = 0;
-					int count;
-					int oldprogress = 0, currprogress = 0;
-					
-					Log.d(Constants.LOGTAG, "HandleEvent : " + " file opened on sd card");
-					logwriter.write(Utils.getTimeInFormat() + " " + currprogress + "% " + total + "\n"); //first progress 0%
-					while ((count = input.read(data)) != -1) {
-		//				Log.d(Constants.LOGTAG, "HandleEvent : " + " Received chunk of size " + count);
-						total += count;
-		
-						// publishing the progress....
-						if (fileLength > 0){ // only if total length is known
-							currprogress = (int) (total * 100 / fileLength);
-							if(currprogress > oldprogress){
-								oldprogress = currprogress;
-								Log.d(Constants.LOGTAG, currprogress + "% " + total + "\n");
-								logwriter.write(Utils.getTimeInFormat() + " " + currprogress + "% " + total + "\n");
-							}
-							//publishProgress((int) (total * 100 / fileLength));
-						}
-						output.write(data, 0, count);
-					}
-					//File download over
-					success = true;
-					
-					//note end time take the difference as response time
-					endTime = Calendar.getInstance();
-					
-					responseTime = endTime.getTimeInMillis() - startTime.getTimeInMillis();
-					logwriter.write("RT " +  responseTime + "\n");
-		
-					logwriter.write("success\n");
-					logwriter.write(Constants.LINEDELIMITER); //this marks the end of this log
-					
-				}
-			} catch (Exception e) {
-				try {
-					logwriter.write("failure\n");
-					logwriter.write(Constants.LINEDELIMITER); //this marks the end of this log
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				e.printStackTrace();
-			} finally {
-				try {
-					if (output != null)
-						output.close();
-					if (input != null)
-						input.close();
-				} catch (IOException ignored) {
-				}
-	
-				if (connection != null)
-					connection.disconnect();
+			// expect HTTP 200 OK, so we don't mistakenly save error report
+			// instead of the file
+			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+				Log.d(Constants.LOGTAG, "HandleEvent : " + " connection response code error");
+				logwriter.append("connect failed : code " + connection.getResponseCode() + "\n");
+				logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
 			}
+			else{
+				// this will be useful to display download percentage
+				// might be -1: server did not report the length
+				int fileLength = connection.getContentLength();
+				logwriter.append("length: " + Integer.toString(fileLength) + " \n");
+				
+				Log.d(Constants.LOGTAG, "HandleEvent : " + " filelength " + fileLength);
+	
+				// download the file
+				input = connection.getInputStream();
+				output = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + filename);
+	
+				byte data[] = new byte[4096];
+				long total = 0;
+				int count;
+				int oldprogress = 0, currprogress = 0;
+				
+				Log.d(Constants.LOGTAG, "HandleEvent : " + " file opened on sd card");
+				logwriter.append(Utils.getTimeInFormat() + " " + currprogress + "% " + total + "\n"); //first progress 0%
+				while ((count = input.read(data)) != -1) {
+	//				Log.d(Constants.LOGTAG, "HandleEvent : " + " Received chunk of size " + count);
+					total += count;
+	
+					// publishing the progress....
+					if (fileLength > 0){ // only if total length is known
+						currprogress = (int) (total * 100 / fileLength);
+						if(currprogress > oldprogress){
+							oldprogress = currprogress;
+							Log.d(Constants.LOGTAG, currprogress + "% " + total + "\n");
+							logwriter.append(Utils.getTimeInFormat() + " " + currprogress + "% " + total + "\n");
+						}
+						//publishProgress((int) (total * 100 / fileLength));
+					}
+					output.write(data, 0, count);
+				}
+				//File download over
+				success = true;
+				
+				//note end time take the difference as response time
+				endTime = Calendar.getInstance();
+				
+				responseTime = endTime.getTimeInMillis() - startTime.getTimeInMillis();
+				logwriter.append("RT " +  responseTime + "\n");
+	
+				logwriter.append("success\n");
+				logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
+				
+			}
+		} catch (Exception e) {
+			logwriter.append("failure\n");
+			logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
+			e.printStackTrace();
+		} finally {
+			try {
+				if (output != null)
+					output.close();
+				if (input != null)
+					input.close();
+			} catch (IOException ignored) {
+			}
+	
+			if (connection != null)
+				connection.disconnect();
 		}
 		
 		String msg = "GET #" + eventid + " File : " + filename;
-		if(!logFileOpened) msg += " Couldn't open log file " + logfilename;
-		else if(!success) msg += "FAILED connection problem/timeout";
+		if(!success) msg += "FAILED connection problem/timeout";
 		else msg += " SUCCESS with RT=" + responseTime + "\n";
 		
 
 		int num = MainActivity.numDownloadOver++;
 		Log.d(Constants.LOGTAG, "handle event thread : END . Incrementing numDownloadOver to " + MainActivity.numDownloadOver + " #events is "+ MainActivity.load.events.size());
-		if(num+1 == MainActivity.load.events.size() && logFileOpened){
+		if(num+1 == MainActivity.load.events.size()){
 			//send the consolidated log file
 			String n = Integer.toString(MainActivity.load.events.size());
 			msg += "Experiment over : all GET requests (" + n + " of " + n + ") completed\n";
-			msg += "Trying to send log file\n";
+			//msg += "Trying to send log file\n";
 			
-			try {
-				logwriter.write("\nEOF\n"); //this indicates that all GET requests have been seen without interruption from either user/server
-				logwriter.close();
-				logwriter = null; //done with logwriter here. Need to close before sending logfile is called otherwise current 
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			logwriter.append("\nEOF\n"); //this indicates that all GET requests have been seen without interruption from either user/server
+			
+			String logString = logwriter.toString(); //get the content of stringbuilder into a string
+			
+			String retmsg = writeToLogFile(logfilename, logString); //write the log to file. This is a synchronized operation, only one thread can do it at a time
+			msg += retmsg;
 			Log.d(Constants.LOGTAG, "handle event thread . Sending the log file");
 			int ret = Threads.sendLog(logfilename);
 			if(ret == 200){
@@ -362,6 +362,12 @@ public class Threads {
 				msg += "log file sending failed\n";
 			}
 		}
+		else{//just write the log to log file
+			String logString = logwriter.toString(); //get the content of stringbuilder into a string
+			
+			String retmsg = writeToLogFile(logfilename, logString); //write the log to file. This is a synchronized operation, only one thread can do it at a time
+			msg += retmsg;
+		}
 		
 		Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
 		.putExtra(Constants.BROADCAST_MESSAGE, msg);
@@ -369,15 +375,6 @@ public class Threads {
 		// Broadcasts the Intent to receivers in this application.
 		LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
 	
-		//finally if logwriter is not null, close it.
-		if (logwriter != null){ //close logwriter here
-			try {
-				logwriter.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		return 0;
 	}
 	
