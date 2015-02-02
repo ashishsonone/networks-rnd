@@ -123,9 +123,21 @@ public class Utils {
 	/**
 	* Add new entry in the 'experiments' retation for the experiment 'e'
 	*/
-	public static int addExperiment(Experiment e){
+	public synchronized static int addExperiment(Experiment e){
 		DBManager db = new DBManager();
-		int res = db.addExperiment(e); 
+		int res = db.addExperiment(e);
+		if(res < 0) return -1;
+		res = getCurrentExperimentID();
+		if(res >=0) e.ID = res;
+		return res;
+	}
+	
+	/**
+	* Delete entry in the 'experiments' retation for the experimentid 'eid'
+	*/
+	public static int deleteExperiment(int eid){
+		DBManager db = new DBManager();
+		int res = db.deleteExperiment(eid); 
 		return res;
 	}
 	
@@ -135,7 +147,7 @@ public class Utils {
 	*/
 	public static String getEventFileOfExperiment(int expid){
 		DBManager db = new DBManager();
-		String res = db.getEventFileOfExperiment(expid); 
+		String res = db.getEventFileOfExperiment(expid);
 		return res;
 	}
 	

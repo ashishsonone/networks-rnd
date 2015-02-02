@@ -125,7 +125,7 @@ public class Handlers {
 		}
 		int expectedFilterCount = devices.size();
 		int result = StartExperiment(e, session, expectedFilterCount);
-		System.out.println("StartRandomExperiment: " +"count: "+devices.size()+" result: "+result);
+		System.out.println("StartManualExperiment: " +"count: "+devices.size()+" result: "+result);
 		return result;
 	}
 	
@@ -139,28 +139,18 @@ public class Handlers {
 	* 200 OK message from the device, device details are added to the experiment.
 	*/
 	public static int StartExperiment(Experiment e, Session session, int expectedFilterCount){
-		System.out.println("\n"+"StartExperiment: "+"Starting Experiment....");
-		session.currentExperiment=e.ID;
-		session.experimentRunning=true;
-		if(session.currentExperiment<0){
-			System.out.print("Kuch th Panga hai");
-			return -1;
-		}
+		System.out.println("\n"+"StartExperiment: "+"Starting Experiment" +  e.Name + "....");
 
-		Boolean b = new Boolean(true);
-		Main.RunningExperimentMap.put(session.currentExperiment,b);
-
-		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;	//10 seconds
+		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;
 		int filteredCount = 0;
-		
-		//RandomFilterDevices(session);
 		
 		DataOutputStream dout = null;
 		String jsonString = Utils.getControlFileJson();
-		String events = EventGen.generateEvents(session.currentExperiment);
+		String events = EventGen.generateEvents(e.ID);
 		
 		System.out.println(events);
-		if(events.equals("error")) return -1;
+		if(events.startsWith("ERROR")) return -1;
+		//if(events.equals("error")) return -1;
 		
 		for(DeviceInfo d : session.filteredDevices){
 			try {
@@ -180,15 +170,8 @@ public class Handlers {
 				DataInputStream din = new DataInputStream(s.getInputStream());
 				int response = din.readInt();
 				if(response == Constants.responseOK){
-					int status = Utils.addExperimentDetails(session.currentExperiment, d, false);
 					session.actualFilteredDevices.add(d);
-					if(status<0){
-						System.out.println("StartExperiment: Error occured during inserting experiment details for device: " 
-												+ d.ip + ", " + d.macAddress);
-					}
-					else{
-						filteredCount++;
-					}
+					filteredCount++;
 				}
 				s.close();
 				if(filteredCount >= expectedFilterCount){
@@ -203,6 +186,31 @@ public class Handlers {
 									"'DataInputStream(s.getInputStream())' Failed...");
 			}
 		}
+		
+		System.out.println("Total actual filtered count is " + filteredCount);
+		
+		//if filteredDevices = 0 ,then no control files have been sent so addExperiment.jsp should show error
+		if(filteredCount==0) {
+			StopExperiment(session);
+			Utils.deleteExperiment(e.ID);
+			return -1;
+		}
+		
+	
+		for(DeviceInfo d : session.actualFilteredDevices){
+			int status = Utils.addExperimentDetails(e.ID, d, false);
+			if(status<0){
+				System.out.println("StartExperiment: Error occured during inserting experiment details for device: " 
+										+ d.ip + ", " + d.macAddress);
+				StopExperiment(session);
+				Utils.deleteExperiment(e.ID);
+				return -1;
+			}
+		}
+		
+		session.currentExperiment=e.ID;
+		session.experimentRunning=true;	
+		Main.RunningExperimentMap.put(session.currentExperiment,new Boolean(true));
 		return session.currentExperiment;
 	}
 	
@@ -248,6 +256,7 @@ public class Handlers {
 				System.out.println("StopExperiment: Timeout occured for sending stop Signal to device with ip: "
 											+ d.ip + " and Port: " + d.port);
 			} catch (IOException ioe) {
+				ioe.printStackTrace();
 				System.out.println("StopExperiment: 'new DataOutputStream(out)' or " +
 									"'DataInputStream(s.getInputStream())' Failed...");
 			}	

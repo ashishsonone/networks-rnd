@@ -46,12 +46,12 @@ public class Constants {
 	static final int responseError = 404; 
 	
 	//timeout windows for each sockets
-	//in case of sending control file if connection cannot be made until 10 seconds it timeouts and proceeds
+	//in case of sending control file if connection cannot be made until 5 seconds it timeouts and proceeds
 	//similarly while sending stop experiment signal and clear registrations signal 
-	static final @Getter int sendSessionDurationTimeoutWindow = 10000;	//10 seconds
-	static final @Getter int sendControlFileTimeoutWindow = 10000;	//10 seconds
-	static final @Getter int sendStopSignalTimeoutWindow = 10000;	//10 seconds
-	static final @Getter int clearRegistrationTimeoutWindow = 10000;	//10 seconds
+	static final @Getter int sendSessionDurationTimeoutWindow = 5000;	//5 seconds
+	static final @Getter int sendControlFileTimeoutWindow = 5000;		//5 seconds
+	static final @Getter int sendStopSignalTimeoutWindow = 5000;		//5 seconds
+	static final @Getter int clearRegistrationTimeoutWindow = 5000;		//5 seconds
 
 	static final @Getter String sessionDuration = "sessionDuration";
 

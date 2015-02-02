@@ -304,24 +304,29 @@ public class DBManager {
 		if(res==Constants.connectionFailure){
 			return Constants.ERRORFILE;
 		}
-			
+		
+		System.out.println("experiment id of filename" + expid);
 		try {
 			PreparedStatement p1=conn.prepareStatement("select filename from experiments where id=?;");
 			p1.setInt(1, expid);
 			ResultSet rs=p1.executeQuery();
 			if(rs.next()) {
+				System.out.println("filename1:"  +  result);
 				result=(String)rs.getString(1);
 			}
 			else {
+				System.out.println("filename2:"  +  result);
 				result=Constants.ERRORFILE;
 			}
 		} catch (Exception sqle) {
+			System.out.println("filename3:"  +  result);
 			result = Constants.ERRORFILE;
 			System.out.println(sqle);
 		}
 		
 		int con_result = closeConnection();
 		if(con_result==Constants.connectionFailure){
+			System.out.println("filename4:"  +  result);
 			return Constants.ERRORFILE;
 		}
 		return result;

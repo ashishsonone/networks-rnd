@@ -31,13 +31,14 @@ public class EventGen{
     * which are send to the android-clients 
     */
     public static String generateEvents(int expid){
-		String error="error";
+		String error="ERROR";
 		String data="";
 		String folderPath = Constants.mainExpLogsDir + expid + "/";
 		String eventFile = Utils.getEventFileOfExperiment(expid);
-		if(eventFile.equals(Constants.ERRORFILE)) return error;
+		if(eventFile.equals(Constants.ERRORFILE)) return error+": file not found";
 
 		Path path = Paths.get(folderPath, eventFile);
+		System.out.println(path);
 		Charset charset = Charset.forName("UTF-8");
 		Calendar cal = Calendar.getInstance();
 		try (BufferedReader reader = Files.newBufferedReader(path , charset)) {
