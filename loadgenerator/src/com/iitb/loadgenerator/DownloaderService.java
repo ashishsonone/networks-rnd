@@ -27,16 +27,38 @@ public class DownloaderService extends IntentService{
         
 		Log.d(Constants.LOGTAG, "DownloaderService : Handling event " + eventid + "in a thread ... ");
 		
-        
-		Runnable r = new Runnable() {
-			public void run() {
-				Threads.HandleEvent(eventid, getApplicationContext());
-			}
-		};
-		
-		Thread t = new Thread(r);
-		
-        t.start();
+		boolean webviewon = true;
+		if(!webviewon){
+	        
+			Runnable r = new Runnable() {
+				public void run() {
+					Threads.HandleEvent(eventid, getApplicationContext());
+				}
+			};
+			
+			Thread t = new Thread(r);
+			
+	        t.start();
+		}
+		else{
+			RequestEvent event = MainActivity.load.events.get(eventid);
+			final String url = event.url;
+			MainActivity.logfilename = "" + MainActivity.load.loadid;
+			
+			MainActivity.logwriter = new StringBuilder();
+			MainActivity.loggingOn = true;
+			
+			Log.d(Constants.LOGTAG, "HandleEvent : just entered thread");
+			
+			MainActivity.webview1.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					// TODO Auto-generated method stub
+					MainActivity.webview1.loadUrl(url);
+				}
+			});
+		}
 		
 		AlarmReceiver.completeWakefulIntent(intent);
 	}

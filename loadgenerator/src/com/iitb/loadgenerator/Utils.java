@@ -129,7 +129,7 @@ public class Utils {
 	}
 
 	//time formatter
-	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s : S", Locale.US);
+	static SimpleDateFormat sdf = new SimpleDateFormat("ZZZZ HH:mm:s.S", Locale.US);
 	
 	//returns current time in proper format as defined above
 	static String getTimeInFormat(){

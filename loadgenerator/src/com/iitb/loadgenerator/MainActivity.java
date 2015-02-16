@@ -32,6 +32,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.CookieManager;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -43,6 +46,13 @@ public class MainActivity extends ActionBarActivity {
 	static EditText portbox; //input port
 	static EditText sessionidbox; //input session id
 	static Button startbutton; //start button
+	
+	/********* for webview *******/
+	public static WebView webview1;
+	public static String logfilename;
+	public static StringBuilder logwriter;
+	public static boolean loggingOn;
+	public static Context context;
 	
 	//following default values of ip, port and sessionid are not used.
 	static String serverip = "192.168.0.104";
@@ -78,6 +88,17 @@ public class MainActivity extends ActionBarActivity {
 		ipbox = (EditText) findViewById(R.id.serverip);
 		portbox = (EditText) findViewById(R.id.serverport);
 		sessionidbox = (EditText) findViewById(R.id.sessionid);
+		
+		webview1 = (WebView) findViewById(R.id.webview1);
+		webview1.setWebViewClient(new MyBrowser());
+		WebSettings settings1 = webview1.getSettings();
+		settings1.setJavaScriptEnabled(true);
+		//webview1.setVisibility(View.GONE);
+		//webview1.loadUrl("http://www.cse.iitb.ac.in");
+		context = getApplicationContext();
+		
+		CookieManager cookieManager = CookieManager.getInstance();
+		cookieManager.removeAllCookie();
 		
 		//fill port and ip from shared prefs
 		sharedPreferences = getSharedPreferences(Constants.SHARED_PREFS, Context.MODE_PRIVATE);
