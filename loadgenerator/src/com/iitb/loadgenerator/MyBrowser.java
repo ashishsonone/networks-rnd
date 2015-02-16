@@ -82,6 +82,7 @@ public class MyBrowser extends WebViewClient {
 			}
 			HttpEntity entity = response.getEntity();
 			InputStream is = entity.getContent();
+		
 			
 			Header contentType = entity.getContentType();
 			String mimeType = null;
@@ -138,21 +139,28 @@ public class MyBrowser extends WebViewClient {
 	       
 	       Runnable r = new Runnable() {
 				public void run() {
+					int num = MainActivity.numDownloadOver++;
+					MainActivity.logwriter.append("\n===================\n"); 
+					if(num+1 == MainActivity.load.events.size()){
+						MainActivity.logwriter.append("\nEOF\n"); //this indicates that all GET requests have been seen without interruption from either user/server
+						
+					}
+					String logString = MainActivity.logwriter.toString();
+					String msg = "";
+				    String retmsg = Threads.writeToLogFile(MainActivity.logfilename, logString); //write the log to file. This is a synchronized operation, only one thread can do it at a time
+						
+					msg += retmsg;
+						
+						
+					if(num+1 == MainActivity.load.events.size()){
 						Log.d(LOGTAG, "Now wrapping up the experiment");
 						//Dummy ending of all requests - assuming only one request
-						String msg = "";
+						
 						msg += "Experiment over : all GET requests completed\n";
 						//msg += "Trying to send log file\n";
 					
-						MainActivity.logwriter.append("\nEOF\n"); //this indicates that all GET requests have been seen without interruption from either user/server
-					
-					
-					   String logString = MainActivity.logwriter.toString();
-				       
-				       String retmsg = Threads.writeToLogFile(MainActivity.logfilename, logString); //write the log to file. This is a synchronized operation, only one thread can do it at a time
 						
-						msg += retmsg;
-						Log.d(Constants.LOGTAG, "handle event thread . Sending the log file");
+					   Log.d(Constants.LOGTAG, "handle event thread . Sending the log file");
 						int ret = Threads.sendLog(MainActivity.logfilename);
 						if(ret == 200){
 							msg += "log file sent successfully\n";
@@ -160,12 +168,13 @@ public class MyBrowser extends WebViewClient {
 						else{
 							msg += "log file sending failed\n";
 						}
-						
-						Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
-						.putExtra(Constants.BROADCAST_MESSAGE, msg);
-						
-						// Broadcasts the Intent to receivers in this application.
-						LocalBroadcastManager.getInstance(MainActivity.context).sendBroadcast(localIntent);
+					}
+					
+					Intent localIntent = new Intent(Constants.BROADCAST_ACTION)
+					.putExtra(Constants.BROADCAST_MESSAGE, msg);
+					
+					// Broadcasts the Intent to receivers in this application.
+					LocalBroadcastManager.getInstance(MainActivity.context).sendBroadcast(localIntent);
 				}
 			};
 			
