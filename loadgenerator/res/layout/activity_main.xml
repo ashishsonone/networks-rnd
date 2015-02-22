@@ -81,7 +81,7 @@
 	    	android:layout_height="wrap_content"
 			android:text="@string/hello_world" />
 		</ScrollView>
-		<ScrollView 
+		<!-- <ScrollView 
 	    android:layout_width="fill_parent" 
 	    android:layout_height="match_parent"
 	    android:orientation="vertical"
@@ -92,6 +92,6 @@
 	   android:layout_width="fill_parent"
 	   android:layout_height="fill_parent"
 		/>
-		</ScrollView>
+		</ScrollView> -->
 	</LinearLayout>
 </LinearLayout>

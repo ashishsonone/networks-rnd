@@ -347,13 +347,13 @@ public class Threads {
 			msg += "Experiment over : all GET requests (" + n + " of " + n + ") completed\n";
 			//msg += "Trying to send log file\n";
 			
-			logwriter.append("\nEOF\n"); //this indicates that all GET requests have been seen without interruption from either user/server
+			logwriter.append(Constants.EOF); //this indicates that all GET requests have been seen without interruption from either user/server
 			
 			String logString = logwriter.toString(); //get the content of stringbuilder into a string
 			
 			String retmsg = writeToLogFile(logfilename, logString); //write the log to file. This is a synchronized operation, only one thread can do it at a time
 			msg += retmsg;
-			Log.d(Constants.LOGTAG, "handle event thread . Sending the log file");
+			Log.d(Constants.LOGTAG, "Threads.HandleEvent() : Sending the log file");
 			int ret = Threads.sendLog(logfilename);
 			if(ret == 200){
 				msg += "log file sent successfully\n";

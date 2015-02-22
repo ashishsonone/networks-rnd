@@ -29,6 +29,16 @@ public class MyBrowser extends WebViewClient {
 	static long SECONDS_MILLISECONDS = 1000;
 	static String LOGTAG = "DEBUG_MY_BROWSER";
 	public static String js;
+	
+	public static int id;
+	public static StringBuilder logwriter;
+	public static boolean loggingOn;
+	
+	MyBrowser(int tid){
+		id = tid;
+		logwriter = new StringBuilder();
+		loggingOn = true;
+	}
    @Override
    public boolean shouldOverrideUrlLoading(WebView view, String url) {
       view.loadUrl(url);
@@ -36,6 +46,7 @@ public class MyBrowser extends WebViewClient {
    }
    @Override
    public WebResourceResponse  shouldInterceptRequest (WebView view, String url){
+	   Log.d(LOGTAG + "-shouldInterceptReques-THREADID", url + " on " + android.os.Process.myTid());
 	   if (url.startsWith("http")) {
 		   //Log.d(LOGTAG + "-shouldInterceptRequest TRUE", "url= " +  url);
            return getResource(url);
@@ -96,12 +107,12 @@ public class MyBrowser extends WebViewClient {
 			//String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
 			if(true || url.contains("/login")){
 				
-				if(MainActivity.loggingOn){
+				if(loggingOn){
 					Log.d(LOGTAG + "-SUCCESS", "LOGGING TRUE : response time [" + (endTime-startTime) + "] - " + url);
 					String startTimeFormatted =  Utils.sdf.format(start.getTime());
 					String endTimeFormatted =  Utils.sdf.format(end.getTime());
 					
-					MainActivity.logwriter.append("[" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+					logwriter.append("[" + startTimeFormatted + " , " + endTimeFormatted + "] " +
 							"[RT = " + (endTime-startTime) + "] - " + url + "\n");
 				}
 				else{
@@ -134,18 +145,18 @@ public class MyBrowser extends WebViewClient {
 	   Log.d(LOGTAG, "########## onPageFinished() called");
        super.onPageFinished(view, url);
        
-       if(MainActivity.loggingOn){
-	       MainActivity.loggingOn = false; //no more log collection
+       if(loggingOn){
+	       loggingOn = false; //no more log collection
 	       
 	       Runnable r = new Runnable() {
 				public void run() {
 					int num = MainActivity.numDownloadOver++;
-					MainActivity.logwriter.append("\n===================\n"); 
+					logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
+					
 					if(num+1 == MainActivity.load.events.size()){
-						MainActivity.logwriter.append("\nEOF\n"); //this indicates that all GET requests have been seen without interruption from either user/server
-						
+						logwriter.append(Constants.EOF); //this indicates that all GET requests have been seen without interruption from either user/server
 					}
-					String logString = MainActivity.logwriter.toString();
+					String logString = logwriter.toString();
 					String msg = "";
 				    String retmsg = Threads.writeToLogFile(MainActivity.logfilename, logString); //write the log to file. This is a synchronized operation, only one thread can do it at a time
 						
@@ -160,7 +171,7 @@ public class MyBrowser extends WebViewClient {
 						//msg += "Trying to send log file\n";
 					
 						
-					   Log.d(Constants.LOGTAG, "handle event thread . Sending the log file");
+					   Log.d(Constants.LOGTAG, "MyBrowser : Sending the log file");
 						int ret = Threads.sendLog(MainActivity.logfilename);
 						if(ret == 200){
 							msg += "log file sent successfully\n";

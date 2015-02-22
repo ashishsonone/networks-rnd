@@ -5,6 +5,8 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 //called by alarm receiver to start serving next download event
 public class DownloaderService extends IntentService{
@@ -41,21 +43,23 @@ public class DownloaderService extends IntentService{
 	        t.start();
 		}
 		else{
-			RequestEvent event = MainActivity.load.events.get(eventid);
-			final String url = event.url;
+			final RequestEvent event = MainActivity.load.events.get(eventid);
+			//final String url = event.url;
 			MainActivity.logfilename = "" + MainActivity.load.loadid;
-			
-			MainActivity.logwriter = new StringBuilder();
-			MainActivity.loggingOn = true;
 			
 			Log.d(Constants.LOGTAG, "HandleEvent : just entered thread");
 			
-			MainActivity.webview1.post(new Runnable() {
+			MainActivity.textbox.post(new Runnable() {
 				
 				@Override
 				public void run() {
-					// TODO Auto-generated method stub
-					MainActivity.webview1.loadUrl(url);
+					WebView webview = new WebView(getApplicationContext());
+					webview.setWebViewClient(new MyBrowser(eventid));
+					WebSettings settings = webview.getSettings();
+					settings.setJavaScriptEnabled(true);
+					
+					MainActivity.webViewMap.put(eventid, webview);
+					webview.loadUrl(event.url);
 				}
 			});
 		}
