@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 
 public class EventGen{
     //generate a single event and returns it
-    public static String generateLine(Calendar cal, String type, String link){
+    public static String generateLine(Calendar cal, String mode, String type, String link){
         String line = type + " ";
         
         line += cal.get(Calendar.YEAR) + " ";
@@ -21,7 +21,7 @@ public class EventGen{
         line += cal.get(Calendar.MINUTE) + " ";
         line += cal.get(Calendar.SECOND) + " ";
         line += cal.get(Calendar.MILLISECOND) + " ";
-        
+        line += mode + " ";
         line += link;
         return line + "\n";
     }
@@ -49,7 +49,7 @@ public class EventGen{
 				String[] lineVariables = line.split(" ");
 				int offset = Integer.parseInt(lineVariables[1]);
 				cal.add(Calendar.SECOND, offset);
-				data+=generateLine(cal,lineVariables[0],lineVariables[2]);
+				data+=generateLine(cal,lineVariables[2],lineVariables[0],lineVariables[3]);
 				System.out.println(data);
 				cal.add(Calendar.SECOND, -1*offset);
 			}
