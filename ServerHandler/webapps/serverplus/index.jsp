@@ -8,7 +8,10 @@
 	String password = (String)session.getAttribute("password");
 	String sessionid= (String)session.getAttribute("session");
 
+	if(sessionid==null || sessionid=="") {response.sendRedirect("session.jsp");}
 
+	else{
+	System.out.println("index.heml: sessionid is=" + sessionid);
 	Integer ssid1 = new Integer(Integer.parseInt(sessionid));
 	Session curSession = (Main.getSessionMap()).get(ssid1);
 
@@ -34,7 +37,8 @@
 	<script type="text/JavaScript">
 		<!--
 		function AutoRefresh( t ) {
-			setTimeout("location.reload(true);", t);
+			setTimeout("window.location.href=window.location.href.substr(window.location.href,window.location.href.indexOf('?'));",t);
+			//setTimeout("location.reload(true);", t);
 		}
 		//   -->
 	</script>
@@ -140,6 +144,6 @@
    
   </body>
 </html>
-<%@ include file="closeBracket.msg" %>
 
-      
+<%@ include file="closeBracket.msg" %>
+<%}%>      

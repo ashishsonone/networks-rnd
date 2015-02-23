@@ -10,13 +10,17 @@
 <%
 	String username= (String)session.getAttribute("username");
 	String ss = (String)request.getParameter("session");
+	session.removeAttribute("session");
+	System.out.println("deletesession: " + (String)session.getAttribute("session"));
 	if(ss==null){
-		response.sendRedirect("index.jsp");
+		System.out.println("sending to index");
+		response.sendRedirect("deletesession.jsp: index.jsp");
 	}
 	else{
 		Integer ssid1 = Integer.parseInt(ss);
 		int res = Handlers.DeleteSession(ssid1);
 		System.out.println("deletesession.jsp: DeleteSession result= " + res);
+		System.out.println("deletesession.jsp: sending to session");
 		response.sendRedirect("session.jsp");
 	}
 %>
