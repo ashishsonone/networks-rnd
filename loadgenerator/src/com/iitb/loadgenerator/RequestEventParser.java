@@ -16,16 +16,24 @@ enum RequestType{
 	NONE
 };
 
+enum DownloadMode{
+	SOCKET,
+	WEBVIEW,
+	NONE
+};
+
 
 //Event class. stores time(as Calendar object), url, request type
 class RequestEvent{
 	Calendar cal;
 	String url;
 	RequestType type;
-	RequestEvent(Calendar tcal, String turl, RequestType ttype){
+	DownloadMode mode;
+	RequestEvent(Calendar tcal, String turl, RequestType ttype, DownloadMode tmode){
 		cal = tcal;
 		url = turl;
 		type = ttype;
+		mode = tmode;
 	}
 }
 
@@ -43,17 +51,30 @@ class Load{
 public class RequestEventParser {
 	
 	private static final Map<String, RequestType> typeMap;
+	private static final Map<String, DownloadMode> modeMap;
 	static
 	{
 	    typeMap = new HashMap<String, RequestType>();
 	    typeMap.put("GET", RequestType.GET);
 	    typeMap.put("POST", RequestType.POST);
+	    
+	    modeMap = new HashMap<String, DownloadMode>();
+	    modeMap.put("SOCKET", DownloadMode.SOCKET);
+	    modeMap.put("WEBVIEW", DownloadMode.WEBVIEW);
 	}
 	
 	public static RequestType getRequestEnum(String key){
 		RequestType type = typeMap.get(key);
 		if(type == null){
 			return RequestType.NONE;
+		}
+		return type;
+	}
+	
+	public static DownloadMode getDownloadModeEnum(String key){
+		DownloadMode type = modeMap.get(key);
+		if(type == null){
+			return DownloadMode.NONE;
 		}
 		return type;
 	}
@@ -80,18 +101,15 @@ public class RequestEventParser {
 		String[] fields = line.split(" ");
 		Log.d("RequestEventParser ", fields[0] + fields.length);
 		
-		if(fields.length < 9) {
+		if(fields.length < 10) {
 			Log.d("RequestEventParser : parseString", "No of fields less than expected");
 			return null; //No valid event could be found 
 		}
-		// atleast there are 10 fields
-		// TYPE year month dom hod min sec millisec URL … etc
-		// 0     1   2      3    4   5   6   7       8
+		// atleast there are 10 fields(DOWNLOADMODE CAN BE "SOCKET/WEBVIEW"
+		// TYPE year month dom hod min sec millisec DOWNLOADMODE URL
+		// 0     1   2      3    4   5   6   7          8		  9	
 		RequestType type = getRequestEnum(fields[0]);
-		Log.d("Request type ...... ", fields[0] + " " + type.toString() + " " + fields[1] + " " + fields[8]);
-		
-		
-		
+		Log.d("Request type ...... ", type.toString() + " " + fields[8] + " " + fields[9]);
 		
 		Calendar cal = Calendar.getInstance();
 		cal.set(Calendar.YEAR, Integer.parseInt(fields[1]));
@@ -102,9 +120,11 @@ public class RequestEventParser {
 		cal.set(Calendar.SECOND, Integer.parseInt(fields[6]));
 		cal.set(Calendar.MILLISECOND, Integer.parseInt(fields[7]));
 		
-		String url = fields[8];
+		DownloadMode mode = getDownloadModeEnum(fields[8]);
 		
-		return new RequestEvent(cal, url, type);
+		String url = fields[9];
+		
+		return new RequestEvent(cal, url, type, mode);
 	}
 	
 	public static Load parseEvents(String s){
@@ -126,4 +146,3 @@ public class RequestEventParser {
 		return new Load(id, events);
 	}
 }
-

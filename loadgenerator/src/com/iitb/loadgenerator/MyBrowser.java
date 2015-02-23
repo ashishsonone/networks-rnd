@@ -30,14 +30,20 @@ public class MyBrowser extends WebViewClient {
 	static String LOGTAG = "DEBUG_MY_BROWSER";
 	public static String js;
 	
-	public static int id;
-	public static StringBuilder logwriter;
-	public static boolean loggingOn;
+	int eventid;
+	StringBuilder logwriter;
+	boolean loggingOn;
+	String baseURL;
+	int totalResponseTime;
 	
-	MyBrowser(int tid){
-		id = tid;
+	MyBrowser(int id, String tbaseURL){
+		eventid = id;
 		logwriter = new StringBuilder();
 		loggingOn = true;
+		baseURL = tbaseURL;
+		totalResponseTime = 0;
+		logwriter.append("details: " + MainActivity.load.loadid + " " + eventid + " WEBVIEW" + "\n");
+		logwriter.append("url: " + baseURL + "\n");
 	}
    @Override
    public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -46,7 +52,7 @@ public class MyBrowser extends WebViewClient {
    }
    @Override
    public WebResourceResponse  shouldInterceptRequest (WebView view, String url){
-	   Log.d(LOGTAG + "-shouldInterceptReques-THREADID", url + " on " + android.os.Process.myTid());
+	   //Log.d(LOGTAG + "-shouldInterceptReques-THREADID", url + " on " + android.os.Process.myTid());
 	   if (url.startsWith("http")) {
 		   //Log.d(LOGTAG + "-shouldInterceptRequest TRUE", "url= " +  url);
            return getResource(url);
@@ -108,6 +114,7 @@ public class MyBrowser extends WebViewClient {
 			if(true || url.contains("/login")){
 				
 				if(loggingOn){
+					totalResponseTime += (endTime - startTime); //cumulative response time
 					Log.d(LOGTAG + "-SUCCESS", "LOGGING TRUE : response time [" + (endTime-startTime) + "] - " + url);
 					String startTimeFormatted =  Utils.sdf.format(start.getTime());
 					String endTimeFormatted =  Utils.sdf.format(end.getTime());
@@ -142,7 +149,7 @@ public class MyBrowser extends WebViewClient {
    
    @Override
    public void onPageFinished(WebView view, String url) {
-	   Log.d(LOGTAG, "########## onPageFinished() called");
+	   Log.d(LOGTAG, "########## onPageFinished() called for url " + baseURL);
        super.onPageFinished(view, url);
        
        if(loggingOn){
@@ -151,6 +158,9 @@ public class MyBrowser extends WebViewClient {
 	       Runnable r = new Runnable() {
 				public void run() {
 					int num = MainActivity.numDownloadOver++;
+					
+					logwriter.append("RT " +  totalResponseTime + "\n");
+					logwriter.append("success\n");
 					logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
 					
 					if(num+1 == MainActivity.load.events.size()){
@@ -186,6 +196,7 @@ public class MyBrowser extends WebViewClient {
 					
 					// Broadcasts the Intent to receivers in this application.
 					LocalBroadcastManager.getInstance(MainActivity.context).sendBroadcast(localIntent);
+					MainActivity.removeWebView(eventid); //remove the reference to current this webview so that it gets garbage collected
 				}
 			};
 			

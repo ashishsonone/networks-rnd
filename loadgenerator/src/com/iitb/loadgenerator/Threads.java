@@ -246,7 +246,7 @@ public class Threads {
 		try {
 			URL url = new URL(event.url);
 			
-			logwriter.append("details: " + MainActivity.load.loadid + " " + eventid +  "\n");
+			logwriter.append("details: " + MainActivity.load.loadid + " " + eventid + " SOCKET" + "\n");
 			logwriter.append("url: " + url + "\n");
 			
 			filename = event.url.substring(event.url.lastIndexOf('/') + 1);

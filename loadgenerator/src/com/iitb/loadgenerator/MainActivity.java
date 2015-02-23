@@ -47,15 +47,19 @@ public class MainActivity extends ActionBarActivity {
 	static EditText portbox; //input port
 	static EditText sessionidbox; //input session id
 	static Button startbutton; //start button
-	public static HashMap<Integer, WebView> webViewMap;
+	public static HashMap<Integer, WebView> webViewMap = new HashMap<Integer, WebView>();
 	
 	/********* for webview *******/
 	//public static WebView webview1;
 	public static String logfilename;
 	public static Context context;
 	
+	
+	static String defaultServerIP = "10.129.5.155";
+	static String defaultServerPort = "8080";
+	
 	//following default values of ip, port and sessionid are not used.
-	static String serverip = "192.168.0.104";
+	static String serverip = "10.129.5.155";
 	static int serverport = 8080;
 	static int sessionid = 2312;
 	static String myip;
@@ -97,8 +101,8 @@ public class MainActivity extends ActionBarActivity {
 		//webview1.loadUrl("http://www.cse.iitb.ac.in");
 		context = getApplicationContext();
 		
-		CookieManager cookieManager = CookieManager.getInstance();
-		cookieManager.removeAllCookie();
+		/*CookieManager cookieManager = CookieManager.getInstance();
+		cookieManager.removeAllCookie();*/
 		
 		//fill port and ip from shared prefs
 		sharedPreferences = getSharedPreferences(Constants.SHARED_PREFS, Context.MODE_PRIVATE);
@@ -229,6 +233,12 @@ public class MainActivity extends ActionBarActivity {
 		 
 	}
 	
+	public void useDefaultServer(View v){
+		ipbox.setText(defaultServerIP);
+		portbox.setText(defaultServerPort);
+		Toast.makeText(this, "default ip/port set", Toast.LENGTH_SHORT).show();
+	}
+	
 	//exit app. But before exiting, send the server that you are exiting
 	public void exit(View v){
 		Log.d(Constants.LOGTAG, "creating asynctask : ExitTask");
@@ -324,5 +334,9 @@ public class MainActivity extends ActionBarActivity {
 		Log.d(Constants.LOGTAG, "Scheduling KILLTIMEOUT @" + MainActivity.sdf.format(cal.getTime()) + "\n");
 		
 		MainActivity.am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), timeoutsender);
+	}
+	
+	synchronized public static void removeWebView(int eventid){
+		webViewMap.remove(eventid);
 	}
 }

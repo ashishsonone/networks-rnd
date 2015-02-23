@@ -24,13 +24,14 @@ public class DownloaderService extends IntentService{
 		Log.d(Constants.LOGTAG, "DownloaderService : just entered");
 		Bundle bundle = intent.getExtras();
         final int eventid = bundle.getInt("eventid");
+        final RequestEvent event = MainActivity.load.events.get(eventid);
         
         //final RequestEvent e = MainActivity.load.events.get(eventid);
         
 		Log.d(Constants.LOGTAG, "DownloaderService : Handling event " + eventid + "in a thread ... ");
 		
 		boolean webviewon = true;
-		if(!webviewon){
+		if(event.mode == DownloadMode.SOCKET){
 	        
 			Runnable r = new Runnable() {
 				public void run() {
@@ -42,8 +43,7 @@ public class DownloaderService extends IntentService{
 			
 	        t.start();
 		}
-		else{
-			final RequestEvent event = MainActivity.load.events.get(eventid);
+		else if(event.mode == DownloadMode.WEBVIEW){
 			//final String url = event.url;
 			MainActivity.logfilename = "" + MainActivity.load.loadid;
 			
@@ -54,17 +54,19 @@ public class DownloaderService extends IntentService{
 				@Override
 				public void run() {
 					WebView webview = new WebView(getApplicationContext());
-					webview.setWebViewClient(new MyBrowser(eventid));
+					webview.setWebViewClient(new MyBrowser(eventid, event.url));
 					WebSettings settings = webview.getSettings();
-					settings.setJavaScriptEnabled(true);
+					//settings.setJavaScriptEnabled(true);
 					
 					MainActivity.webViewMap.put(eventid, webview);
 					webview.loadUrl(event.url);
 				}
 			});
 		}
+		else{
+			Log.d(Constants.LOGTAG, "Incorrect Download mode specified");
+		}
 		
 		AlarmReceiver.completeWakefulIntent(intent);
 	}
-
 }
