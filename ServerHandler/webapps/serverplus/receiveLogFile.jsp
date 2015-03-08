@@ -81,6 +81,13 @@
 			System.out.println("update FIle received result: " + result);
 			if(result<0)
 				response.setStatus(response.SC_REQUEST_URI_TOO_LONG);
+			else{
+				Integer _expid = Integer.parseInt(expID);
+				Experiment e = Main.getRunningExperimentMap().get(_expid);
+				if(e!=null){
+					e.RFIncrement();
+				}
+			}
 			
 			
 		}catch(Exception ex) {

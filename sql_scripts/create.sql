@@ -13,6 +13,7 @@ create table experiments(
 	description varchar(1000),
 	user VARCHAR(100) NOT NULL,
 	filename VARCHAR(100) NOT NULL,
+	datetime INTEGER UNSIGNED NOT NULL,
 	FOREIGN KEY(user) REFERENCES users(username) ON DELETE CASCADE
 );
 

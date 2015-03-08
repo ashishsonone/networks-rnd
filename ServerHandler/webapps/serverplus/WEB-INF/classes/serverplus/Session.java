@@ -29,6 +29,10 @@ public class Session {
 	//= to the ID of current running experiment in the session, -1 otherwise
 	@Getter @Setter int currentExperiment = -1;
 
+	//Current Experiment
+	@Getter @Setter Experiment curExp;
+
+
 	//HashMap which stores registered android-clients
 	//<key, value> = <macaddress of deivce, DeviceInfo>
 	@Getter @Setter ConcurrentHashMap<String, DeviceInfo> registeredClients = new ConcurrentHashMap<String, DeviceInfo>();

@@ -207,12 +207,14 @@ public class DBManager {
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
 		try {
-	 		PreparedStatement p1=conn.prepareStatement("insert into experiments(name,location,description,user,filename) values(?,?,?,?,?);");
+			long unixTime = System.currentTimeMillis() / 1000L;
+	 		PreparedStatement p1=conn.prepareStatement("insert into experiments(name,location,description,user,filename,datetime) values(?,?,?,?,?,?);");
 			p1.setString(1, e.Name);
 			p1.setString(2, e.Location);
 			p1.setString(3, e.Description);
 			p1.setString(4, e.User);
 			p1.setString(5, e.FileName);
+			p1.setLong(6, unixTime);
 			p1.executeUpdate();
 			status = closeConnection();
 			return 0;
@@ -235,7 +237,8 @@ public class DBManager {
 		PreparedStatement p;
 		
 		try {
-			String Query ="SELECT * FROM experiments where user='" +username+ "';";
+			String Query ="select id, name, location, description, user, filename," 
+						+ "FROM_UNIXTIME(datetime) from experiments where user='" +username+ "';";
 			p=conn.prepareStatement(Query);
 			p.addBatch();				
 			rs = p.executeQuery();
@@ -330,5 +333,38 @@ public class DBManager {
 			return Constants.ERRORFILE;
 		}
 		return result;
+	}
+
+	public String[] testTIME(int expid){
+		String[] datetime = new String[2];
+		PreparedStatement p;
+		int status = createConnection();
+		
+		if(status==Constants.connectionFailure){
+			return null;
+		}
+		try {
+			String Query ="SELECT FROM_UNIXTIME(thedate) FROM smart_date;";
+			p=conn.prepareStatement(Query);
+			p.addBatch();				
+			ResultSet rs = p.executeQuery();
+			if(rs.next()){
+				java.sql.Date d = rs.getDate(1);
+				java.sql.Time t = rs.getTime(1); 
+				datetime[0] = d.toString();
+				datetime[1] = t.toString();
+
+				System.out.println("datetime = " + datetime[0]);
+				//expID = rs.getInt(1);
+			}
+			status = closeConnection();
+			if(status == Constants.connectionFailure) return null;
+
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+			return null;
+		}
+
+		return datetime;
 	}	
 };

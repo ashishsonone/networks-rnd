@@ -16,12 +16,18 @@ public class Experiment{
 	@Getter @Setter String Description="";
 	@Getter @Setter String User="";
 	@Getter @Setter String FileName="";
+	@Getter @Setter int ReceivedFiles=0;
 	
 	/**
 	* constructor
 	*/
 	public Experiment(String a, String b, String c, String d, String e){
 		Name=a;Location=b; Description=c;User=d;FileName=e;
+	}
+
+	public int RFIncrement(){
+		ReceivedFiles++;
+		return ReceivedFiles;
 	}
 	
 	/**

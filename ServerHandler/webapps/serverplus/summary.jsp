@@ -7,10 +7,27 @@
 	<h4>Summary</h4>
 	<p> Number of <a title="click here to list registered devices" href="listDevices.jsp">Devices </a> registered: <% out.print(_sumsession.getRegisteredClients().size()); %> </p>
 	<!--<p> List all <a title="click here to list experiments" href="listExperiments.jsp">Experiments </a> </p> -->
+
 <%
-	
+
 	if (_sumsession.isExperimentRunning()){
-		out.print("<p> Experiment number " +  _sumsession.getCurrentExperiment()  +  " is running  </p>");
+	    int _sumexpid = _sumsession.getCurrentExperiment();
+	    Experiment _sume = Main.getRunningExperimentMap().get(_sumexpid);
+
+	    int cur_filereceived = _sume.getReceivedFiles();
+	    int tot_filereceived = _sumsession.getActualFilteredDevices().size();
+
+	    out.print("<p> Experiment number <a href=\"experimentDetails.jsp?" + Constants.getExpID() +"="
+	    			+  _sumexpid + "\">" + _sumexpid + " </a> is running </p>");
+
+	    if(cur_filereceived==tot_filereceived){
+	    	out.print("<p> All Log Files are received. Experiment can be stopped </p>");
+	    }
+	    else{
+	    	out.print("<p>" + cur_filereceived + " out of " + tot_filereceived 
+	    				+ " Log Files are received </p>");
+	    }
+
 		out.print("<p> List all <a title=\"click here to list filtered devices\"" 
 					+	"href=\"listFilteredDevices.jsp\">Filtered Devices </a> </p>");
 	}

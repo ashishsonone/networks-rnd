@@ -126,8 +126,10 @@ public class Utils {
 	public synchronized static int addExperiment(Experiment e){
 		DBManager db = new DBManager();
 		int res = db.addExperiment(e);
+		System.out.println("Utils.addExperiment: result of db.addExperiment()="+res);
 		if(res < 0) return -1;
 		res = getCurrentExperimentID();
+		System.out.println("Utils.addExperiment: result of db.getCurrentExperimentID()="+res);
 		if(res >=0) e.ID = res;
 		return res;
 	}

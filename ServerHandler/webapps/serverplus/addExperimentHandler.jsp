@@ -87,10 +87,81 @@ else{
 			
 
 			int result = Utils.addExperiment(e);
-			if(result==-1){
+
+			if(result<0){
 				System.out.print("adding experiment to database failed...");
-				response.sendRedirect("addExperiment.jsp");
+%>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ServerHandler">
+    <meta name="IITB" content="IITB Wi-Fi Load Generator">
+    <title>ServerHandler</title>
+	
+	<link type="text/css" rel="stylesheet" href="./css/bootstrap.min.css" />
+	<link type="text/css" rel="stylesheet" href="./css/bootstrap-responsive.min.css" />
+	<link type="text/css" rel="stylesheet" href="./css/font-awesome.css" />
+	<link type="text/css" rel="stylesheet" href="./css/font-awesome-ie7.css" />
+	<link type="text/css" rel="stylesheet" href="./css/boot-business.css" />
+    <script type="text/javascript" src="./js/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="./js/bootstrap-popover.js"></script>
+  </head>
+  
+  <body>
+
+  <%@ include file="header.jsp" %>  
+    
+
+    <div class="content">
+      <div class="container">
+      
+        <div class="page-header">        
+			<h1>Load Generators Server Handler </h1>
+		</div>
+			
+		<div class="container-fluid">
+			<h4>Session ID <%  out.print(sessionid); %>  </h4>
+			<%@ include file="sessionValidation.jsp" %>
+
+			<div class="row-fluid">
+				<div class="span6">
+					 
+				<h4> Adding experiment to database failed...</h4>
+				
+				Back to <a href="addExperiment.jsp">Add Experiment</a>
+					 
+				</div>
+				<div class="span6">
+					<%@ include file="summary.jsp" %>
+				</div>
+			</div>
+				
+				<%@ include file="sessionExpiredMessage.msg" %>
+				<%@ include file="closeBracket.msg" %>
+				
+		</div>     
+	  </div>
+    </div>
+
+	<%@ include file="footer.jsp" %>
+
+   
+  </body>
+</html>
+<%
+
+
+
+
+
 			}
+
+
+
+			else{
 			
 			/*
 			int result = Utils.getCurrentExperimentID();
@@ -102,7 +173,6 @@ else{
 			//e.setID(result);
 			e.setID(result+1);
 			*/
-			
 			
 			filePath=filePath+Integer.toString(e.getID()) + "/";
 			File theDir = new File(filePath);
@@ -138,9 +208,10 @@ else{
 			result=Handlers.StartManualExperiment(e,_session,devices);
 		}
 
-		 if(result>0)
+		 if(result>0){
 			response.sendRedirect("index.jsp");
-		
+		 }
+
 		else{
 			//response.sendRedirect("addExperiment.jsp");
 			//Utils.deleteExperiment(e.getID());
@@ -181,7 +252,7 @@ else{
       <div class="container">
       
         <div class="page-header">        
-			<h1>Load Generator's Server Handler</h1>
+			<h1>Load Generators Server Handler </h1>
 		</div>
 			
 		<div class="container-fluid">
@@ -224,6 +295,7 @@ else{
 <%			
 		}
 		 
+	  }
 	  }catch(Exception ex) {
 		 System.out.println(ex);
 	  } 
@@ -231,5 +303,7 @@ else{
 	}
 }	
 %>
+
+
 
 <%@ include file="closeBracket.msg" %>

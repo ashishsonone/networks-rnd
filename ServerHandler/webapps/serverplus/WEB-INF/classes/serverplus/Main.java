@@ -16,6 +16,6 @@ public class Main {
 	//<key, value> = <session id, Session Object>
 	static @Getter @Setter ConcurrentHashMap<Integer, Session> SessionMap = new ConcurrentHashMap<Integer, Session>();
 	
-	//HashMap that stores the current running experiments
-	static @Getter @Setter ConcurrentHashMap<Integer, Boolean> RunningExperimentMap = new ConcurrentHashMap<Integer, Boolean>();
+	//HashMap that stores the current running experiments to the Experiment
+	static @Getter @Setter ConcurrentHashMap<Integer, Experiment> RunningExperimentMap = new ConcurrentHashMap<Integer, Experiment>();
 }

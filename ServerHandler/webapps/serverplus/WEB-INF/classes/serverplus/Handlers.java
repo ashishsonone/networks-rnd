@@ -139,7 +139,7 @@ public class Handlers {
 	* 200 OK message from the device, device details are added to the experiment.
 	*/
 	public static int StartExperiment(Experiment e, Session session, int expectedFilterCount){
-		System.out.println("\n"+"StartExperiment: "+"Starting Experiment" +  e.Name + "....");
+		System.out.println("\n"+"StartExperiment: "+"Starting Experiment " +  e.Name + "....");
 
 		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;
 		int filteredCount = 0;
@@ -210,7 +210,8 @@ public class Handlers {
 		
 		session.currentExperiment=e.ID;
 		session.experimentRunning=true;	
-		Main.RunningExperimentMap.put(session.currentExperiment,new Boolean(true));
+		//Main.RunningExperimentMap.put(session.currentExperiment,new Boolean(true));
+		Main.RunningExperimentMap.put(session.currentExperiment,e);
 		return session.currentExperiment;
 	}
 	

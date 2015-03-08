@@ -59,6 +59,8 @@
 							<th>Name</th>
 							<th>Location</th>
 							<th>Description</th>
+							<th>Date</th>
+							<th>Time</th>
 							<th>Event File </th>
 							<th>Delete Experiment</th>
 						</tr>
@@ -72,13 +74,15 @@
 							+ "\">" + rs.getInt(1) + " </a>");%>
 						</td> 
 						
-						<td class="span3"><%out.print(""+rs.getString(2));%></td>   
+						<td class="span2"><%out.print(""+rs.getString(2));%></td>   
 						<td class="span2"><%out.print(""+rs.getString(3));%></td>   
-						<td class="span5"><%out.print(""+rs.getString(4));%></td>
+						<td class="span4"><%out.print(""+rs.getString(4));%></td>
+						<td class="span2"><%out.print(""+rs.getDate(7).toString());%></td>
+						<td class="span2"><%out.print(""+rs.getTime(7).toString());%></td>
 						<td class="span2"><%out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
 							+ "&download=event\" > Download </a>");%>
 						</td>
-						<td class="span2"><%out.print("<a href=\"deleteExperiment.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
+						<td class="span1"><%out.print("<a href=\"deleteExperiment.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
 							+ "\" > Delete</a>");%>
 						</td>
 					</tr>
