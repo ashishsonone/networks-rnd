@@ -140,6 +140,7 @@ public class Handlers {
 	*/
 	public static int StartExperiment(Experiment e, Session session, int expectedFilterCount){
 		System.out.println("\n"+"StartExperiment: "+"Starting Experiment " +  e.Name + "....");
+		e.InitializeStartTime();
 
 		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;
 		int filteredCount = 0;
@@ -347,16 +348,18 @@ public class Handlers {
 	/**
 	* This method creates session and returns id of the session created
 	*/
-	public static int CreateSession(String username, String sessionName, int duration){
+	public static int CreateSession(String sessionName, String description, String username){
 		if(Main.freeSessions.size() == 0){
 			System.out.println("CreateSession: " + "Free Sessions list size is zero");
 			return Constants.NOTOK;	
 		} 
 
-		Integer sessionID = Main.freeSessions.remove(0);
-		Session s = new Session(sessionID, sessionName,username, duration);
-		System.out.println("--------------"+s.sessionID + s.name + s.user + s.duration + " " + s.cal);
-		Main.SessionMap.put(sessionID,s);
+		//Integer sessionID = Main.freeSessions.remove(0);
+		Session s = new Session(sessionName, description, username);
+
+		s.sessionID = Utils.addSession(s);
+
+		Main.SessionMap.put(s.sessionID,s);
 		System.out.println("CreateSession: " + "Free Sessions list size is: " + Main.freeSessions.size());
 
 
@@ -364,8 +367,8 @@ public class Handlers {
 			Session ss = e.getValue();
 			System.out.println(ss.sessionID + ss.name + ss.user);
 		}
-
-		return sessionID;
+//		System.out.println("--------------"+s.sessionID + s.name + s.user + s.duration + " " + s.cal);
+		return s.sessionID;
 	}
 
 	

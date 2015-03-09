@@ -7,6 +7,10 @@
 
 <%
 	String username = (String)session.getAttribute("username");
+	String sid = (String) request.getParameter("session");
+	if(sid==""||sid==null){response.sendRedirect("session.jsp");}
+	else{
+		//sessionid = Integer.parseInt(sid);
 %>
 
 <html lang="en">
@@ -44,11 +48,11 @@
 				
 <%
 	DBManager db = new DBManager();
-	ResultSet rs = db.getExperiments(username);
+	ResultSet rs = db.getExperiments(username,sid);
 	
 	
-	if(rs==null){
-		out.print("<h4>There are no experiments yet...</h4>");
+	if(!rs.next()){
+		out.print("<h4>There are no Experiments yet...</h4>");
 	}
 	else{
 %>		
@@ -67,7 +71,8 @@
 					</thead>
 					<tbody>
 <%
-		while(rs.next()){
+		System.out.println("No Experiments");
+		do{
 %>				
 					<tr>
 						<td class="span1"><%out.print("<a href=\"experimentDetails.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
@@ -86,13 +91,15 @@
 							+ "\" > Delete</a>");%>
 						</td>
 					</tr>
-<%				
-		}
-		db.closeConnection();
-	}
+<%					
+		}while(rs.next());
 %>
 					</tbody>
 				</table>
+<%		
+	}
+	db.closeConnection();
+%>
 			</div>
 		</div>
 	</div>
@@ -106,3 +113,4 @@
 </html>
 
 <%@ include file="closeBracket.msg" %>
+<%}%>

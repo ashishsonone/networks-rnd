@@ -3,6 +3,7 @@
 <%@page import="java.util.Calendar" %>
 <%@page import="java.util.Date" %>
 <%@page import="java.text.SimpleDateFormat" %>
+<%@ page import="java.sql.*" %>
 
 <%@ page import="serverplus.*" %>
 
@@ -32,7 +33,7 @@
 
   <body>
 
-  <%@ include file="header.jsp" %>  
+  <%@ include file="header2.jsp" %>  
     
 
     <div class="content">
@@ -45,57 +46,66 @@
 			
 			<div class="container-fluid">
 				<div class="row-fluid">
-					<div class="span6">
+					<div class="span8">
 
-						<h4>List of all current sessions</h4>
-					 		<table class="table">
-								<thead>
-									<tr>
-										<th>Id</th>
-										<th>Name</th>
-										<th>Start Time</th>
-										<th>Duration</th>
-										<th>Delete</th>
-									</tr>
-								</thead>
-								<tbody>
-									
-									<%
-										for (Map.Entry<Integer, Session> e : Main.getSessionMap().entrySet()) {
-											Session s = e.getValue();
-											Date creationDate = s.getCal().getTime();
-											SimpleDateFormat date_format = new SimpleDateFormat("MMM dd yyyy HH:mm");
-											if(!username.equals(s.getUser())){
-												continue;
-											}
-											String link = "<a href=\"index.jsp?session=" +  s.getSessionID()  + "\"> " 
-													+  s.getName()  +"  </a>";
-									%>
-										<tr>
-									<%		
-											out.print("<td>" + s.getSessionID() + "</td>");
-											out.print("<td>" + link + "</td>");
-											out.print("<td>" + date_format.format(creationDate) + "</td>");
-											out.print("<td>" + s.getDuration() + "</td>");
-											out.print("<td>" + "<a href=\"deleteSession.jsp?session=" 
-											+ s.getSessionID() + "\">" + "Delete" + "</td>");
-									%>
-										</tr>
-									<%		
-										}
-
-									%>
-								</tbody>
-							</table>
+<%
+	DBManager db = new DBManager();
+	ResultSet rs = db.getSessions(username);
+	
+	
+	if(!rs.next()){
+		out.print("<h4>There are no Sessions yet...</h4>");
+	}
+	else{
+%>		
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Id</th>
+							<th>Name</th>
+							<th>Description</th>
+							<th>Date</th>
+							<th>Time</th>
+							
+							<th>Delete Session</th>
+						</tr>
+					</thead>
+					<tbody>
+<%
+		System.out.println("No Experiments");
+		do{
+			String link = "<a href=\"index.jsp?session=" + rs.getInt(1) + "\"> "
+							+ rs.getString(2) +" </a>";
+%>				
+					<tr>
+						<td class="span1"><%out.print(""+rs.getInt(1));%></td>
+						<td class="span2"><%out.print(link);%></td>   
+						<td class="span6"><%out.print(""+rs.getString(3));%></td>   
+						<td class="span2"><%out.print(""+rs.getDate(4).toString());%></td>
+						<td class="span2"><%out.print(""+rs.getTime(4).toString());%></td>
+						
+						<td class="span2"><%out.print("<a href=\"deleteSession.jsp?session="
+								+ rs.getInt(1) + "\">" + "Delete</a>");%></td>
+					</tr>
+<%					
+		}while(rs.next());
+%>
+					</tbody>
+				</table>
+<%		
+	}
+	db.closeConnection();
+%>
 					 
 					</div>
-					<div class="span6">
+					<div class="span4">
 										
 						<div>
 							<h4>Create new Session and select its duration (in hr)</h4>
 							<form method="post" action="createSession.jsp" class="form-horizontal form-signin-signup">
 								<input type="text" name="sessionName" placeholder="Enter Session Name(Required)" required/>
-								<input type="number" name="duration" class="form-control" step="1" value= "3" min="1"/><br>
+								<input type="text" name="description" placeholder="Enter Description(Required)" required/>
+								
 								<input type="submit" name="createSession" value="Create Session" class="btn btn-primary btn-large">
 							</form>
 						</div>

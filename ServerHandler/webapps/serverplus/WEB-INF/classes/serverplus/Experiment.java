@@ -1,7 +1,7 @@
 package serverplus;
 import lombok.Getter;
 import lombok.Setter;
-
+import java.util.Date;
 
 /**
  *
@@ -17,7 +17,7 @@ public class Experiment{
 	@Getter @Setter String User="";
 	@Getter @Setter String FileName="";
 	@Getter @Setter int ReceivedFiles=0;
-	
+	@Getter @Setter Date StartTime;
 	/**
 	* constructor
 	*/
@@ -43,5 +43,7 @@ public class Experiment{
 		System.out.println("FileName: " +FileName);
 	}
 	
-	
+	void InitializeStartTime(){
+		StartTime = new Date();
+	}
 }

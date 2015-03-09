@@ -8,12 +8,12 @@
 	String password = (String)session.getAttribute("password");
 
 	String sessionName = (String)request.getParameter("sessionName");
-	String _dur_ = (String)request.getParameter("duration");
-	int _duration_ = Integer.parseInt(_dur_);
-	Integer sessionID = Handlers.CreateSession(username,sessionName,_duration_);
+	String description = (String)request.getParameter("description");
+	
+	Integer sessionID = Handlers.CreateSession(sessionName,description,username);
 
-	if(sessionID==Constants.getNOTOK()){
-		System.out.println("session could not be created");
+	if(sessionID<0){
+		System.out.println("createSession.jsp: session could not be created. ID = " + sessionID);
 		response.sendRedirect("session.jsp");
 	}
 	else{

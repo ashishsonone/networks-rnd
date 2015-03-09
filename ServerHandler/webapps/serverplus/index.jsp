@@ -11,12 +11,9 @@
 	if(sessionid==null || sessionid=="") {response.sendRedirect("session.jsp");}
 
 	else{
-	System.out.println("index.heml: sessionid is=" + sessionid);
-	Integer ssid1 = new Integer(Integer.parseInt(sessionid));
-	Session curSession = (Main.getSessionMap()).get(ssid1);
+	System.out.println("index.html: sessionid is=" + sessionid);
 
-	int size = (curSession.getRegisteredClients()).size();
-	
+	Session curSession = Utils.getSession(sessionid);	
 	
 %>
 
@@ -60,12 +57,16 @@
 				
 		<div class="container-fluid">
 			<h4>Session ID <%  out.print(sessionid); %>  </h4>
-			<%@ include file="sessionValidation.jsp" %>
 		
+			<%
+				if(curSession!=null){
+			%>
+
 			<div class="row-fluid">
 				<div class="span6">
 
 <%
+	int size = (curSession.getRegisteredClients()).size();
 	if(curSession.isExperimentRunning()){
 %>
 					<div>
@@ -129,10 +130,13 @@
 %>	
 					</div>
 				</div>
+				<%
+					}
+					else{
+						out.print("<h4> Session with id=" + sessionid + " could not be loaded </h4>");
+					}
+				%>
 				
-				
-				<%@ include file="sessionExpiredMessage.msg" %>
-				<%@ include file="closeBracket.msg" %>
 				
 			</div>     
 		</div>

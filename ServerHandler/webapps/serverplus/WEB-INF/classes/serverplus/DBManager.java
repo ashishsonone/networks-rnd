@@ -115,6 +115,7 @@ public class DBManager {
 		}
 		return result;
 	}
+
 	/**
 	* returns the maximum experiment ID till now.
 	*/
@@ -144,6 +145,37 @@ public class DBManager {
 		
 		return expID;
 	}
+
+	/**
+	* returns the maximum session ID till now.
+	*/
+	public int getMaxSessionID(){
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return -1;
+		int sID =-1;
+		PreparedStatement p;
+		
+		try {
+			String Query ="SELECT max(id) FROM sessions;";
+			p=conn.prepareStatement(Query);
+			p.addBatch();				
+			ResultSet rs = p.executeQuery();
+			if(rs.next()){
+				sID = rs.getInt(1);
+				System.out.println("sessionid = " + sID);
+				//expID = rs.getInt(1);
+			}
+			status = closeConnection();
+			if(status == Constants.connectionFailure) return -1;
+
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+			return -1;
+		}
+		
+		return sID;
+	}
+
 	
 	/**
 	* Add Experiment details to the database coreesponding to experiment id 'expid' and details 
@@ -225,12 +257,36 @@ public class DBManager {
 		}
 		return -1;
 	}
+
+	/**
+	* Add new entry in the 'sessions' retation for the session 's'
+	*/
+	public int addSession(Session s){
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return -1;
+		try {
+			long unixTime = System.currentTimeMillis() / 1000L;
+	 		PreparedStatement p1=conn.prepareStatement("insert into sessions(name,description,user,datetime) values(?,?,?,?);");
+			p1.setString(1, s.name);
+			p1.setString(2, s.description);
+			p1.setString(3, s.user);
+			p1.setLong(4, unixTime);
+			p1.executeUpdate();
+			status = closeConnection();
+			return 1;
+			
+		} catch (SQLException sqle) {
+			status = -1;
+			System.out.println(sqle);
+		}
+		return -1;
+	}
 	
 	/**
-	* Retuns the ResultSet of all the experiments corresponding to user 'username'
+	* Retuns the ResultSet of all the experiments corresponding to user='username' and session='sid'
 	* returns null if no user with username 'username' exists
 	*/
-	public ResultSet getExperiments(String username){
+	public ResultSet getExperiments(String username,String sid){
 		ResultSet rs = null;
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return rs;
@@ -238,7 +294,7 @@ public class DBManager {
 		
 		try {
 			String Query ="select id, name, location, description, user, filename," 
-						+ "FROM_UNIXTIME(datetime) from experiments where user='" +username+ "';";
+						+ "FROM_UNIXTIME(datetime) from experiments where user='" +username+ "' and sid="+ sid + " ORDER BY datetime DESC;";
 			p=conn.prepareStatement(Query);
 			p.addBatch();				
 			rs = p.executeQuery();
@@ -252,6 +308,65 @@ public class DBManager {
 		return rs;
 
 	}
+
+	/**
+	* Retuns the ResultSet of all the sessions corresponding to user 'username'
+	* returns null if no user with username 'username' exists
+	*/
+	public ResultSet getSessions(String username){
+		ResultSet rs = null;
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return rs;
+		PreparedStatement p;
+		
+		try {
+			String Query ="select id, name, description, FROM_UNIXTIME(datetime)"
+						+" from sessions where user='" +username+ "';";
+			p=conn.prepareStatement(Query);
+			p.addBatch();				
+			rs = p.executeQuery();
+			//status = closeConnection();
+			
+
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+			return rs;
+		}
+		return rs;
+
+	}
+
+	/**
+	* Retuns the Session corresponding to sessionid='sid'
+	* returns null if no session exists
+	*/
+	public Session getSession(String sid){
+		ResultSet rs = null;
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return null;
+		Session s;
+		PreparedStatement p;
+		
+		try {
+			String Query ="select id, name, description, user"
+						+" from sessions where id='" +sid+ "';";
+			p=conn.prepareStatement(Query);
+			p.addBatch();				
+			rs = p.executeQuery();
+			if(rs.next()){
+				s=new Session(new Integer(rs.getInt(1)), rs.getString(2), rs.getString(3), rs.getString(4));
+				return s;
+			}
+
+			
+
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+			return null;
+		}
+		return null;
+	}
+
 
 	/**
 	* returns ResultSet of all experiment details for the experiment number 'expid'
@@ -287,6 +402,25 @@ public class DBManager {
 		try {
 	 		PreparedStatement p1=conn.prepareStatement("delete from experiments where id=?;");
 			p1.setInt(1, expid);
+			p1.executeUpdate();
+			status = closeConnection();
+			return 1;
+			
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+		}
+		return -1;
+	}
+
+	/**
+	* Delete Session from the relation 'sessions' and remove all its experiments
+	*/
+	public int deleteSession(int sid){
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return -1;
+		try {
+	 		PreparedStatement p1=conn.prepareStatement("delete from sessions where id=?;");
+			p1.setInt(1, sid);
 			p1.executeUpdate();
 			status = closeConnection();
 			return 1;

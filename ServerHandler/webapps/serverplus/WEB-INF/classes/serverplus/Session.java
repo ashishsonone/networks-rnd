@@ -18,6 +18,8 @@ public class Session {
 	@Getter @Setter String name;				//name of session
 	@Getter @Setter String user;				//username of user holding that session
 
+	@Getter @Setter String description;			//the description of session
+
 	@Getter @Setter boolean serverOn = true;	//no use of the variable
 
 	//true if any experiment in the session is running, false otherwise
@@ -55,8 +57,7 @@ public class Session {
 	/**
 	* constructor
 	*/
-	public Session(Integer id, String u){
-		sessionID=id;
+	public Session(String u){
 		user=u;
 		name="Default";
 	}
@@ -65,8 +66,7 @@ public class Session {
 	/**
 	* constructor
 	*/
-	public Session(Integer id, String n, String u){
-		sessionID=id;
+	public Session(String n, String u){
 		user=u;
 		name=n;
 	}
@@ -75,10 +75,31 @@ public class Session {
 	/**
 	* constructor
 	*/
-	public Session(Integer id, String n, String u, int to){
-		sessionID=id;
-		user=u;
+	public Session(String n, String d, String u){
 		name=n;
-		duration=to;
+		description=d;
+		user=u;
 	}
+
+
+	/**
+	* constructor
+	*/
+	public Session(Integer sid, String n, String d, String u){
+		sessionID=sid;
+		name=n;
+		description=d;
+		user=u;
+	}
+
+	/**
+	* constructor
+	*/
+	public Session(Integer sid, String n, String d, String u, int to){
+		sessionID=sid;
+		name=n;
+		description=d;
+		user=u;
+	}
+
 }

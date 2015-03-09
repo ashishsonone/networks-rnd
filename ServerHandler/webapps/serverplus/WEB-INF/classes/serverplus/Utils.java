@@ -98,6 +98,16 @@ public class Utils {
 		System.out.println("Utils.getCurrentExperimentID: maximum exp id = " + res);
 		return res;
 	}
+
+	/**
+	* returns ID of the session with max sessionID
+	*/
+	public static int getCurrentSessionID(){
+		DBManager db = new DBManager();
+		int res = db.getMaxSessionID();
+		System.out.println("Utils.getCurrentSessionID: maximum session id = " + res);
+		return res;
+	}
 	
 
 	/**
@@ -133,11 +143,25 @@ public class Utils {
 		if(res >=0) e.ID = res;
 		return res;
 	}
+
+	/**
+	* Add new entry in the 'sessions' retation for the session 's'
+	*/
+	public synchronized static int addSession(Session s){
+		DBManager db = new DBManager();
+		int res = db.addSession(s);
+		System.out.println("Utils.addSession: result of db.addSession()="+res);
+		if(res < 0) return -1;
+		res = getCurrentSessionID();
+		System.out.println("Utils.addSession: result of db.getCurrentSessionID()="+res);
+		if(res >=0) s.sessionID = res;
+		return res;
+	}
 	
 	/**
 	* Delete entry in the 'experiments' retation for the experimentid 'eid'
 	*/
-	public static int deleteExperiment(int eid){
+	public synchronized static int deleteExperiment(int eid){
 		DBManager db = new DBManager();
 		int res = db.deleteExperiment(eid); 
 		return res;
@@ -147,10 +171,25 @@ public class Utils {
 	/**
 	* returns String containing name of event control file for experiment number 'expid'
 	*/
-	public static String getEventFileOfExperiment(int expid){
+	public synchronized static String getEventFileOfExperiment(int expid){
 		DBManager db = new DBManager();
 		String res = db.getEventFileOfExperiment(expid);
 		return res;
+	}
+
+	/**
+	* returns Session corresponding to id 'sid'
+	*/
+	public synchronized static Session getSession(String sid){
+		Integer id = Integer.parseInt(sid);
+		Session s = Main.SessionMap.get(id);
+		if(s!=null) return s;
+
+		DBManager db = new DBManager();
+		s=db.getSession(sid);
+		Main.getSessionMap().put(id, s);
+		System.out.println("Utils.getSession() : session description = " + s.description);
+		return s;
 	}
 	
 	

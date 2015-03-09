@@ -5,6 +5,16 @@ create table users(
 	PRIMARY KEY(username)
 );
 
+create table sessions(
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+	name varchar(100) NOT NULL,
+	description varchar(1000),
+	datetime INTEGER UNSIGNED NOT NULL,
+	user VARCHAR(100) NOT NULL,
+	CONSTRAINT FOREIGN KEY(user) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
 -- table for experiment data
 create table experiments(
 	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -14,7 +24,9 @@ create table experiments(
 	user VARCHAR(100) NOT NULL,
 	filename VARCHAR(100) NOT NULL,
 	datetime INTEGER UNSIGNED NOT NULL,
-	FOREIGN KEY(user) REFERENCES users(username) ON DELETE CASCADE
+	sid INT NOT NULL,
+	CONSTRAINT FOREIGN KEY(user) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT FOREIGN KEY(sid) REFERENCES sessions(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- table for experiment details
@@ -29,6 +41,6 @@ create table experimentdetails(
 	processorspeed INT NOT NULL,
 	wifisignalstrength INT NOT NULL,
 	filereceived BOOL NOT NULL,
-	FOREIGN KEY(expid) REFERENCES experiments(id) ON DELETE CASCADE,
+	CONSTRAINT FOREIGN KEY(expid) REFERENCES experiments(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	PRIMARY KEY(expid, macaddress)
 );

@@ -1,8 +1,3 @@
-
-<%
-	String hsessionid= (String)session.getAttribute("session");
-	String link = "<a href=\"listExperiments.jsp?session="+ hsessionid + "\">" + "Experiments</a>";
-%>
 <header>  
   <div class="navbar navbar-fixed-top">
 	<div class="navbar-inner">
@@ -16,13 +11,9 @@
 		<div class="nav navbar-nav navbar-right">
 			<ul class="nav navbar-nav navbar-right">
 				<li><a href="index.jsp">Home</a> </li>
-				<li ><%out.print(link);%></li>
 				<li><%@ include file="logout_button.jsp" %></li>
 			</ul>
 		</div>
-
-
-
 	  </div> 
 	</div>
   </div>   
