@@ -5,22 +5,37 @@
 
 <%@ page import="serverplus.*" %>
 
+
 <%@ include file="checksession2.jsp" %>
 
 <%
 	String username= (String)session.getAttribute("username");
-	String ss = (String)request.getParameter("session");
+	String sid = (String)request.getParameter("session");
 	session.removeAttribute("session");
-	System.out.println("deletesession: " + (String)session.getAttribute("session"));
-	if(ss==null){
-		System.out.println("sending to index");
-		response.sendRedirect("deletesession.jsp: index.jsp");
+
+	if(sid==null || sid=="") {
+		response.sendRedirect("session.jsp"); System.out.println("deletesession.jsp: sid is null or empty");
 	}
+
 	else{
-		Integer ssid1 = Integer.parseInt(ss);
-		int res = Handlers.DeleteSession(ssid1);
-		System.out.println("deletesession.jsp: DeleteSession result= " + res);
-		System.out.println("deletesession.jsp: sending to session");
+		System.out.println("session " + sid +" is not null");
+		int res = Handlers.DeleteSession(sid);
+
+		if(res==1){
+			System.out.println("deletesession.jsp:Session "+sid+" couldnot be deleted as experiment is running");
+%>
+	
+	<html lang="en">
+		<body>
+			<script type="text/javascript">
+				alert("Experiment is running. Stop the experiment and then delete session");
+			</script>
+		</body>
+	</html>
+
+<%			
+		}
+		
 		response.sendRedirect("session.jsp");
 	}
 %>

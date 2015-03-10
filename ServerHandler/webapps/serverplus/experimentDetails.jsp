@@ -14,6 +14,8 @@
 		int expid = Integer.parseInt(exp);
 		
 	int filescount=0;	
+	String sessionid= (String)session.getAttribute("session");
+	String back = "<a href=\"listExperiments.jsp?session="+ sessionid + "\">Back</a>";
 %>
 
 <html lang="en">
@@ -29,10 +31,17 @@
 	<link type="text/css" rel="stylesheet" href="./css/font-awesome.css" />
 	<link type="text/css" rel="stylesheet" href="./css/font-awesome-ie7.css" />
 	<link type="text/css" rel="stylesheet" href="./css/boot-business.css" />
+	<script type="text/JavaScript">
+		<!--
+		function AutoRefresh( t ) {
+			setTimeout("location.reload(true);", t);
+		}
+		//   -->
+	</script>
 	
-	
+
 </head>
-<body>
+<body onload="JavaScript:AutoRefresh(5000);">
 
 	<%@ include file="header.jsp" %>  
     
@@ -44,7 +53,7 @@
 				<h1>Load Generator's Server Handler</h1>
 			</div>
 			<div>
-				<a href="listExperiments.jsp">Back</a> 
+				<%out.print(back);%>
 			</div>
 			
 			<div>
@@ -113,7 +122,6 @@
 			</div>
 			<div>
 			<%
-				System.out.println("<a href=\"downloadzip.jsp?" + Constants.getExpID() +"="+ expid + "\" > Download all </a>");
 				if(filescount>0){
 					out.print("<a href=\"downloadzip.jsp?" + Constants.getExpID() +"="+ expid + "\" > Download all </a>");
 				}

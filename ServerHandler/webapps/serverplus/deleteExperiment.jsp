@@ -5,7 +5,7 @@
 
 <%@ page import="serverplus.*" %>
 
-<%@ include file="checksession2.jsp" %>
+<%@ include file="checksession.jsp" %>
 
 <%
 	String username= (String)session.getAttribute("username");
@@ -31,7 +31,9 @@
 			
 			FileUtils.deleteDirectory(new File(Constants.getMainExpLogsDir() + expid));
 			
-			if(res>0) response.sendRedirect("listExperiments.jsp");
+			String sessionid= (String)session.getAttribute("session");
+
+			if(res>0) response.sendRedirect("listExperiments.jsp?session="+ sessionid);
 			else{
 				response.sendRedirect("index.jsp");
 			}

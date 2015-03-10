@@ -3,8 +3,9 @@
 <%
 	Integer _sid = new Integer(Integer.parseInt((String)session.getAttribute("session")));
 	Session _sumsession = (Main.getSessionMap()).get(_sid);
-	if(_sumsession==null) System.out.println("summary.jsp: Bhai ye th null hai");
-	else System.out.println("summary.jsp : " + _sumsession.getDescription());
+	
+	/*if(_sumsession==null) System.out.println("summary.jsp: Bhai ye th null hai");
+	else System.out.println("summary.jsp : " + _sumsession.getDescription());*/
 %>
 <div>
 	<h4>Summary</h4>

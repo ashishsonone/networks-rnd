@@ -86,7 +86,7 @@ else{
 			e.print();
 			
 
-			int result = Utils.addExperiment(e);
+			int result = Utils.addExperiment(e,sessionid);
 
 			if(result<0){
 				System.out.print("adding experiment to database failed...");

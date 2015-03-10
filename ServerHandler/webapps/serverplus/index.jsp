@@ -11,7 +11,7 @@
 	if(sessionid==null || sessionid=="") {response.sendRedirect("session.jsp");}
 
 	else{
-	System.out.println("index.html: sessionid is=" + sessionid);
+	//System.out.println("index.html: sessionid is=" + sessionid);
 
 	Session curSession = Utils.getSession(sessionid);	
 	

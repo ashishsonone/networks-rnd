@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.*;
 import java.io.FileReader;
-import java.util.StringTokenizer;
-import java.util.Scanner;
 import java.io.File;
 import java.util.Scanner;
 import java.util.*;
@@ -119,14 +117,14 @@ public class DBManager {
 	/**
 	* returns the maximum experiment ID till now.
 	*/
-	public int getMaxExperimentID(){
+	public int getMaxExperimentID(String sid){
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
 		int expID =-1;
 		PreparedStatement p;
 		
 		try {
-			String Query ="SELECT max(id) FROM experiments;";
+			String Query ="SELECT max(id) FROM experiments where sid="+sid+";";
 			p=conn.prepareStatement(Query);
 			p.addBatch();				
 			ResultSet rs = p.executeQuery();
@@ -135,6 +133,7 @@ public class DBManager {
 				System.out.println("exprimentid = " + expID);
 				//expID = rs.getInt(1);
 			}
+			System.out.println("DBManager.java: getMaxExperimentID result=" + expID );
 			status = closeConnection();
 			if(status == Constants.connectionFailure) return -1;
 
@@ -235,18 +234,19 @@ public class DBManager {
 	/**
 	* Add new entry in the 'experiments' retation for the experiment 'e'
 	*/
-	public int addExperiment(Experiment e){
+	public int addExperiment(Experiment e, String sid){
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
 		try {
 			long unixTime = System.currentTimeMillis() / 1000L;
-	 		PreparedStatement p1=conn.prepareStatement("insert into experiments(name,location,description,user,filename,datetime) values(?,?,?,?,?,?);");
+	 		PreparedStatement p1=conn.prepareStatement("insert into experiments(name,location,description,user,filename,datetime,sid) values(?,?,?,?,?,?,?);");
 			p1.setString(1, e.Name);
 			p1.setString(2, e.Location);
 			p1.setString(3, e.Description);
 			p1.setString(4, e.User);
 			p1.setString(5, e.FileName);
 			p1.setLong(6, unixTime);
+			p1.setInt(7,Integer.parseInt(sid));
 			p1.executeUpdate();
 			status = closeConnection();
 			return 0;
@@ -308,6 +308,32 @@ public class DBManager {
 		return rs;
 
 	}
+
+
+	public List<Integer> getExpIDs(String sid){
+		ResultSet rs = null;
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return null;
+		PreparedStatement p;
+		List<Integer> list = new ArrayList<Integer>();
+		
+		try {
+			String Query ="select id from experiments where sid="+ sid + ";";
+			p=conn.prepareStatement(Query);
+			p.addBatch();				
+			rs = p.executeQuery();
+			if(rs.next()){
+				do{
+					list.add(new Integer(rs.getInt(1)));
+				}while(rs.next());
+				return list;
+			}
+		} catch (SQLException sqle) {
+			System.out.println(sqle);
+		}
+		return list;
+	}
+
 
 	/**
 	* Retuns the ResultSet of all the sessions corresponding to user 'username'

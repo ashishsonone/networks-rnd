@@ -75,11 +75,11 @@
 		do{
 %>				
 					<tr>
-						<td class="span1"><%out.print("<a href=\"experimentDetails.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
-							+ "\">" + rs.getInt(1) + " </a>");%>
+						<td class="span1"><%out.print(""+rs.getInt(1));%></td>
+						<td class="span2"><%out.print("<a href=\"experimentDetails.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
+							+ "\">" + rs.getString(2) + " </a>");%>
 						</td> 
-						
-						<td class="span2"><%out.print(""+rs.getString(2));%></td>   
+						 
 						<td class="span2"><%out.print(""+rs.getString(3));%></td>   
 						<td class="span4"><%out.print(""+rs.getString(4));%></td>
 						<td class="span2"><%out.print(""+rs.getDate(7).toString());%></td>

@@ -66,6 +66,7 @@
 							<th>Description</th>
 							<th>Date</th>
 							<th>Time</th>
+							<th>Status</th>
 							
 							<th>Delete Session</th>
 						</tr>
@@ -76,6 +77,10 @@
 		do{
 			String link = "<a href=\"index.jsp?session=" + rs.getInt(1) + "\"> "
 							+ rs.getString(2) +" </a>";
+			String status = "Running";
+			Integer sint = new Integer(rs.getInt(1));
+			Session s = Main.getSessionMap().get(sint);
+			if(s==null || s.getCurrentExperiment()<0) status="Stopped";
 %>				
 					<tr>
 						<td class="span1"><%out.print(""+rs.getInt(1));%></td>
@@ -83,9 +88,10 @@
 						<td class="span6"><%out.print(""+rs.getString(3));%></td>   
 						<td class="span2"><%out.print(""+rs.getDate(4).toString());%></td>
 						<td class="span2"><%out.print(""+rs.getTime(4).toString());%></td>
-						
+						<td class="span2"><%out.print(status);%></td>
 						<td class="span2"><%out.print("<a href=\"deleteSession.jsp?session="
-								+ rs.getInt(1) + "\">" + "Delete</a>");%></td>
+								+ rs.getInt(1) + "\" onClick=\"confirm('Press OK to Delete session " 
+								+ rs.getInt(1)+ " ')\">" + "Delete</a>");%></td>
 					</tr>
 <%					
 		}while(rs.next());

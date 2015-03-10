@@ -92,9 +92,9 @@ public class Utils {
 	/**
 	* returns ID of the experiment with max experimentID
 	*/
-	public static int getCurrentExperimentID(){
+	public static int getCurrentExperimentID(String sid){
 		DBManager db = new DBManager();
-		int res = db.getMaxExperimentID();
+		int res = db.getMaxExperimentID(sid);
 		System.out.println("Utils.getCurrentExperimentID: maximum exp id = " + res);
 		return res;
 	}
@@ -133,12 +133,12 @@ public class Utils {
 	/**
 	* Add new entry in the 'experiments' retation for the experiment 'e'
 	*/
-	public synchronized static int addExperiment(Experiment e){
+	public synchronized static int addExperiment(Experiment e, String sid){
 		DBManager db = new DBManager();
-		int res = db.addExperiment(e);
+		int res = db.addExperiment(e,sid);
 		System.out.println("Utils.addExperiment: result of db.addExperiment()="+res);
 		if(res < 0) return -1;
-		res = getCurrentExperimentID();
+		res = getCurrentExperimentID(sid);
 		System.out.println("Utils.addExperiment: result of db.getCurrentExperimentID()="+res);
 		if(res >=0) e.ID = res;
 		return res;

@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.List;
 import java.util.Calendar;
-
+import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -376,17 +376,52 @@ public class Handlers {
 	* This method deletes session whose id is session
 	* If the experiment is running, it doesn't delte the experiment and returns notOK
 	*/
-	public static int DeleteSession(Integer session){
+	public static int DeleteSession(String sid){
 		//! to variables cleaning first
-		Session s = (Main.SessionMap).get(session);
-		if(s!=null && !s.experimentRunning){
-			s= (Main.SessionMap).remove(session);
-			Main.freeSessions.add(session);
-			return Constants.OK;
+		if(sid==null || sid==""){
+			System.out.println("DeleteSession: sid is null or sid is empty");
+			return 0;
 		}
-		else{
-			return Constants.NOTOK;
+
+		int ssid = Integer.parseInt(sid);
+		Integer _sid = new Integer(ssid);
+		Session s = (Main.SessionMap).get(_sid);
+		DBManager db = new DBManager();
+
+		System.out.println("Yaha1");
+
+		if(s!=null && s.currentExperiment>=0){
+			System.out.println("DeleteSession: experiment number "+ s.currentExperiment +" is running");
+			return 1;
 		}
+
+		System.out.println("Yaha2");
+
+		System.out.println("DeleteSession: deleting session "+ sid);
+
+		if(Main.SessionMap.contains(_sid)){
+			s= (Main.SessionMap).remove(_sid);
+		}
+
+		List<Integer> explist = db.getExpIDs(sid);
+
+		System.out.println("DeleteSession: number of experiments in session "+sid+" are " + explist.size());
+
+		for(Integer expid : explist){
+			try{
+				FileUtils.deleteDirectory(new File(Constants.getMainExpLogsDir() + expid));
+			}
+			catch(IOException e){
+				System.out.println(e);
+			}
+		}
+
+		System.out.println("Yaha3");
+
+		int res = db.deleteSession(ssid);
+		if(res>0) {System.out.println("DeleteSession: from database success");return 2; }
+		else{System.out.println("DeleteSession: from database fail");return 3; }
+
 	}
 	
 	/**
