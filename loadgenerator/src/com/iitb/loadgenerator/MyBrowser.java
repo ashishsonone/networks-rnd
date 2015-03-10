@@ -1,5 +1,7 @@
 package com.iitb.loadgenerator;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -71,112 +73,82 @@ public class MyBrowser extends WebViewClient {
 	   HttpClient client = new DefaultHttpClient();
 	   
 	   HttpGet request = null;
-	try {
-		String newURL = getURL(url).toString();
-		request = new HttpGet(newURL);
-		//Log.d(LOGTAG, "url is " + newURL);
-	} catch (MalformedURLException | URISyntaxException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-		Log.d(LOGTAG + "-MALFORMED", "url malformed " + url);
-		return null;
-	}
-	   
-		
-	 
-		// add request header
-//			request.addHeader("User-Agent", USER_AGENT);
-		HttpResponse response;
-		Calendar start = null;
+	   String newURL = null;
 		try {
-			start = Calendar.getInstance();
-			if(pageStartTime == null) pageStartTime = start;
-			
-			long startTime = start.getTimeInMillis();
-			
-			response = client.execute(request);
-			
-			int responseStatusCode = response.getStatusLine().getStatusCode();
-			System.out.println("Response Code : " + responseStatusCode);
-			
-			
-			Calendar end = Calendar.getInstance();
-			long endTime = end.getTimeInMillis();
-			WebResourceResponse wr = null;
-			
-			if(responseStatusCode == HttpURLConnection.HTTP_OK){
-				if(response.getEntity() == null){
-					Log.d(LOGTAG + "-RESPONSE-NULL", "response is NULL " + url);
-					return null;
-				}
-				HttpEntity entity = response.getEntity();
-				InputStream is = entity.getContent();
-			
-				
-				Header contentType = entity.getContentType();
-				String mimeType = null;
-				String charset = EntityUtils.getContentCharSet(entity);
-				
-				if(contentType != null){
-					mimeType = contentType.getValue().split(";")[0].trim();
-					Log.d(LOGTAG + "-HEADER-DETAILS", "mimeType=" + mimeType + " charset=" + charset);
-				}
-				wr = new WebResourceResponse(mimeType, "utf-8", is);
-			}
-			
-			//String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-			if(true){
-				
-				if(loggingOn){
-					totalResponseTime += (endTime - startTime); //cumulative response time
-					Log.d(LOGTAG + "-SUCCESS", "LOGGING TRUE : response time [" + (endTime-startTime) + "] - " + url);
-					String startTimeFormatted =  Utils.sdf.format(start.getTime());
-					String endTimeFormatted =  Utils.sdf.format(end.getTime());
-					
-					if(responseStatusCode == HttpURLConnection.HTTP_OK){
-						logwriter.append(Constants.SUMMARY_PREFIX + url + " [SUCCESS] " + "[RT = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-							 "\n");
-					}
-					else{
-						logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-								"[code " + responseStatusCode + "]" + "\n");
-					}
-				}
-				else{
-					Log.d(LOGTAG + "-SUCCESS", "LOGGING FALSE : response time [" + (endTime-startTime) + "] - " + url);
-				}
-				//MainActivity.js = responseString;
-			}
-			//return null;
-			
-			return wr;
-			//return null;
-		} catch (ClientProtocolException e) {
+			newURL = getURL(url).toString();
+		} catch (MalformedURLException | URISyntaxException e1) {
 			// TODO Auto-generated catch block
-			long startTime = start.getTimeInMillis();
-			Calendar end = Calendar.getInstance();
-			long endTime = end.getTimeInMillis();
-			String startTimeFormatted =  Utils.sdf.format(start.getTime());
-			String endTimeFormatted =  Utils.sdf.format(end.getTime());
-			logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-					"[" + e.getMessage() + " | " + e.getCause() + "]" + "\n");
-			/*logwriter.append("ERROR [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-					"[RT = " + (endTime-startTime) + "] - " + url + "[" + e.getMessage() + "|" + e.getCause() + "]\n");*/
-			Log.d(LOGTAG + "-ClientProtocolException", "clientprotocolexception " + url + " M "  + e.getMessage() + " C " + e.getCause());
-			e.printStackTrace();
-		} catch (IOException e){
-			long startTime = start.getTimeInMillis();
-			Calendar end = Calendar.getInstance();
-			long endTime = end.getTimeInMillis();
-			String startTimeFormatted =  Utils.sdf.format(start.getTime());
-			String endTimeFormatted =  Utils.sdf.format(end.getTime());
-			logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-					"[" + e.getMessage() + " | " + e.getCause() + "]" + "\n");
-			/*logwriter.append("ERROR [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-					"[RT = " + (endTime-startTime) + "] - " + url + "[" + e.getMessage() + "|" + e.getCause() + "]\n");*/
-			Log.d(LOGTAG + "-IOEXCEPTION", "ioexception " + url + " M "  + e.getMessage() + " C " + e.getCause());
+			e1.printStackTrace();
+			Log.d(LOGTAG + "-MALFORMED", "url malformed " + url);
+			return null;
 		}
+		
+		Calendar start = Calendar.getInstance();
+		long startTime = start.getTimeInMillis();
 	   
+		try {
+			URL urlObj = new URL(newURL);
+			HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
+			connection.setReadTimeout(10000); //10 seconds timeout for reading from input stream
+			connection.setConnectTimeout(10000); //10 seconds before connection can be established
+			
+			connection.connect();
+			
+			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+				Log.d(Constants.LOGTAG, "getResource : " + " connection response code error");
+				Calendar end = Calendar.getInstance();
+				
+				String startTimeFormatted =  Utils.sdf.format(start.getTime());
+				String endTimeFormatted =  Utils.sdf.format(end.getTime());
+				
+				logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (end.getTimeInMillis()-start.getTimeInMillis()) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+						"[code " + connection.getResponseCode() + "]" + "\n");
+				
+				Log.d(LOGTAG, "HandleEvent : " + " connection response code error");
+			}
+			else{
+				int fileLength = connection.getContentLength();
+				InputStream input = connection.getInputStream();
+				
+				Log.d(Constants.LOGTAG, "getResource : " + " filelen " + fileLength);
+				
+				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+				int nRead;
+				byte[] data = new byte[16384];
+
+				while ((nRead = input.read(data, 0, data.length)) != -1) {
+				  buffer.write(data, 0, nRead);
+				}
+
+				Calendar end = Calendar.getInstance();
+				long endTime = end.getTimeInMillis();
+				
+				buffer.flush();
+
+				byte[] responseData = buffer.toByteArray();
+				
+				String startTimeFormatted =  Utils.sdf.format(start.getTime());
+				String endTimeFormatted =  Utils.sdf.format(end.getTime());
+				
+				logwriter.append(Constants.SUMMARY_PREFIX + url + " [SUCCESS] " + "[RT = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+						 "\n");
+				
+				InputStream stream = new ByteArrayInputStream(responseData);
+				WebResourceResponse wr = new WebResourceResponse("", "utf-8", stream);
+				return wr;
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			Calendar end = Calendar.getInstance();
+			long endTime = end.getTimeInMillis();
+			String startTimeFormatted =  Utils.sdf.format(start.getTime());
+			String endTimeFormatted =  Utils.sdf.format(end.getTime());
+			logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+					"[" + e.getMessage() + " | " + e.getCause() + "]" + "\n");
+			e.printStackTrace();
+		}   
 	   return null;
    }
    
