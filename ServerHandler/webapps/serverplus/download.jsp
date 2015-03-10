@@ -29,11 +29,12 @@
 			response.setHeader("Content-Disposition", "attachment;filename=Exp" + expid + "_" + Constants.getEventFile());
 		}
 		else if(download.equals("log")){
-			String macAddress = (String)request.getParameter(Constants.getMacAddress());
+			String macAddress = (String)request.getParameter("file");
 			filePath = filePath + macAddress;
+			System.out.println(filePath);
 			System.out.println("expid: " + expid + ". download: " + download + "macAddress: " + macAddress +". filePath: "+filePath);
 			response.setHeader("Content-Disposition", "attachment;filename=Exp" + expid + "_" 
-								+ macAddress + ".log");
+								+ macAddress);
 		}
 
 		File file = new File(filePath);

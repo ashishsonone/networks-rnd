@@ -4,8 +4,11 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -190,6 +193,36 @@ public class Utils {
 		Main.getSessionMap().put(id, s);
 		System.out.println("Utils.getSession() : session description = " + s.description);
 		return s;
+	}
+
+	public static int SummarizeLog(String fileName, String expDir){
+		System.out.println(expDir + fileName);
+		try{
+			File file = new File(expDir + fileName);
+			FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			StringBuffer stringBuffer = new StringBuffer();
+			String line;
+
+			while ((line = bufferedReader.readLine()) != null) {
+				if(line.startsWith("###")){
+					stringBuffer.append(line.substring(3) + '\n');
+				}
+			}
+
+			fileReader.close();
+
+			File output = new File(expDir+fileName+"_summary.log");
+			FileWriter fileWriter = new FileWriter(output);
+			fileWriter.write(stringBuffer.toString());
+			fileWriter.flush();
+			fileWriter.close();
+		}
+		catch(IOException e){
+			e.printStackTrace();
+			return -1;
+		}
+		return 1;
 	}
 	
 	

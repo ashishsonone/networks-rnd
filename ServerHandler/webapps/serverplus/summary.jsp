@@ -31,7 +31,7 @@
 
 	    out.print("<p> Experiment number <a href=\"experimentDetails.jsp?" + Constants.getExpID() +"="
 	    			+  _sumexpid + "\">" + _sumexpid + " </a> is running for time " 
-	    			+ diffHours + ":" + diffMinutes + ":" + diffSeconds + " </p>");
+	    			+ diffHours + ":" + diffMinutes + ":" + diffSeconds + " hrs </p>");
 
 	    if(cur_filereceived==tot_filereceived){
 	    	out.print("<p> All Log Files are received. Experiment can be stopped </p>");

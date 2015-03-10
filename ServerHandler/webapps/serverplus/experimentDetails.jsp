@@ -102,8 +102,8 @@
 							else{
 							String url = "download.jsp?" + URLEncoder.encode("random word £500 bank $", "UTF-8");
 								out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
-								+ "&download=log&" + Constants.getMacAddress() + "="
-								+ URLEncoder.encode((String)rs.getString(2), "UTF-8")   
+								+ "&download=log&" + "file" + "="
+								+ URLEncoder.encode((String)rs.getString(2) + "_summary.log", "UTF-8")   
 								+ "\" > Download </a>");
 							
 							filescount++;

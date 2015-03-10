@@ -17,7 +17,7 @@
 	int maxMemSize = 10 * 1024 * 1024;
 	String filePath = Constants.getMainExpLogsDir();
 	String tempFiles = Constants.getTempFiles();
-	
+	String expDir = "";
 	// Verify the content type
 	String contentType = request.getContentType();
 	if ((contentType != null) && (contentType.indexOf("multipart/form-data") >= 0)) {
@@ -53,17 +53,20 @@
 			
 			
 			filePath=filePath + expID + "/";
+			expDir = filePath;
 			File theDir = new File(filePath);
 			if (!theDir.exists()) {
 				theDir.mkdir();
 			}
 
 		 i = fileItems.iterator();
-			
+		
+		  String fileName="";
+
 		 while ( i.hasNext () ){
 			FileItem fi = (FileItem)i.next();
 			if ( !fi.isFormField () ){
-				String fileName = macAddress;
+				fileName = macAddress;
 				boolean isInMemory = fi.isInMemory();
 				long sizeInBytes = fi.getSize();
 				if( fileName.lastIndexOf("\\") >= 0 ){
@@ -77,6 +80,10 @@
 			}
 		 }
 		 
+		 int summary = Utils.SummarizeLog(fileName, expDir);
+		 if(summary>0) System.out.println("receiveLogFile.jsp: summarized");
+		 else System.out.println("receiveLogFile.jsp: not summarized");
+
 		 int result = Utils.updateFileReceivedField(Integer.parseInt(expID), macAddress, true);
 			System.out.println("update FIle received result: " + result);
 			if(result<0)
