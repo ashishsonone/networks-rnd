@@ -24,13 +24,14 @@ public class Constants {
 	
 	static final int alarmRequestCode = 192837;
 	static final int timeoutAlarmRequestCode = 123343;
-	static final int killTimeoutDuration = 10; //in minutes
+	static final int killTimeoutDuration = 20; //in minutes
 	static final String logDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/loadgenerator/logs";
 	
 	
 	//temporary
 	static final String LOGTAG = "LOADGENERATOR";
 	static final String LINEDELIMITER = "* * * * * *\n";
+	static final String SUMMARY_PREFIX = "### ";
 	static final String EOF = "\nEOF\n";
 	
 	// Defines a custom intent for alarm receiver

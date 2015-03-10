@@ -266,8 +266,14 @@ public class Threads {
 			// instead of the file
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				Log.d(Constants.LOGTAG, "HandleEvent : " + " connection response code error");
-				logwriter.append("connect failed : code " + connection.getResponseCode() + "\n");
-				logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
+				endTime = Calendar.getInstance();
+				
+				String startTimeFormatted =  Utils.sdf.format(startTime.getTime());
+				String endTimeFormatted =  Utils.sdf.format(endTime.getTime());
+				
+				logwriter.append(Constants.SUMMARY_PREFIX + event.url + " [ERROR] " + "[ET = " + (endTime.getTimeInMillis()-startTime.getTimeInMillis()) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+						"[code " + connection.getResponseCode() + "]" + "\n");
+				logwriter.append(Constants.SUMMARY_PREFIX + Constants.LINEDELIMITER); //this marks the end of this log
 			}
 			else{
 				// this will be useful to display download percentage
@@ -311,15 +317,26 @@ public class Threads {
 				endTime = Calendar.getInstance();
 				
 				responseTime = endTime.getTimeInMillis() - startTime.getTimeInMillis();
+				String startTimeFormatted =  Utils.sdf.format(startTime.getTime());
+				String endTimeFormatted =  Utils.sdf.format(endTime.getTime());
 				logwriter.append("RT " +  responseTime + "\n");
+				logwriter.append(Constants.SUMMARY_PREFIX + event.url + " [SUCCESS] " + "[RT = " + (endTime.getTimeInMillis()-startTime.getTimeInMillis()) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+						 "\n");
 	
 				logwriter.append("success\n");
-				logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
+				logwriter.append(Constants.SUMMARY_PREFIX + Constants.LINEDELIMITER); //this marks the end of this log
 				
 			}
-		} catch (Exception e) {
+		} catch (IOException e) {
+			endTime = Calendar.getInstance();
+			
+			String startTimeFormatted =  Utils.sdf.format(startTime.getTime());
+			String endTimeFormatted =  Utils.sdf.format(endTime.getTime());
+			
+			logwriter.append(Constants.SUMMARY_PREFIX + event.url + " [ERROR] " + "[ET = " + (endTime.getTimeInMillis()-startTime.getTimeInMillis()) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+					"[" + e.getMessage() + " | " + e.getCause() + "]" + "\n");
 			logwriter.append("failure\n");
-			logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
+			logwriter.append(Constants.SUMMARY_PREFIX + Constants.LINEDELIMITER); //this marks the end of this log
 			e.printStackTrace();
 		} finally {
 			try {

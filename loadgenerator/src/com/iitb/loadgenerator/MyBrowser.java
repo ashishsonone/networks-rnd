@@ -11,6 +11,7 @@ import java.util.Calendar;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -35,6 +36,8 @@ public class MyBrowser extends WebViewClient {
 	boolean loggingOn;
 	String baseURL;
 	int totalResponseTime;
+	Calendar pageStartTime = null;
+	Calendar pageEndTime = null;
 	
 	MyBrowser(int id, String tbaseURL){
 		eventid = id;
@@ -82,8 +85,11 @@ public class MyBrowser extends WebViewClient {
 		// add request header
 //			request.addHeader("User-Agent", USER_AGENT);
 		HttpResponse response;
+		Calendar start = null;
 		try {
-			Calendar start = Calendar.getInstance();
+			start = Calendar.getInstance();
+			if(pageStartTime == null) pageStartTime = start;
+			
 			long startTime = start.getTimeInMillis();
 			
 			response = client.execute(request);
@@ -111,7 +117,7 @@ public class MyBrowser extends WebViewClient {
 			}
 			
 			//String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
-			if(true || url.contains("/login")){
+			if(true){
 				
 				if(loggingOn){
 					totalResponseTime += (endTime - startTime); //cumulative response time
@@ -119,8 +125,8 @@ public class MyBrowser extends WebViewClient {
 					String startTimeFormatted =  Utils.sdf.format(start.getTime());
 					String endTimeFormatted =  Utils.sdf.format(end.getTime());
 					
-					logwriter.append("[" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-							"[RT = " + (endTime-startTime) + "] - " + url + "\n");
+					logwriter.append(Constants.SUMMARY_PREFIX + url + " [SUCCESS] " + "[RT = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+							 "\n");
 				}
 				else{
 					Log.d(LOGTAG + "-SUCCESS", "LOGGING FALSE : response time [" + (endTime-startTime) + "] - " + url);
@@ -131,10 +137,30 @@ public class MyBrowser extends WebViewClient {
 			WebResourceResponse wr = new WebResourceResponse(mimeType, "utf-8", is);
 			return wr;
 			//return null;
-		} catch (IOException e) {
+		} catch (ClientProtocolException e) {
 			// TODO Auto-generated catch block
-			Log.d(LOGTAG + "-IOEXCEPTION", "io exception " + url );
+			long startTime = start.getTimeInMillis();
+			Calendar end = Calendar.getInstance();
+			long endTime = end.getTimeInMillis();
+			String startTimeFormatted =  Utils.sdf.format(start.getTime());
+			String endTimeFormatted =  Utils.sdf.format(end.getTime());
+			logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+					"[" + e.getMessage() + " | " + e.getCause() + "]" + "\n");
+			/*logwriter.append("ERROR [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+					"[RT = " + (endTime-startTime) + "] - " + url + "[" + e.getMessage() + "|" + e.getCause() + "]\n");*/
+			Log.d(LOGTAG + "-ClientProtocolException", "clientprotocolexception " + url + " M "  + e.getMessage() + " C " + e.getCause());
 			e.printStackTrace();
+		} catch (IOException e){
+			long startTime = start.getTimeInMillis();
+			Calendar end = Calendar.getInstance();
+			long endTime = end.getTimeInMillis();
+			String startTimeFormatted =  Utils.sdf.format(start.getTime());
+			String endTimeFormatted =  Utils.sdf.format(end.getTime());
+			logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+					"[" + e.getMessage() + " | " + e.getCause() + "]" + "\n");
+			/*logwriter.append("ERROR [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+					"[RT = " + (endTime-startTime) + "] - " + url + "[" + e.getMessage() + "|" + e.getCause() + "]\n");*/
+			Log.d(LOGTAG + "-IOEXCEPTION", "ioexception " + url + " M "  + e.getMessage() + " C " + e.getCause());
 		}
 	   
 	   return null;
@@ -150,6 +176,7 @@ public class MyBrowser extends WebViewClient {
    @Override
    public void onPageFinished(WebView view, String url) {
 	   Log.d(LOGTAG, "########## onPageFinished() called for url " + baseURL);
+	   pageEndTime = Calendar.getInstance();
        super.onPageFinished(view, url);
        
        if(loggingOn){
@@ -159,9 +186,9 @@ public class MyBrowser extends WebViewClient {
 				public void run() {
 					int num = MainActivity.numDownloadOver++;
 					
-					logwriter.append("RT " +  totalResponseTime + "\n");
+					logwriter.append(Constants.SUMMARY_PREFIX + "summary total RT = " +  totalResponseTime + "\n");
 					logwriter.append("success\n");
-					logwriter.append(Constants.LINEDELIMITER); //this marks the end of this log
+					logwriter.append(Constants.SUMMARY_PREFIX + Constants.LINEDELIMITER); //this marks the end of this log
 					
 					if(num+1 == MainActivity.load.events.size()){
 						logwriter.append(Constants.EOF); //this indicates that all GET requests have been seen without interruption from either user/server
