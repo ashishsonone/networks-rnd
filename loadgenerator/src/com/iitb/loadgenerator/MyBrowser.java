@@ -2,6 +2,7 @@ package com.iitb.loadgenerator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,6 +15,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
@@ -94,26 +96,32 @@ public class MyBrowser extends WebViewClient {
 			
 			response = client.execute(request);
 			
-			//System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+			int responseStatusCode = response.getStatusLine().getStatusCode();
+			System.out.println("Response Code : " + responseStatusCode);
+			
 			
 			Calendar end = Calendar.getInstance();
 			long endTime = end.getTimeInMillis();
+			WebResourceResponse wr = null;
 			
-			if(response.getEntity() == null){
-				Log.d(LOGTAG + "-RESPONSE-NULL", "response is NULL " + url);
-				return null;
-			}
-			HttpEntity entity = response.getEntity();
-			InputStream is = entity.getContent();
-		
+			if(responseStatusCode == HttpURLConnection.HTTP_OK){
+				if(response.getEntity() == null){
+					Log.d(LOGTAG + "-RESPONSE-NULL", "response is NULL " + url);
+					return null;
+				}
+				HttpEntity entity = response.getEntity();
+				InputStream is = entity.getContent();
 			
-			Header contentType = entity.getContentType();
-			String mimeType = null;
-			String charset = EntityUtils.getContentCharSet(entity);
-			
-			if(contentType != null){
-				mimeType = contentType.getValue().split(";")[0].trim();
-				Log.d(LOGTAG + "-HEADER-DETAILS", "mimeType=" + mimeType + " charset=" + charset);
+				
+				Header contentType = entity.getContentType();
+				String mimeType = null;
+				String charset = EntityUtils.getContentCharSet(entity);
+				
+				if(contentType != null){
+					mimeType = contentType.getValue().split(";")[0].trim();
+					Log.d(LOGTAG + "-HEADER-DETAILS", "mimeType=" + mimeType + " charset=" + charset);
+				}
+				wr = new WebResourceResponse(mimeType, "utf-8", is);
 			}
 			
 			//String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
@@ -125,8 +133,14 @@ public class MyBrowser extends WebViewClient {
 					String startTimeFormatted =  Utils.sdf.format(start.getTime());
 					String endTimeFormatted =  Utils.sdf.format(end.getTime());
 					
-					logwriter.append(Constants.SUMMARY_PREFIX + url + " [SUCCESS] " + "[RT = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+					if(responseStatusCode == HttpURLConnection.HTTP_OK){
+						logwriter.append(Constants.SUMMARY_PREFIX + url + " [SUCCESS] " + "[RT = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
 							 "\n");
+					}
+					else{
+						logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
+								"[code " + responseStatusCode + "]" + "\n");
+					}
 				}
 				else{
 					Log.d(LOGTAG + "-SUCCESS", "LOGGING FALSE : response time [" + (endTime-startTime) + "] - " + url);
@@ -134,7 +148,7 @@ public class MyBrowser extends WebViewClient {
 				//MainActivity.js = responseString;
 			}
 			//return null;
-			WebResourceResponse wr = new WebResourceResponse(mimeType, "utf-8", is);
+			
 			return wr;
 			//return null;
 		} catch (ClientProtocolException e) {
