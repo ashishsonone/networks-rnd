@@ -430,6 +430,8 @@ public class Handlers {
 	* stop the experiment and then delete the session. 
 	*/
 	public static boolean SessionValidation(String ss){
+		return true;
+		/*
 		Calendar cal = Calendar.getInstance();
 		if(ss==null || ss.equals("")) return false;
 		Integer sid = new Integer(Integer.parseInt(ss));
@@ -451,6 +453,7 @@ public class Handlers {
 		Main.SessionMap.remove(sid);
 		Main.freeSessions.add(sid);
 		return false;
+		*/
 	}
 
 }
