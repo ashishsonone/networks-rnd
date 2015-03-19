@@ -37,6 +37,15 @@
 								+ macAddress);
 		}
 
+		else if(download.equals("detail")){
+			String macAddress = (String)request.getParameter("file");
+			filePath = filePath + macAddress;
+			System.out.println(filePath);
+			System.out.println("expid: " + expid + ". download: " + download + "macAddress: " + macAddress +". filePath: "+filePath);
+			response.setHeader("Content-Disposition", "attachment;filename=Exp" + expid + "_" 
+								+ macAddress);
+		}
+
 		File file = new File(filePath);
 		FileInputStream fileIn = new FileInputStream(file);
 		ServletOutputStream out1 = response.getOutputStream();

@@ -79,7 +79,8 @@
 							<th>Memory </th>
 							<th>Processor Speed </th>
 							<th>Signal Strength </th>
-							<th>Log File</th>
+							<th>Summary Log</th>
+							<th>Detail Log</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -104,6 +105,22 @@
 								out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
 								+ "&download=log&" + "file" + "="
 								+ URLEncoder.encode((String)rs.getString(2) + "_summary.log", "UTF-8")   
+								+ "\" > Download </a>");
+							
+							filescount++;
+							}
+						%>
+						</td>
+
+						<td>
+						<%
+							boolean dreceived = (boolean)rs.getBoolean(10);
+							if(!dreceived) out.print("Not Received");
+							else{
+							String durl = "download.jsp?" + URLEncoder.encode("random word £500 bank $", "UTF-8");
+								out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
+								+ "&download=detail&" + "file" + "="
+								+ URLEncoder.encode((String)rs.getString(2), "UTF-8")   
 								+ "\" > Download </a>");
 							
 							filescount++;
