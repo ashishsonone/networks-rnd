@@ -15,6 +15,7 @@
     	android:layout_marginRight="10dp"
     	android:gravity="left"
 		android:layout_marginLeft="10dp"
+		android:selectAllOnFocus="true"
 		android:inputType="phone"/>
 
     <Button
@@ -41,6 +42,7 @@
 			android:hint="port"
 			android:layout_marginRight="10dp"
 			android:layout_marginLeft="10dp"
+			android:selectAllOnFocus="true"
 			android:inputType="number" />
 	    <EditText
 	  	    android:id="@+id/sessionid"
@@ -48,6 +50,7 @@
 	    	android:layout_height="wrap_content"
 			android:hint="session id"
 			android:layout_marginRight="10dp"
+			android:selectAllOnFocus="true"
 			android:layout_marginLeft="10dp"
 			android:inputType="number" />
 	</LinearLayout>
