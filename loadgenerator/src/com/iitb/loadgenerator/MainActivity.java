@@ -29,12 +29,9 @@ import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.CookieManager;
-import android.webkit.WebSettings;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -193,9 +190,8 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	//function called on pressing start button
-	static int di = 0;
 	public void startService(View v){
-
+		hideKeyBoard();
 		//check if input boxes are empty
 		if(isEmpty(ipbox)){
 			Toast.makeText(this, "Please enter ip", Toast.LENGTH_SHORT).show();
@@ -237,6 +233,7 @@ public class MainActivity extends ActionBarActivity {
 	}
 	
 	public void useDefaultServer(View v){
+		hideKeyBoard();
 		ipbox.setText(defaultServerIP);
 		portbox.setText(defaultServerPort);
 		Toast.makeText(this, "default ip/port set", Toast.LENGTH_SHORT).show();
@@ -244,6 +241,7 @@ public class MainActivity extends ActionBarActivity {
 	
 	//exit app. But before exiting, send the server that you are exiting
 	public void exit(View v){
+		hideKeyBoard();
 		new AlertDialog.Builder(this)
 		.setTitle("Exit")
 		.setMessage("Do you want to exit?")
@@ -339,5 +337,11 @@ public class MainActivity extends ActionBarActivity {
 	
 	synchronized public static void removeWebView(int eventid){
 		webViewMap.remove(eventid);
+	}
+	
+	void hideKeyBoard(){
+		InputMethodManager imm = (InputMethodManager)getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(ipbox.getWindowToken(), 0);
 	}
 }
