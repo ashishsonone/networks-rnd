@@ -190,7 +190,7 @@ public class Utils {
 
 		DBManager db = new DBManager();
 		s=db.getSession(sid);
-		Main.getSessionMap().put(id, s);
+		Main.SessionMap.put(id, s);
 		System.out.println("Utils.getSession() : session description = " + s.description);
 		return s;
 	}

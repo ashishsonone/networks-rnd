@@ -140,6 +140,7 @@ public class Handlers {
 	*/
 	public static int StartExperiment(Experiment e, Session session, int expectedFilterCount){
 		System.out.println("\n"+"StartExperiment: "+"Starting Experiment " +  e.Name + "....");
+
 		e.InitializeStartTime();
 
 		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;
@@ -153,6 +154,10 @@ public class Handlers {
 		if(events.startsWith("ERROR")) return -1;
 		//if(events.equals("error")) return -1;
 		
+
+		session.startExpTCounter = session.filteredDevices.size();
+
+
 		for(DeviceInfo d : session.filteredDevices){
 			try {
 				System.out.println("StartExperiment: while sending control files to devices...");
@@ -234,15 +239,20 @@ public class Handlers {
 		
 		System.out.println("StopExperiment: while sending stop signal to devices...");
 		
+
+		String jsonString = Utils.getStopSignalJson();
+		System.out.println(jsonString);
+
+
+		session.stopExpTCounter = session.actualFilteredDevices.size();
+
+
 		for(DeviceInfo d : session.actualFilteredDevices){
 			try {
 				System.out.println("StopExperiment: IP: " + d.ip + " and Port" + d.port);
 				Socket s = new Socket(d.ip, d.port);
 				s.setSoTimeout(timeoutWindow);
 				DataOutputStream dout = new DataOutputStream(s.getOutputStream());
-				
-				String jsonString = Utils.getStopSignalJson();
-				System.out.println(jsonString);
 				dout.writeInt(jsonString.length());
 				dout.writeBytes(jsonString);
 				
@@ -320,7 +330,10 @@ public class Handlers {
 		
 		final int timeoutWindow = Constants.clearRegistrationTimeoutWindow;	//10 seconds
 
-		for (Map.Entry<String, DeviceInfo> e : (session.registeredClients).entrySet()) {
+		
+		session.clearRegTCounter = session.registeredClients.size();
+
+		for (Map.Entry<String, DeviceInfo> e : (session.registeredClients).entrySet()){
 			DeviceInfo d = e.getValue();
 			try {
 				Socket s = new Socket(d.ip, d.port);
@@ -409,7 +422,7 @@ public class Handlers {
 
 		for(Integer expid : explist){
 			try{
-				FileUtils.deleteDirectory(new File(Constants.getMainExpLogsDir() + expid));
+				FileUtils.deleteDirectory(new File(Constants.mainExpLogsDir + expid));
 			}
 			catch(IOException e){
 				System.out.println(e);

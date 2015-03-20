@@ -29,9 +29,16 @@
 	<link type="text/css" rel="stylesheet" href="./css/font-awesome-ie7.css" />
 	<link type="text/css" rel="stylesheet" href="./css/boot-business.css" />
 	
+	<script type="text/JavaScript">
+		<!--
+		function AutoRefresh( t ) {
+			setTimeout("location.reload(true);", t);
+		}
+		//   -->
+	</script>
 	
 </head>
-<body>
+<body onload="JavaScript:AutoRefresh(5000);">
 
 	<%@ include file="header.jsp" %>  
     

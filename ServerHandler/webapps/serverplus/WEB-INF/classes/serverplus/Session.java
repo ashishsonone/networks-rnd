@@ -52,6 +52,12 @@ public class Session {
 
 	//this is for tracking the initialization time of the session
 	@Getter @Setter Calendar cal = Calendar.getInstance();
+
+	//counters for thread
+	@Getter @Setter Integer startExpTCounter=-1;
+	@Getter @Setter Integer stopExpTCounter=-1;
+	@Getter @Setter Integer clearRegTCounter=-1;
+	@Getter @Setter Integer refreshTCounter=-1;	
 	
 
 	/**
@@ -102,4 +108,15 @@ public class Session {
 		user=u;
 	}
 
+	public void SetStartExpTCounter(){
+	}
+
+	public void SetStopExpTCounter(){
+	}
+
+	public void SetClearRegTCounter(){
+	}
+
+	public void SetRefreshTCounter(){
+	}
 }
