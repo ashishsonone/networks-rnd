@@ -23,6 +23,7 @@ import org.apache.http.util.EntityUtils;
 
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.InputFilter.LengthFilter;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceResponse;
@@ -132,7 +133,7 @@ public class MyBrowser extends WebViewClient {
 				String endTimeFormatted =  Utils.sdf.format(end.getTime());
 				
 				logwriter.append(Constants.SUMMARY_PREFIX + url + " [SUCCESS] " + "[RT = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-						 "\n");
+						 "[content-length = " + fileLength + "]" + "\n");
 				
 				InputStream stream = new ByteArrayInputStream(responseData);
 				WebResourceResponse wr = new WebResourceResponse("", "utf-8", stream);
@@ -146,7 +147,7 @@ public class MyBrowser extends WebViewClient {
 			String startTimeFormatted =  Utils.sdf.format(start.getTime());
 			String endTimeFormatted =  Utils.sdf.format(end.getTime());
 			logwriter.append(Constants.SUMMARY_PREFIX + url + " [ERROR] " + "[ET = " + (endTime-startTime) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-					"[" + e.getMessage() + " | " + e.getCause() + "]" + "\n");
+					"[" + e.getMessage() + "]" + "\n");
 			e.printStackTrace();
 		}   
 	   return null;

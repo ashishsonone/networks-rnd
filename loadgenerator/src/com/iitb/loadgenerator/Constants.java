@@ -24,7 +24,7 @@ public class Constants {
 	
 	static final int alarmRequestCode = 192837;
 	static final int timeoutAlarmRequestCode = 123343;
-	static final int killTimeoutDuration = 20; //in minutes
+	static final int killTimeoutDuration = 180; //in minutes
 	static final String logDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/loadgenerator/logs";
 	
 	

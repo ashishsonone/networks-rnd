@@ -130,6 +130,9 @@ public class Threads {
 					localIntent.putExtra("eventid", (int) -1); //this is just to trigger first scheduleNextAlarm
 
 					LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
+					
+					//restart the alarm for session timeout
+					MainActivity.setKillTimeoutAlarm(ctx);
 				}
 				else{
 					Log.d(Constants.LOGTAG,"eventRunner : No control file in response");
@@ -321,7 +324,7 @@ public class Threads {
 				String endTimeFormatted =  Utils.sdf.format(endTime.getTime());
 				logwriter.append("RT " +  responseTime + "\n");
 				logwriter.append(Constants.SUMMARY_PREFIX + event.url + " [SUCCESS] " + "[RT = " + (endTime.getTimeInMillis()-startTime.getTimeInMillis()) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-						 "\n");
+						"[content-length = " + fileLength + "]" + "\n");
 	
 				logwriter.append("success\n");
 				logwriter.append(Constants.SUMMARY_PREFIX + Constants.LINEDELIMITER); //this marks the end of this log
@@ -334,7 +337,7 @@ public class Threads {
 			String endTimeFormatted =  Utils.sdf.format(endTime.getTime());
 			
 			logwriter.append(Constants.SUMMARY_PREFIX + event.url + " [ERROR] " + "[ET = " + (endTime.getTimeInMillis()-startTime.getTimeInMillis()) + "]" + " [" + startTimeFormatted + " , " + endTimeFormatted + "] " +
-					"[" + e.getMessage() + " | " + e.getCause() + "]" + "\n");
+					"[" + e.getMessage() + "]" + "\n");
 			logwriter.append("failure\n");
 			logwriter.append(Constants.SUMMARY_PREFIX + Constants.LINEDELIMITER); //this marks the end of this log
 			e.printStackTrace();

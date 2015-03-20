@@ -69,8 +69,6 @@ public class BackgroundService extends IntentService{
 				MainActivity.listen.close();
 			}
 			else{
-				
-				
 				final Context ctx = getApplicationContext();
 				
 				Runnable r = new Runnable() {

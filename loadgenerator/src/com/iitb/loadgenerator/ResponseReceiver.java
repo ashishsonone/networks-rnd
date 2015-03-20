@@ -58,7 +58,10 @@ public class ResponseReceiver extends WakefulBroadcastReceiver
 	                //MainActivity.button.setEnabled(true);
 	            	//Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
 	            	MainActivity.textbox.append("\n" + msg + "\n");
-	            	if(enable == 1) MainActivity.startbutton.setEnabled(true);
+	            	if(enable == 1) {
+	            		MainActivity.reset(context);
+	            		MainActivity.startbutton.setEnabled(true);
+	            	}
 	            }
 	        });
     	}

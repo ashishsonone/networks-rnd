@@ -109,8 +109,14 @@ public class MainActivity extends ActionBarActivity {
 		if(sharedPreferences.contains(Constants.keyServerAdd)){
 			ipbox.setText(sharedPreferences.getString(Constants.keyServerAdd, ""));
 		}
+		else{
+			ipbox.setText(defaultServerIP);
+		}
 		if(sharedPreferences.contains(Constants.keyServerPort)){
 			portbox.setText(sharedPreferences.getString(Constants.keyServerPort, ""));
+		}
+		else{
+			portbox.setText(defaultServerPort);
 		}
 		
 		startbutton = (Button) findViewById(R.id.startbutton);
@@ -162,10 +168,7 @@ public class MainActivity extends ActionBarActivity {
 			PendingIntent sender = PendingIntent.getBroadcast(ctx, Constants.alarmRequestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 			am.cancel(sender);
 			
-			//cancel timeout alarm
-			Intent timeoutintent = new Intent(ctx, AlarmReceiver.class);
-			PendingIntent timeoutsender = PendingIntent.getBroadcast(ctx, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
-			am.cancel(timeoutsender);
+			cancelTimeoutAlarm(ctx);
 		}
 	}
 	
@@ -220,15 +223,15 @@ public class MainActivity extends ActionBarActivity {
 	    editor.commit();
 		
 		textbox.setText("");
-		textbox.append("Server : IP = " + serverip + " port" + serverport + "\n");
-		textbox.append("My IP : " + Utils.getIP() + "\n");
-		textbox.append("My MAC Address : " + Utils.getMACAddress() + "\n");
+		textbox.append("Server : IP = " + serverip + " | Port = " + serverport + "\n");
+		textbox.append("My IP = " + Utils.getIP() + "\n");
+		textbox.append("My MAC Address = " + Utils.getMACAddress() + "\n");
 		
 		Intent mServiceIntent = new Intent(this, BackgroundService.class);
     	startbutton.setEnabled(false); //disable start button. At a time only one session can run
     	startService(mServiceIntent); //start BackgroundService which is the main service thread running in background
     	
-    	setKillTimeoutAlarm(); //since session has started,
+    	setKillTimeoutAlarm(this); //since session has started,
     						   //start killer alarm timer which will close the session after certain time
 		 
 	}
@@ -241,15 +244,17 @@ public class MainActivity extends ActionBarActivity {
 	
 	//exit app. But before exiting, send the server that you are exiting
 	public void exit(View v){
-		Log.d(Constants.LOGTAG, "creating asynctask : ExitTask");
-		new ExitTask().execute();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+		new AlertDialog.Builder(this)
+		.setTitle("Exit")
+		.setMessage("Do you want to exit?")
+		.setIcon(android.R.drawable.ic_dialog_alert)
+		.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialog, int whichButton) {
+		        //Toast.makeText(MainActivity.this, "Yaay", Toast.LENGTH_SHORT).show();
+		        Log.d(Constants.LOGTAG, "creating asynctask : ExitTask");
+				new ExitTask().execute();
+		    }})
+		 .setNegativeButton(android.R.string.no, null).show();
 	}
 	
 	//ExitTask sends the exit signal to server telling that it is going to exit so that server can update its info about available devices
@@ -268,19 +273,6 @@ public class MainActivity extends ActionBarActivity {
 	         android.os.Process.killProcess(android.os.Process.myPid());
 	     }
 	 }
-
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
 	
 	//checks if device is connected to wifi
 	private boolean isNetworkAvailable() {
@@ -324,16 +316,25 @@ public class MainActivity extends ActionBarActivity {
 	//sets the kill timeout once the session has started specified by Constants.killTimeoutDuration. 
 	//Once alarms is triggered, it stops the current session closing all sockets and alarms 
 	//and returns to default state as if app has newly started.
-	void setKillTimeoutAlarm(){
-		Intent timeoutintent = new Intent(this, AlarmReceiver.class);
+	static void setKillTimeoutAlarm(Context context){
+		Log.d("DEBUG_MAIN_ACTIVITY", "restart timeout alarm " + Constants.killTimeoutDuration);
+		Intent timeoutintent = new Intent(context, AlarmReceiver.class);
 		timeoutintent.putExtra("killtimeout", 200);
-		PendingIntent timeoutsender = PendingIntent.getBroadcast(this, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
+		PendingIntent timeoutsender = PendingIntent.getBroadcast(context, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
 		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, Constants.killTimeoutDuration);
 		Log.d(Constants.LOGTAG, "Scheduling KILLTIMEOUT @" + MainActivity.sdf.format(cal.getTime()) + "\n");
 		
 		MainActivity.am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), timeoutsender);
+	}
+	
+	static void cancelTimeoutAlarm(Context ctx){
+		Log.d("DEBUG_MAIN_ACTIVITY", "cancel timeout alarm ");
+		//cancel timeout alarm
+		Intent timeoutintent = new Intent(ctx, AlarmReceiver.class);
+		PendingIntent timeoutsender = PendingIntent.getBroadcast(ctx, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
+		am.cancel(timeoutsender);
 	}
 	
 	synchronized public static void removeWebView(int eventid){
