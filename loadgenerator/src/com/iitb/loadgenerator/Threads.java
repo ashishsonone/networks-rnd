@@ -229,8 +229,16 @@ public class Threads {
 			Log.d(Constants.LOGTAG, "HandleEvent : But experiment not running");
 			return -1;
 		}
-		RequestEvent event = MainActivity.load.events.get(eventid);
-		String logfilename = "" + MainActivity.load.loadid;
+		
+		
+		Load currentLoad = MainActivity.load;
+		
+		if(currentLoad == null){
+			return -1;
+		}
+		
+		RequestEvent event = currentLoad.events.get(eventid);
+		String logfilename = "" + currentLoad.loadid;
 		
 		
 		Log.d(Constants.LOGTAG, "HandleEvent : just entered thread");
@@ -249,7 +257,7 @@ public class Threads {
 		try {
 			URL url = new URL(event.url);
 			
-			logwriter.append("details: " + MainActivity.load.loadid + " " + eventid + " SOCKET" + "\n");
+			logwriter.append("details: " + currentLoad.loadid + " " + eventid + " SOCKET" + "\n");
 			logwriter.append("url: " + url + "\n");
 			
 			filename = event.url.substring(event.url.lastIndexOf('/') + 1);
@@ -360,10 +368,10 @@ public class Threads {
 		
 
 		int num = MainActivity.numDownloadOver++;
-		Log.d(Constants.LOGTAG, "handle event thread : END . Incrementing numDownloadOver to " + MainActivity.numDownloadOver + " #events is "+ MainActivity.load.events.size());
-		if(num+1 == MainActivity.load.events.size()){
+		Log.d(Constants.LOGTAG, "handle event thread : END . Incrementing numDownloadOver to " + MainActivity.numDownloadOver + " #events is "+ currentLoad.events.size());
+		if(num+1 == currentLoad.events.size()){
 			//send the consolidated log file
-			String n = Integer.toString(MainActivity.load.events.size());
+			String n = Integer.toString(currentLoad.events.size());
 			msg += "Experiment over : all GET requests (" + n + " of " + n + ") completed\n";
 			//msg += "Trying to send log file\n";
 			

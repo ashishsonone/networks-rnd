@@ -50,6 +50,7 @@ public class MyBrowser extends WebViewClient {
 		loggingOn = true;
 		baseURL = tbaseURL;
 		totalResponseTime = 0;
+		if(MainActivity.load == null) return;
 		logwriter.append("details: " + MainActivity.load.loadid + " " + eventid + " WEBVIEW" + "\n");
 		logwriter.append("url: " + baseURL + "\n");
 	}
@@ -172,12 +173,16 @@ public class MyBrowser extends WebViewClient {
 	       Runnable r = new Runnable() {
 				public void run() {
 					int num = MainActivity.numDownloadOver++;
-					
+					if(MainActivity.load == null){
+			    		Log.d(Constants.LOGTAG, "DownloaderService : load null");
+			    		return;
+			    	}
+					int loadSize = MainActivity.load.events.size();
 					logwriter.append(Constants.SUMMARY_PREFIX + "summary total RT = " +  totalResponseTime + "\n");
 					logwriter.append("success\n");
 					logwriter.append(Constants.SUMMARY_PREFIX + Constants.LINEDELIMITER); //this marks the end of this log
 					
-					if(num+1 == MainActivity.load.events.size()){
+					if(num+1 == loadSize){
 						logwriter.append(Constants.EOF); //this indicates that all GET requests have been seen without interruption from either user/server
 					}
 					String logString = logwriter.toString();
@@ -187,7 +192,7 @@ public class MyBrowser extends WebViewClient {
 					msg += retmsg;
 						
 						
-					if(num+1 == MainActivity.load.events.size()){
+					if(num+1 == loadSize){
 						Log.d(LOGTAG, "Now wrapping up the experiment");
 						//Dummy ending of all requests - assuming only one request
 						

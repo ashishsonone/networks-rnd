@@ -21,6 +21,12 @@ public class DownloaderService extends IntentService{
 			Log.d(Constants.LOGTAG, "DownloaderService : entered. But experiment not running");
 			return;
 		}
+		
+		if(MainActivity.load == null){
+    		Log.d(Constants.LOGTAG, "DownloaderService : load null");
+    		return;
+    	}
+		
 		Log.d(Constants.LOGTAG, "DownloaderService : just entered");
 		Bundle bundle = intent.getExtras();
         final int eventid = bundle.getInt("eventid");

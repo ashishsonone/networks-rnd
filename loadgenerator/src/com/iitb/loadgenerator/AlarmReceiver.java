@@ -67,6 +67,11 @@ public class AlarmReceiver extends WakefulBroadcastReceiver
     		return;
     	}
     	
+    	if(MainActivity.load == null){
+    		Log.d(Constants.LOGTAG, "scheduleNextAlarm : load null");
+    		return;
+    	}
+    	
 		if(MainActivity.currEvent >= MainActivity.load.events.size()) {
 			Log.d(Constants.LOGTAG, "scheduleNextAlarm : All alarms over. Curr Experiment finished");
 			return;
