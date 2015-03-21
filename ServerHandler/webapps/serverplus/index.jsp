@@ -66,6 +66,12 @@
 				<div class="span6">
 
 <%
+	if(curSession.getRegisteredClients() == null){
+		System.out.println("Arey ye th tatti hai");
+	}
+	if(curSession.getTempRegisteredClients() == null){
+		System.out.println("Arey ye th aur bhi tatti hai");
+	}
 	int size = (curSession.getRegisteredClients()).size();
 	if(curSession.isExperimentRunning()){
 %>
@@ -81,18 +87,27 @@
 	else if(!curSession.isRegistrationWindowOpen()){
 %>
 					 <div>
-						 <h4>Click to start the Registration</h4>
+						 <h4>Click to Start Registrations </h4>
 						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
 							<input type="submit" name="startRegistration" value="Start Registration" class="btn btn-primary btn-large">
 						</form>
 					</div>
-<%
+
+
+<%					
 		if(size>0){
 %>					
-					 <div>
-						 <h4>Click to add a Experiment</h4>
+					<div>
+						<h4>Click to Add an Experiment</h4>
 						<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">
 							<input type="submit" name="addExperiment" value="Add Experiment" class="btn btn-primary btn-large">
+						</form>
+					</div>
+
+					<div>
+						<h4>Click to Refresh Registrations</h4>
+						<form method="post" action="refresh.jsp" class="form-horizontal form-signin-signup">
+							<input type="submit" name="refreshRegistrations" value="Refresh Registrations" class="btn btn-primary btn-large">
 						</form>
 					</div>
 <%
@@ -115,10 +130,9 @@
 					 
 					</div>
 					<div class="span6">
-						<%@ include file="summary.jsp" %>
-						
-						
-<%if(!curSession.isRegistrationWindowOpen() && size>0 && !curSession.isExperimentRunning()) {%>						
+					<%@ include file="summary.jsp" %>						
+<%if(!curSession.isRegistrationWindowOpen() && size>0 && !curSession.isExperimentRunning()) {%>	
+
 						<div>
 							<h4>Click to clear registrations</h4>
 							<form method="post" action="processAction.jsp" class="form-horizontal form-signin-signup">

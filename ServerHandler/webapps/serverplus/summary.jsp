@@ -33,16 +33,29 @@
 	    			+  _sumexpid + "\">" + _sumexpid + " </a> is running for time " 
 	    			+ diffHours + ":" + diffMinutes + ":" + diffSeconds + " hrs </p>");
 
-	    if(cur_filereceived==tot_filereceived){
+
+	    //success + failure + pending
+	    int total = _sumsession.getFilteredDevices().size();
+	    int success = _sumsession.getActualFilteredDevices().size();
+	    int pending = _sumsession.getStartExpTCounter();
+	    int failure = total -success - pending;
+	    out.print("<p>STATUS :: Total:"+ total +" | Success:" + success + " | Pending:" + pending 
+	    		+ " | Failure:" + failure +"</p>");
+
+		out.print("<p> List all <a title=\"click here to list filtered devices\"" 
+					+	"href=\"listFilteredDevices.jsp\">Filtered Devices </a> </p>");
+
+
+		if(tot_filereceived==0){
+		
+		}
+		else if(cur_filereceived==tot_filereceived){
 	    	out.print("<p> All Log Files are received. Experiment can be stopped </p>");
 	    }
 	    else{
 	    	out.print("<p>" + cur_filereceived + " out of " + tot_filereceived 
 	    				+ " Log Files are received </p>");
 	    }
-
-		out.print("<p> List all <a title=\"click here to list filtered devices\"" 
-					+	"href=\"listFilteredDevices.jsp\">Filtered Devices </a> </p>");
 	}
 %>
 	<p> .... </p>

@@ -77,6 +77,15 @@ public class Utils {
 		return jsonString;
 	}
 
+	@SuppressWarnings("unchecked")
+	static String getRefreshRegistrationJson(){
+		JSONObject obj = new JSONObject();
+		obj.put(Constants.action, Constants.Action.refreshRegistration);
+		String jsonString = obj.toJSONString();
+		System.out.println(jsonString);
+		return jsonString;
+	}
+
 	/**
 	* genetated and returns the String in Json format.
 	* String contains information that all the registration has been cleared by experimenter
@@ -95,7 +104,7 @@ public class Utils {
 	/**
 	* returns ID of the experiment with max experimentID
 	*/
-	public static int getCurrentExperimentID(String sid){
+	public synchronized static int getCurrentExperimentID(String sid){
 		DBManager db = new DBManager();
 		int res = db.getMaxExperimentID(sid);
 		System.out.println("Utils.getCurrentExperimentID: maximum exp id = " + res);
@@ -105,7 +114,7 @@ public class Utils {
 	/**
 	* returns ID of the session with max sessionID
 	*/
-	public static int getCurrentSessionID(){
+	public synchronized static int getCurrentSessionID(){
 		DBManager db = new DBManager();
 		int res = db.getMaxSessionID();
 		System.out.println("Utils.getCurrentSessionID: maximum session id = " + res);
@@ -116,7 +125,7 @@ public class Utils {
 	/**
 	* adds device information in 'd' to the experiment corresponds to ID 'expID'
 	*/
-	public static int addExperimentDetails(int expID, DeviceInfo d, boolean fileReceived){
+	public synchronized static int addExperimentDetails(int expID, DeviceInfo d, boolean fileReceived){
 		DBManager db = new DBManager();
 		int res = db.addExperimentDetail(expID, d, fileReceived); 
 		return res;
@@ -127,7 +136,7 @@ public class Utils {
 	* When the log file is received from device 'macaddress' for the experiment number expid, 
 	* corresponding fileReceived column in the relation 'experimentdetails' is set to true
 	*/ 
-	public static int updateFileReceivedField(int expID, String macAddress, boolean fileReceived){
+	public synchronized static int updateFileReceivedField(int expID, String macAddress, boolean fileReceived){
 		DBManager db = new DBManager();
 		int res = db.updateFileReceivedField(expID, macAddress, fileReceived); 
 		return res;

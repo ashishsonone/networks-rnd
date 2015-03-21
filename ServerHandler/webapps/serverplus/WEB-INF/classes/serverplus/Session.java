@@ -38,6 +38,7 @@ public class Session {
 	//HashMap which stores registered android-clients
 	//<key, value> = <macaddress of deivce, DeviceInfo>
 	@Getter @Setter ConcurrentHashMap<String, DeviceInfo> registeredClients = new ConcurrentHashMap<String, DeviceInfo>();
+	@Getter @Setter ConcurrentHashMap<String, DeviceInfo> tempRegisteredClients;
 	
 	//List which stores filtered android-clients.
 	@Getter @Setter CopyOnWriteArrayList<DeviceInfo> filteredDevices = new CopyOnWriteArrayList<DeviceInfo>();
@@ -54,10 +55,10 @@ public class Session {
 	@Getter @Setter Calendar cal = Calendar.getInstance();
 
 	//counters for thread
-	@Getter @Setter Integer startExpTCounter=-1;
-	@Getter @Setter Integer stopExpTCounter=-1;
-	@Getter @Setter Integer clearRegTCounter=-1;
-	@Getter @Setter Integer refreshTCounter=-1;	
+	@Getter @Setter Integer startExpTCounter=0;
+	@Getter @Setter Integer stopExpTCounter=0;
+	@Getter @Setter Integer clearRegTCounter=0;
+	@Getter @Setter Integer refreshTCounter=0;	
 	
 
 	/**
@@ -117,6 +118,11 @@ public class Session {
 	public void SetClearRegTCounter(){
 	}
 
-	public void SetRefreshTCounter(){
+	public void DecrementRefreshTCounter(){
+		refreshTCounter--;
+		if(refreshTCounter<=0){
+			registeredClients = tempRegisteredClients;
+			tempRegisteredClients=null;
+		}
 	}
 }

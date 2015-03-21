@@ -19,7 +19,7 @@ public class Constants {
 		static final String receiveLogFile = "receiveLog";
 		static final String receiveEventFile = "receiveEventFile";		
 		static final String registerClient = "register";
-		static final String ping = "ping";
+		static final String refreshRegistration = "refreshRegistration";
 		static final String clearRegistration = "clearRegistration";
 		static final String sendSessionDuration = "sendSessionDuration";
 	}
@@ -52,6 +52,8 @@ public class Constants {
 	static final @Getter int sendControlFileTimeoutWindow = 5000;		//5 seconds
 	static final @Getter int sendStopSignalTimeoutWindow = 5000;		//5 seconds
 	static final @Getter int clearRegistrationTimeoutWindow = 5000;		//5 seconds
+	static final @Getter int refreshRegistrationTimeoutWindow = 5000;	//5 seconds
+	static final @Getter int connectionTimeoutWindow = 5000;	//5 seconds
 
 	static final @Getter String sessionDuration = "sessionDuration";
 

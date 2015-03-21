@@ -1,17 +1,14 @@
 package serverplus;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.Socket;
 import java.util.Map;
 import java.util.Vector;
 import java.util.Iterator;
 import java.util.Collections;
 import java.util.Random;
 import java.util.List;
-import java.util.Calendar;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -143,10 +140,10 @@ public class Handlers {
 
 		e.InitializeStartTime();
 
-		final int timeoutWindow = Constants.sendControlFileTimeoutWindow;
+		//final int timeoutWindow = Constants.sendControlFileTimeoutWindow;
 		int filteredCount = 0;
 		
-		DataOutputStream dout = null;
+		//DataOutputStream dout = null;
 		String jsonString = Utils.getControlFileJson();
 		String events = EventGen.generateEvents(e.ID);
 		
@@ -156,9 +153,18 @@ public class Handlers {
 		
 
 		session.startExpTCounter = session.filteredDevices.size();
-
+		System.out.println("StartExperiment: " + "size of filterDevices = " + session.startExpTCounter);
 
 		for(DeviceInfo d : session.filteredDevices){
+			if(filteredCount >= expectedFilterCount){
+				break;
+			}
+
+			Thread multicast = new Thread(new Multicast(d,session,0,jsonString,events,e.ID));
+			multicast.start();
+
+			filteredCount++;
+			/*
 			try {
 				System.out.println("StartExperiment: while sending control files to devices...");
 				System.out.println("StartExperiment: IP: " + d.ip + 
@@ -191,18 +197,19 @@ public class Handlers {
 				System.out.println("StartExperiment: 'new DataOutputStream(out)' or " +
 									"'DataInputStream(s.getInputStream())' Failed...");
 			}
+			*/
 		}
 		
 		System.out.println("Total actual filtered count is " + filteredCount);
 		
 		//if filteredDevices = 0 ,then no control files have been sent so addExperiment.jsp should show error
+		/*
 		if(filteredCount==0) {
 			StopExperiment(session);
 			Utils.deleteExperiment(e.ID);
 			return -1;
 		}
 		
-	
 		for(DeviceInfo d : session.actualFilteredDevices){
 			int status = Utils.addExperimentDetails(e.ID, d, false);
 			if(status<0){
@@ -213,6 +220,7 @@ public class Handlers {
 				return -1;
 			}
 		}
+		*/
 		
 		session.currentExperiment=e.ID;
 		session.experimentRunning=true;	
@@ -248,6 +256,10 @@ public class Handlers {
 
 
 		for(DeviceInfo d : session.actualFilteredDevices){
+			Thread multicast = new Thread(new Multicast(d,session,1,jsonString));
+			multicast.start();
+
+			/*
 			try {
 				System.out.println("StopExperiment: IP: " + d.ip + " and Port" + d.port);
 				Socket s = new Socket(d.ip, d.port);
@@ -272,12 +284,13 @@ public class Handlers {
 				System.out.println("StopExperiment: 'new DataOutputStream(out)' or " +
 									"'DataInputStream(s.getInputStream())' Failed...");
 			}	
+			*/
 		}
 		
 		//clearing all filtered devices;
 		session.filteredDevices.clear();
 		session.actualFilteredDevices.clear();
-		System.out.println("StopExperiment: Filtered devices....");
+		//System.out.println("StopExperiment: Filtered devices....");
 		return 0;
 		
 	}
@@ -314,7 +327,7 @@ public class Handlers {
 		*/
 		
 		
-		(session.registeredClients).put(d.macAddress, d);
+		session.registeredClients.put(d.macAddress, d);
 		
 		System.out.println("Client Registered....");
 		return 0;
@@ -334,7 +347,9 @@ public class Handlers {
 		session.clearRegTCounter = session.registeredClients.size();
 
 		for (Map.Entry<String, DeviceInfo> e : (session.registeredClients).entrySet()){
-			DeviceInfo d = e.getValue();
+			Thread multicast = new Thread(new Multicast(e.getValue(),session,2,jsonString));
+			multicast.start();
+			/*
 			try {
 				Socket s = new Socket(d.ip, d.port);
 				s.setSoTimeout(timeoutWindow);
@@ -349,12 +364,25 @@ public class Handlers {
 			} catch (IOException ioe) {
 				System.out.println("ClearRegistrations: 'new DataOutputStream(out)' or " +
 									"'DataInputStream(s.getInputStream())' Failed...");
-			}	
+			}
+			*/
 		}
 
 		session.registeredClients.clear();
 		session.filteredDevices.clear();
 		session.actualFilteredDevices.clear();
+	}
+
+	public static void RefreshRegistrations(Session session){
+		ConcurrentHashMap<String, DeviceInfo> registeredClients = new ConcurrentHashMap<String, DeviceInfo>();
+		String jsonString = Utils.getRefreshRegistrationJson();
+		session.tempRegisteredClients = new ConcurrentHashMap<String, DeviceInfo>();
+		session.refreshTCounter = session.registeredClients.size();
+
+		for (Map.Entry<String, DeviceInfo> e : (session.registeredClients).entrySet()){
+			Thread multicast = new Thread(new Multicast(e.getValue(),session,3,jsonString));
+			multicast.start();
+		}
 	}
 
 	

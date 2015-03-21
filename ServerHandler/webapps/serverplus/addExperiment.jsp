@@ -106,6 +106,7 @@
 		        placement : 'right'
 		    });
 		});
+		$('#filtering').val("random");
 	</script>
 
 
@@ -140,12 +141,12 @@
 									<div class="col-lg-3">
 										<label for="filtering"><h4>Select your device filtering method</h4></label>
 										<select class="form-control" name = "filter" id="filtering" onchange="deviceFilter(this);">
-											<option value="random" selected>Randomize</option>
-											<option value="manual" >select manually</option>
+											<option value="random" selected>Random</option>
+											<option value="manual" >Manual</option>
 										</select>
 									</div>
 
-									<div id="random" style="display:none;">
+									<div id="random">
 										<br>
 					<%
 					out.print("<input type=\"number\" name=\"filterNumber\" id=\"replynumber\" class=\"form-control\" " 
