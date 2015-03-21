@@ -46,8 +46,6 @@ public class MainActivity extends ActionBarActivity {
 	static Button startbutton; //start button
 	public static HashMap<Integer, WebView> webViewMap = new HashMap<Integer, WebView>();
 	
-	/********* for webview *******/
-	//public static WebView webview1;
 	public static String logfilename;
 	public static Context context;
 	
@@ -61,6 +59,7 @@ public class MainActivity extends ActionBarActivity {
 	static int sessionid = 2312;
 	static String myip;
 	
+	static long serverTimeDelta = 0; //(serverTime - clientTime)
 	static boolean experimentOn = true; //whether to listen as server(session is on)
 	static boolean running = false; //whether scheduling alarms and downloading is going on
 	static int numDownloadOver = 0; //indicates for how many events download in thread is over

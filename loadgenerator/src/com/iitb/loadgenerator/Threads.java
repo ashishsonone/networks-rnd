@@ -189,6 +189,11 @@ public class Threads {
 		        LocalBroadcastManager.getInstance(ctx).sendBroadcast(localIntent);
 				server.close();
 			}
+			else if (action.compareTo(Constants.action_refreshRegistration) == 0){
+				Log.d(Constants.LOGTAG, "action refreshRegistration");
+				dout.writeInt(200);
+				server.close();
+			}
 			else{
 				Log.d(Constants.LOGTAG,"eventRunner() : Wrong action code");
 			}

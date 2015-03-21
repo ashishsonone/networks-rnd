@@ -92,7 +92,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver
 		Log.d(Constants.LOGTAG, MainActivity.sdf.format(cal.getTime()) + "Scheduling " + MainActivity.currEvent + "@" + MainActivity.sdf.format(e.cal.getTime()) + "\n");
 		
 
-		MainActivity.am.set(AlarmManager.RTC_WAKEUP, e.cal.getTimeInMillis(), sender);
+		MainActivity.am.set(AlarmManager.RTC_WAKEUP, e.cal.getTimeInMillis() + MainActivity.serverTimeDelta, sender); //[local + (server - local)] gives server time
 		MainActivity.currEvent++;
 	}
 }
