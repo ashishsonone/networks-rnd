@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.io.*,java.util.*, javax.servlet.*" %>
 <%@ page import="javax.servlet.http.*" %>
 <%@ page import="javax.servlet.ServletOutputStream" %>
@@ -6,7 +6,7 @@
 <%@ page import="org.apache.commons.io.*" %>
 <%@ page import="java.net.URL" %>
 <%@ page import="java.net.URLEncoder" %>
-
+<%@ page import= "java.io.File" %>
 <%@ include file="checksession2.jsp" %>
 
 <%
@@ -44,6 +44,25 @@
 			System.out.println("expid: " + expid + ". download: " + download + "macAddress: " + macAddress +". filePath: "+filePath);
 			response.setHeader("Content-Disposition", "attachment;filename=Exp" + expid + "_" 
 								+ macAddress);
+		}
+
+		else if(download.equals("trace")){
+			String filename="";
+			File dir = new File(filePath);
+			File[] files = dir.listFiles();
+			for (File file : files) {
+		        if (!file.isDirectory()) {
+		            filename=file.getName();
+		            if(filename.startsWith("trace")){
+		            	filePath = filePath + filename;
+		            	break;
+		            }
+		        }
+		    }
+			System.out.println(filePath);
+			System.out.println("expid: " + expid + ". download: " + download +". filePath: "+filePath);
+			response.setHeader("Content-Disposition", "attachment;filename=Exp" + expid + "_" 
+								+ filename);
 		}
 
 		File file = new File(filePath);

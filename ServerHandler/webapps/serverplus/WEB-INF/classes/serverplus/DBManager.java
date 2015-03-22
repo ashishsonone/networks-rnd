@@ -216,10 +216,28 @@ public class DBManager {
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
 		try {
-	 		PreparedStatement p=conn.prepareStatement("update experimentdetails set filereceived=? where expid=? and macaddress=?;");
+	 		PreparedStatement p=conn.prepareStatement("update experimentdetails set tracefilereceived=? where expid=? and macaddress=?;");
 	 		p.setBoolean(1,fileReceived);
 	 		p.setInt(2,expID);
 	 		p.setString(3,macaddress);
+	 		p.addBatch();
+	 		p.executeUpdate();
+	 		status = closeConnection();
+			return 0;
+	 		
+	 	} catch (SQLException sqle) {
+			System.out.println(sqle);
+		}
+		return -1;
+	}
+
+	public int updateTraceFileReceived(int expID, boolean fileReceived){
+		int status = createConnection();
+		if(status == Constants.connectionFailure) return -1;
+		try {
+	 		PreparedStatement p=conn.prepareStatement("update experiments set tracefilereceived=? where id=?;");
+	 		p.setBoolean(1,fileReceived);
+	 		p.setInt(2,expID);
 	 		p.addBatch();
 	 		p.executeUpdate();
 	 		status = closeConnection();
@@ -293,8 +311,9 @@ public class DBManager {
 		PreparedStatement p;
 		
 		try {
-			String Query ="select id, name, location, description, user, filename," 
-						+ "FROM_UNIXTIME(datetime) from experiments where user='" +username+ "' and sid="+ sid + " ORDER BY datetime DESC;";
+			String Query ="select id, name, location, description, user, filename, FROM_UNIXTIME(datetime), "
+			 			+ "tracefilereceived from experiments where user='" + username 
+			 			+ "' and sid="+ sid + " ORDER BY datetime DESC;";
 			p=conn.prepareStatement(Query);
 			p.addBatch();				
 			rs = p.executeQuery();

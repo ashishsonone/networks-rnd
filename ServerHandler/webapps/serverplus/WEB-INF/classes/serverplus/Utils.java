@@ -141,6 +141,11 @@ public class Utils {
 		int res = db.updateFileReceivedField(expID, macAddress, fileReceived); 
 		return res;
 	}
+
+	public synchronized static int updateTraceFileReceived(int expID, boolean fileReceived){
+		DBManager db = new DBManager();
+		return db.updateTraceFileReceived(expID, fileReceived);
+	}
 	
 	/**
 	* Add new entry in the 'experiments' retation for the experiment 'e'
@@ -234,5 +239,15 @@ public class Utils {
 		return 1;
 	}
 	
+	public static String getExtensionOfFile(String filename){
+		String extension = "";
+		int _i = filename.lastIndexOf('.');
+		int _p = Math.max(filename.lastIndexOf('/'), filename.lastIndexOf('\\'));
+
+		if (_i > _p) {
+		    extension = filename.substring(_i+1);
+		}
+		return extension;
+	}
 	
 }

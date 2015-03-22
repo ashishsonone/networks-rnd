@@ -1,7 +1,7 @@
 
 <%
 	String hsessionid= (String)session.getAttribute("session");
-	String link = "<a href=\"listExperiments.jsp?session="+ hsessionid + "\">" + "Experiments</a>";
+	String link = "<a href=\"listExperiments.jsp\">" + "Experiments</a>";
 %>
 <header>  
   <div class="navbar navbar-fixed-top">

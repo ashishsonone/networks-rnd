@@ -33,7 +33,7 @@
 			
 			String sessionid= (String)session.getAttribute("session");
 
-			if(res>0) response.sendRedirect("listExperiments.jsp?session="+ sessionid);
+			if(res>0) response.sendRedirect("listExperiments.jsp");
 			else{
 				response.sendRedirect("index.jsp");
 			}

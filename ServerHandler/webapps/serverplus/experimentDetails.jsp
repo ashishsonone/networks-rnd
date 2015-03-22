@@ -15,7 +15,7 @@
 		
 	int filescount=0;	
 	String sessionid= (String)session.getAttribute("session");
-	String back = "<a href=\"listExperiments.jsp?session="+ sessionid + "\">Back</a>";
+	String back = "<a href=\"listExperiments.jsp\">Back</a>";
 %>
 
 <html lang="en">

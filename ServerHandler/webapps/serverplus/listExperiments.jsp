@@ -7,7 +7,7 @@
 
 <%
 	String username = (String)session.getAttribute("username");
-	String sid = (String) request.getParameter("session");
+	String sid = (String)session.getAttribute("session");
 	if(sid==""||sid==null){response.sendRedirect("session.jsp");}
 	else{
 		//sessionid = Integer.parseInt(sid);
@@ -56,6 +56,7 @@
 	}
 	else{
 %>		
+
 				<table class="table">
 					<thead>
 						<tr>
@@ -64,8 +65,11 @@
 							<th>Location</th>
 							<th>Description</th>
 							<th>Date</th>
-							<th>Time</th>
+							
 							<th>Event File </th>
+							<th>Trace File </th>
+							<th>Select Trace File </th>
+							<th> Upload </th>
 							<th>Delete Experiment</th>
 						</tr>
 					</thead>
@@ -76,19 +80,42 @@
 %>				
 					<tr>
 						<td class="span1"><%out.print(""+rs.getInt(1));%></td>
-						<td class="span2"><%out.print("<a href=\"experimentDetails.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
+						<td class="span1"><%out.print("<a href=\"experimentDetails.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
 							+ "\">" + rs.getString(2) + " </a>");%>
 						</td> 
 						 
-						<td class="span2"><%out.print(""+rs.getString(3));%></td>   
-						<td class="span4"><%out.print(""+rs.getString(4));%></td>
-						<td class="span2"><%out.print(""+rs.getDate(7).toString());%></td>
-						<td class="span2"><%out.print(""+rs.getTime(7).toString());%></td>
-						<td class="span2"><%out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
-							+ "&download=event\" > Download </a>");%>
+						<td class="span1"><%out.print(""+rs.getString(3));%></td>   
+						<td class="span5"><%out.print(""+rs.getString(4));%></td>
+						<td class="span1"><%out.print(""+rs.getDate(7).toString());%></td>
+						
+						<td class="span1"><%out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) + "&download=event\" > Download </a>");%>
 						</td>
-						<td class="span1"><%out.print("<a href=\"deleteExperiment.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) 
-							+ "\" > Delete</a>");%>
+
+						<td class="span1">
+<%
+			boolean treceived = (boolean)rs.getBoolean(8);
+			if(treceived){
+					out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) + "&download=trace\" > Download </a>");
+			}
+			else{
+					out.print("NA");
+			}
+%>
+						</td>
+
+					<form method="post" action="uploadTrace.jsp" enctype="multipart/form-data" class="form-horizontal form-signin-signup" name="uploadTrace">
+
+						<td class="span1"> 
+						<input type="hidden" name="expid" id="expid" value=<% out.print("\"" + rs.getInt(1) + "\"");%> >
+						<input type="file" name="traceFile" required> <br> 
+						</td>
+						<td class="span1">
+						<input type="submit" name="submit" value="Upload" class="btn btn-primary">
+						</td>
+					</form>
+						<td class="span1">
+						<%out.print("<a href=\"deleteExperiment.jsp?" + Constants.getExpID() +"="+ rs.getInt(1)
+									+ "\" > Delete</a>");%>
 						</td>
 					</tr>
 <%					
