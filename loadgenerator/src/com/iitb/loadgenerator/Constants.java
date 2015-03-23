@@ -5,6 +5,7 @@ import android.os.Environment;
 
 public class Constants {
 	static final String action = "action";
+	static final String serverTime = "serverTime";
 	static final String sessionID = "sessionID";
 	static final String ip = "ip";
 	static final String port = "port";

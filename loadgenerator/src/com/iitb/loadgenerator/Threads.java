@@ -68,6 +68,8 @@ public class Threads {
 
 	//called whenever server connects. handles 3 actions : receive control file, stop experiment, clear registration
 	public static void eventRunner(Socket server, final Context ctx){
+		Long localTimeInMillis = Calendar.getInstance().getTimeInMillis();
+		
 		Log.d(Constants.LOGTAG,"Server connection established");
 		String data = "";
 		try {
@@ -85,6 +87,10 @@ public class Threads {
 			Map<String, String> jsonMap = Utils.ParseJson(data);
 
 			String action = jsonMap.get(Constants.action);
+			Long serverTimeInMillis = Long.parseLong(jsonMap.get(Constants.serverTime));
+			MainActivity.serverTimeDelta = serverTimeInMillis - localTimeInMillis;
+			Log.d(Constants.LOGTAG, "###  ### ### serverTimeDelta = " + MainActivity.serverTimeDelta/1000 + " seconds");
+			
 			if(action.compareTo(Constants.action_controlFile) == 0){
 				if(MainActivity.running == true){
 					//this should not happen. As one experiment is already running Send 300 response
