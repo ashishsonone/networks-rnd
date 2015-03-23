@@ -42,7 +42,6 @@ public class MyBrowser extends WebViewClient {
 	String baseURL;
 	int totalResponseTime;
 	Calendar pageStartTime = null;
-	Calendar pageEndTime = null;
 	
 	MyBrowser(int id, String tbaseURL){
 		eventid = id;
@@ -85,7 +84,7 @@ public class MyBrowser extends WebViewClient {
 			return null;
 		}
 		
-		Calendar start = Calendar.getInstance();
+		Calendar start = Utils.getServerCalendarInstance();
 		long startTime = start.getTimeInMillis();
 	   
 		try {
@@ -98,7 +97,7 @@ public class MyBrowser extends WebViewClient {
 			
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				Log.d(Constants.LOGTAG, "getResource : " + " connection response code error");
-				Calendar end = Calendar.getInstance();
+				Calendar end = Utils.getServerCalendarInstance();
 				
 				String startTimeFormatted =  Utils.sdf.format(start.getTime());
 				String endTimeFormatted =  Utils.sdf.format(end.getTime());
@@ -123,7 +122,7 @@ public class MyBrowser extends WebViewClient {
 				  buffer.write(data, 0, nRead);
 				}
 
-				Calendar end = Calendar.getInstance();
+				Calendar end = Utils.getServerCalendarInstance();
 				long endTime = end.getTimeInMillis();
 				
 				buffer.flush();
@@ -143,7 +142,7 @@ public class MyBrowser extends WebViewClient {
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			Calendar end = Calendar.getInstance();
+			Calendar end = Utils.getServerCalendarInstance();
 			long endTime = end.getTimeInMillis();
 			String startTimeFormatted =  Utils.sdf.format(start.getTime());
 			String endTimeFormatted =  Utils.sdf.format(end.getTime());
@@ -164,8 +163,7 @@ public class MyBrowser extends WebViewClient {
    @Override
    public void onPageFinished(WebView view, String url) {
 	   Log.d(LOGTAG, "########## onPageFinished() called for url " + baseURL);
-	   pageEndTime = Calendar.getInstance();
-       super.onPageFinished(view, url);
+	   super.onPageFinished(view, url);
        
        if(loggingOn){
 	       loggingOn = false; //no more log collection

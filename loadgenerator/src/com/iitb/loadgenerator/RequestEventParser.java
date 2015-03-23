@@ -83,7 +83,7 @@ public class RequestEventParser {
 	public static String generateLine(int seconds){
 		String line = "GET ";
 		
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Utils.getServerCalendarInstance();
 		cal.add(Calendar.SECOND, seconds);
 		line += cal.get(Calendar.YEAR) + " ";
 		line += cal.get(Calendar.MONTH) + " ";
@@ -111,7 +111,7 @@ public class RequestEventParser {
 		RequestType type = getRequestEnum(fields[0]);
 		Log.d("Request type ...... ", type.toString() + " " + fields[8] + " " + fields[9]);
 		
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Utils.getServerCalendarInstance();
 		cal.set(Calendar.YEAR, Integer.parseInt(fields[1]));
 		cal.set(Calendar.MONTH, Integer.parseInt(fields[2]));
 		cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(fields[3]));

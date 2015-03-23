@@ -133,7 +133,7 @@ public class Utils {
 	
 	//returns current time in proper format as defined above
 	static String getTimeInFormat(){
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Utils.getServerCalendarInstance();
 		return sdf.format(cal.getTime());
 	}
 	
@@ -322,6 +322,14 @@ public class Utils {
 		} catch (IOException e){
 			e.printStackTrace();
 		}
+	}
+	
+	static Calendar getServerCalendarInstance(){
+		Calendar cal = Calendar.getInstance();
+		Log.d("UTILS", "getServerCalendarInstance local " + MainActivity.sdf.format(cal.getTime()));
+		cal.add(Calendar.MILLISECOND, (int)MainActivity.serverTimeDelta);
+		Log.d("UTILS", "getServerCalendarInstance offset = " + MainActivity.serverTimeDelta + " | server " + MainActivity.sdf.format(cal.getTime()));
+		return cal;
 	}
 	
 	

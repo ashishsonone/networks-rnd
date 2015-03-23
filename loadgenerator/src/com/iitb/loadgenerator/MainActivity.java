@@ -319,7 +319,7 @@ public class MainActivity extends ActionBarActivity {
 		timeoutintent.putExtra("killtimeout", 200);
 		PendingIntent timeoutsender = PendingIntent.getBroadcast(context, Constants.timeoutAlarmRequestCode, timeoutintent, PendingIntent.FLAG_CANCEL_CURRENT);
 		
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Calendar.getInstance(); //here we want actual calendar instance(local time)
 		cal.add(Calendar.MINUTE, Constants.killTimeoutDuration);
 		Log.d(Constants.LOGTAG, "Scheduling KILLTIMEOUT @" + MainActivity.sdf.format(cal.getTime()) + "\n");
 		

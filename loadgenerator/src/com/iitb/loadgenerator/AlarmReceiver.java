@@ -87,12 +87,21 @@ public class AlarmReceiver extends WakefulBroadcastReceiver
 		
 		
 		//just for now while control file is getting ready
-		Calendar cal = Calendar.getInstance();
+		Calendar cal = Utils.getServerCalendarInstance();
 //		MainActivity.am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis() + 5000, sender);
 		Log.d(Constants.LOGTAG, MainActivity.sdf.format(cal.getTime()) + "Scheduling " + MainActivity.currEvent + "@" + MainActivity.sdf.format(e.cal.getTime()) + "\n");
 		
 
-		MainActivity.am.set(AlarmManager.RTC_WAKEUP, e.cal.getTimeInMillis() + MainActivity.serverTimeDelta, sender); //[local + (server - local)] gives server time
+		MainActivity.am.set(AlarmManager.RTC_WAKEUP, e.cal.getTimeInMillis() - MainActivity.serverTimeDelta, sender); 
+		/*
+		 * [event_time_stamp - (server - local)] gives when alarm should be scheduled. 
+		 * Why ? Details ahead : 
+		 * For e.g if local 2.00, server 2.10. Difference (server - local) = 10
+		 * Now server says schedule alarm at 2.15. Alarms follow local time. 
+		 * So now according to local time, alarm should be scheduled at 
+		 * time 2.05 (because at that moment servertime will be 2.05 + 10 = 2.15)
+		 */
+		
 		MainActivity.currEvent++;
 	}
 }

@@ -274,7 +274,7 @@ public class Threads {
 			connection.setConnectTimeout(10000); //10 seconds before connection can be established
 			
 			//note start time 
-			startTime = Calendar.getInstance();
+			startTime = Utils.getServerCalendarInstance();
 			
 			connection.connect();
 	
@@ -282,7 +282,7 @@ public class Threads {
 			// instead of the file
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
 				Log.d(Constants.LOGTAG, "HandleEvent : " + " connection response code error");
-				endTime = Calendar.getInstance();
+				endTime = Utils.getServerCalendarInstance();
 				
 				String startTimeFormatted =  Utils.sdf.format(startTime.getTime());
 				String endTimeFormatted =  Utils.sdf.format(endTime.getTime());
@@ -330,7 +330,7 @@ public class Threads {
 				success = true;
 				
 				//note end time take the difference as response time
-				endTime = Calendar.getInstance();
+				endTime = Utils.getServerCalendarInstance();
 				
 				responseTime = endTime.getTimeInMillis() - startTime.getTimeInMillis();
 				String startTimeFormatted =  Utils.sdf.format(startTime.getTime());
@@ -344,7 +344,7 @@ public class Threads {
 				
 			}
 		} catch (IOException e) {
-			endTime = Calendar.getInstance();
+			endTime = Utils.getServerCalendarInstance();
 			
 			String startTimeFormatted =  Utils.sdf.format(startTime.getTime());
 			String endTimeFormatted =  Utils.sdf.format(endTime.getTime());
