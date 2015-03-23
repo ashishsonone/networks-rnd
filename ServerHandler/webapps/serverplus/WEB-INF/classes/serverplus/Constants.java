@@ -75,6 +75,7 @@ public class Constants {
 	static final @Getter String storageSpace = "storageSpace";		//in MB
 	static final @Getter String action_controlFile = "controlFile";
 	static final @Getter String textFileFollow = "textFileFollow";
+	static final @Getter String serverTime = "serverTime";
 	
 	//for web-client
 	static final @Getter int loginSuccess = 0;

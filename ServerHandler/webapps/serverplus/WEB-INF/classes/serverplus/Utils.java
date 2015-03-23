@@ -24,7 +24,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
+import java.util.Calendar;
 /**
  *
  * @author sanchitgarg
@@ -43,6 +43,7 @@ public class Utils {
 		JSONObject obj = new JSONObject();
 		obj.put(Constants.action, Constants.Action.sendControlFile);
 		obj.put(Constants.textFileFollow, Boolean.toString(true));
+		obj.put(Constants.serverTime, Long.toString(Calendar.getInstance().getTimeInMillis()));
 		String jsonString = obj.toJSONString();
 		System.out.println(jsonString);
 		return jsonString;

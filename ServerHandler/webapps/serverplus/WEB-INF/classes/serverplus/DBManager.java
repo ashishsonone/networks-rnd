@@ -216,7 +216,7 @@ public class DBManager {
 		int status = createConnection();
 		if(status == Constants.connectionFailure) return -1;
 		try {
-	 		PreparedStatement p=conn.prepareStatement("update experimentdetails set tracefilereceived=? where expid=? and macaddress=?;");
+	 		PreparedStatement p=conn.prepareStatement("update experimentdetails set filereceived=? where expid=? and macaddress=?;");
 	 		p.setBoolean(1,fileReceived);
 	 		p.setInt(2,expID);
 	 		p.setString(3,macaddress);
