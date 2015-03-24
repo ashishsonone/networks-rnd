@@ -321,7 +321,7 @@ public class MainActivity extends ActionBarActivity {
 		
 		Calendar cal = Calendar.getInstance(); //here we want actual calendar instance(local time)
 		cal.add(Calendar.MINUTE, Constants.killTimeoutDuration);
-		Log.d(Constants.LOGTAG, "Scheduling KILLTIMEOUT @" + MainActivity.sdf.format(cal.getTime()) + "\n");
+		Log.d("DEBUG_MAIN_ACTIVITY", "Scheduling KILLTIMEOUT @" + MainActivity.sdf.format(cal.getTime()) + "\n");
 		
 		MainActivity.am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), timeoutsender);
 	}

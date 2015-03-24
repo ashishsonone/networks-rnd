@@ -87,11 +87,12 @@ public class Threads {
 			Map<String, String> jsonMap = Utils.ParseJson(data);
 
 			String action = jsonMap.get(Constants.action);
-			Long serverTimeInMillis = Long.parseLong(jsonMap.get(Constants.serverTime));
-			MainActivity.serverTimeDelta = serverTimeInMillis - localTimeInMillis;
+			
 			Log.d(Constants.LOGTAG, "###  ### ### serverTimeDelta = " + MainActivity.serverTimeDelta/1000 + " seconds");
 			
 			if(action.compareTo(Constants.action_controlFile) == 0){
+				Long serverTimeInMillis = Long.parseLong(jsonMap.get(Constants.serverTime));
+				MainActivity.serverTimeDelta = serverTimeInMillis - localTimeInMillis;
 				if(MainActivity.running == true){
 					//this should not happen. As one experiment is already running Send 300 response
 					Log.d(Constants.LOGTAG,"Experiment running but received another control file request");
