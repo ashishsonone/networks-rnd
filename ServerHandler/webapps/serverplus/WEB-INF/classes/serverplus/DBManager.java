@@ -328,7 +328,10 @@ public class DBManager {
 
 	}
 
-
+	/**
+	* Retuns the List of all the experiments' IDs corresponding to session='sid'
+	* returns empty list if there are mo experiments for the session
+	*/
 	public List<Integer> getExpIDs(String sid){
 		ResultSet rs = null;
 		int status = createConnection();
@@ -514,6 +517,9 @@ public class DBManager {
 		return result;
 	}
 
+	/*
+	* test function. Not used anywhere
+	*/
 	public String[] testTIME(int expid){
 		String[] datetime = new String[2];
 		PreparedStatement p;

@@ -118,6 +118,9 @@ public class Session {
 	public void SetClearRegTCounter(){
 	}
 
+	/*
+	* Decrements the refreshTCounter 
+	*/
 	public void DecrementRefreshTCounter(){
 		refreshTCounter--;
 		if(refreshTCounter<=0){

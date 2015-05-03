@@ -86,7 +86,7 @@
 						 
 						<td class="span1"><%out.print(""+rs.getString(3));%></td>   
 						<td class="span5"><%out.print(""+rs.getString(4));%></td>
-						<td class="span1"><%out.print(""+rs.getDate(7).toString());%></td>
+						<td class="span2"><%out.print(""+rs.getDate(7).toString());%></td>
 						
 						<td class="span1"><%out.print("<a href=\"download.jsp?" + Constants.getExpID() +"="+ rs.getInt(1) + "&download=event\" > Download </a>");%>
 						</td>

@@ -9,7 +9,10 @@ import java.net.Socket;
 import java.net.InetSocketAddress;
 
 
-
+/*
+* This is implementation of thread in which we send each request to client using thread
+* Request can be of type 'start Experiment', 'Stop Experiment', 'clear Registrations' or 'refresh Registrations'
+*/
 public class Multicast implements Runnable{
 	final int startExp=0;
 	final int stopExp=1;

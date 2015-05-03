@@ -78,6 +78,12 @@ public class Utils {
 		return jsonString;
 	}
 
+	/**
+	* genetated and returns the String in Json format.
+	* String contains information that the experimentee wants to ping the devices 
+	* and refresh the list of registered devices
+	* This string is later sent to registered devices.
+	*/
 	@SuppressWarnings("unchecked")
 	static String getRefreshRegistrationJson(){
 		JSONObject obj = new JSONObject();
@@ -143,6 +149,10 @@ public class Utils {
 		return res;
 	}
 
+	/** 
+	* When the trace file is received for the experiment number expid, 
+	* corresponding tracefileReceived column in the relation 'experiments' is set to true
+	*/ 
 	public synchronized static int updateTraceFileReceived(int expID, boolean fileReceived){
 		DBManager db = new DBManager();
 		return db.updateTraceFileReceived(expID, fileReceived);
@@ -210,6 +220,9 @@ public class Utils {
 		return s;
 	}
 
+	/* 
+	 * reads log file and summarizes 
+	*/
 	public static int SummarizeLog(String fileName, String expDir){
 		System.out.println(expDir + fileName);
 		try{
@@ -240,6 +253,9 @@ public class Utils {
 		return 1;
 	}
 	
+	/*
+	* Reads and returns the extenstion of the file i.e. portion after last '.'
+	*/
 	public static String getExtensionOfFile(String filename){
 		String extension = "";
 		int _i = filename.lastIndexOf('.');

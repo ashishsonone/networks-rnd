@@ -43,6 +43,9 @@ public class Experiment{
 		System.out.println("FileName: " +FileName);
 	}
 	
+	/*
+	* Initialize the start time of the experiment
+	*/
 	void InitializeStartTime(){
 		StartTime = new Date();
 	}

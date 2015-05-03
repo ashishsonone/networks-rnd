@@ -139,19 +139,14 @@ public class Handlers {
 		System.out.println("\n"+"StartExperiment: "+"Starting Experiment " +  e.Name + "....");
 
 		e.InitializeStartTime();
-
-		//final int timeoutWindow = Constants.sendControlFileTimeoutWindow;
 		int filteredCount = 0;
 		
-		//DataOutputStream dout = null;
 		String jsonString = Utils.getControlFileJson();
 		String events = EventGen.generateEvents(e.ID);
 		
 		System.out.println(events);
 		if(events.startsWith("ERROR")) return -1;
-		//if(events.equals("error")) return -1;
 		
-
 		session.startExpTCounter = session.filteredDevices.size();
 		System.out.println("StartExperiment: " + "size of filterDevices = " + session.startExpTCounter);
 
@@ -159,72 +154,15 @@ public class Handlers {
 			if(filteredCount >= expectedFilterCount){
 				break;
 			}
-
 			Thread multicast = new Thread(new Multicast(d,session,0,jsonString,events,e.ID));
 			multicast.start();
-
 			filteredCount++;
-			/*
-			try {
-				System.out.println("StartExperiment: while sending control files to devices...");
-				System.out.println("StartExperiment: IP: " + d.ip + 
-										" and Port" + d.port);
-				Socket s = new Socket(d.ip, d.port);
-				s.setSoTimeout(timeoutWindow);
-				dout = new DataOutputStream(s.getOutputStream());
-				dout.writeInt(jsonString.length());
-				dout.writeBytes(jsonString);
-				
-				
-				dout.writeInt(events.length());
-				dout.writeBytes(events);
-				
-				DataInputStream din = new DataInputStream(s.getInputStream());
-				int response = din.readInt();
-				if(response == Constants.responseOK){
-					session.actualFilteredDevices.add(d);
-					filteredCount++;
-				}
-				s.close();
-				if(filteredCount >= expectedFilterCount){
-					break;
-				}
-				
-			} catch (InterruptedIOException ie){
-				System.out.println("StartExperiment: Timeout occured for sending control file to device with ip: "
-											+ d.ip + " and Port: " + d.port);
-			} catch (IOException ioe) {
-				System.out.println("StartExperiment: 'new DataOutputStream(out)' or " +
-									"'DataInputStream(s.getInputStream())' Failed...");
-			}
-			*/
 		}
 		
 		System.out.println("Total actual filtered count is " + filteredCount);
 		
-		//if filteredDevices = 0 ,then no control files have been sent so addExperiment.jsp should show error
-		/*
-		if(filteredCount==0) {
-			StopExperiment(session);
-			Utils.deleteExperiment(e.ID);
-			return -1;
-		}
-		
-		for(DeviceInfo d : session.actualFilteredDevices){
-			int status = Utils.addExperimentDetails(e.ID, d, false);
-			if(status<0){
-				System.out.println("StartExperiment: Error occured during inserting experiment details for device: " 
-										+ d.ip + ", " + d.macAddress);
-				StopExperiment(session);
-				Utils.deleteExperiment(e.ID);
-				return -1;
-			}
-		}
-		*/
-		
 		session.currentExperiment=e.ID;
 		session.experimentRunning=true;	
-		//Main.RunningExperimentMap.put(session.currentExperiment,new Boolean(true));
 		Main.RunningExperimentMap.put(session.currentExperiment,e);
 		return session.currentExperiment;
 	}
@@ -258,39 +196,11 @@ public class Handlers {
 		for(DeviceInfo d : session.actualFilteredDevices){
 			Thread multicast = new Thread(new Multicast(d,session,1,jsonString));
 			multicast.start();
-
-			/*
-			try {
-				System.out.println("StopExperiment: IP: " + d.ip + " and Port" + d.port);
-				Socket s = new Socket(d.ip, d.port);
-				s.setSoTimeout(timeoutWindow);
-				DataOutputStream dout = new DataOutputStream(s.getOutputStream());
-				dout.writeInt(jsonString.length());
-				dout.writeBytes(jsonString);
-				
-				DataInputStream din = new DataInputStream(s.getInputStream());
-				int response = din.readInt();
-				if(response == Constants.responseOK){
-					System.out.println("StopExperiment: device with ip: " + d.ip + " and Port: " + d.port 
-											+ " stopped experiment");
-				}
-				s.close();
-				
-			} catch (InterruptedIOException ie){
-				System.out.println("StopExperiment: Timeout occured for sending stop Signal to device with ip: "
-											+ d.ip + " and Port: " + d.port);
-			} catch (IOException ioe) {
-				ioe.printStackTrace();
-				System.out.println("StopExperiment: 'new DataOutputStream(out)' or " +
-									"'DataInputStream(s.getInputStream())' Failed...");
-			}	
-			*/
 		}
 		
 		//clearing all filtered devices;
 		session.filteredDevices.clear();
 		session.actualFilteredDevices.clear();
-		//System.out.println("StopExperiment: Filtered devices....");
 		return 0;
 		
 	}
@@ -301,34 +211,7 @@ public class Handlers {
 	*/
 	public static int RegisterClient(DeviceInfo d, Session session){
 		System.out.println("\nRegistering Client....");
-		
-		/*
-		
-		try {
-			System.out.println("RegisterClient: IP: " + d.ip + " and Port" + d.port);
-			Socket s = new Socket(d.ip, d.port);
-			s.setSoTimeout(Constants.sendSessionDurationTimeoutWindow);
-			DataOutputStream dout = new DataOutputStream(s.getOutputStream());
-			
-			String jsonString = Utils.getSessionDurationJson(session.duration);
-			System.out.println(jsonString);
-			dout.writeInt(jsonString.length());
-			dout.writeBytes(jsonString);
-
-			s.close();
-			
-		} catch (InterruptedIOException ie){
-			System.out.println("RegisterClient: Timeout occured for sending session duration to device with ip: "
-										+ d.ip + " and Port: " + d.port);
-		} catch (IOException ioe) {
-			System.out.println("RegisterClient: 'new DataOutputStream(out)' Failed...");
-		}	
-
-		*/
-		
-		
 		session.registeredClients.put(d.macAddress, d);
-		
 		System.out.println("Client Registered....");
 		return 0;
 	}
@@ -349,23 +232,6 @@ public class Handlers {
 		for (Map.Entry<String, DeviceInfo> e : (session.registeredClients).entrySet()){
 			Thread multicast = new Thread(new Multicast(e.getValue(),session,2,jsonString));
 			multicast.start();
-			/*
-			try {
-				Socket s = new Socket(d.ip, d.port);
-				s.setSoTimeout(timeoutWindow);
-				DataOutputStream dout = new DataOutputStream(s.getOutputStream());
-				dout = new DataOutputStream(s.getOutputStream());
-				dout.writeInt(jsonString.length());
-				dout.writeBytes(jsonString);	
-				s.close();
-			} catch (InterruptedIOException ie){
-				System.out.println("ClearRegistrations: Timeout occured for sending stop Signal to device with ip: "
-											+ d.ip + " and Port: " + d.port);
-			} catch (IOException ioe) {
-				System.out.println("ClearRegistrations: 'new DataOutputStream(out)' or " +
-									"'DataInputStream(s.getInputStream())' Failed...");
-			}
-			*/
 		}
 
 		session.registeredClients.clear();
@@ -469,32 +335,11 @@ public class Handlers {
 	* This method validates session whose id in string is ss
 	* If session duration is over it deletes the session. Also if the experiment is running, it first
 	* stop the experiment and then delete the session. 
+	* 
+	* Now the sessions are persistent hence is always valid
 	*/
 	public static boolean SessionValidation(String ss){
 		return true;
-		/*
-		Calendar cal = Calendar.getInstance();
-		if(ss==null || ss.equals("")) return false;
-		Integer sid = new Integer(Integer.parseInt(ss));
-		Session session = Main.SessionMap.get(sid);
-		if(session==null) return false;
-		
-		long cur = cal.getTimeInMillis();
-		long prev = (session.cal).getTimeInMillis();
-		long hrs = (cur - prev)/(3600*1000);
-		//long hrs = (cur - prev)/(60*1000);
-
-		if(hrs<session.duration) return true;
-		
-		if(session.experimentRunning){
-			System.out.println("SessionValidation: Calling Stop Experiment");
-			StopExperiment(session);
-		}
-			
-		Main.SessionMap.remove(sid);
-		Main.freeSessions.add(sid);
-		return false;
-		*/
 	}
 
 }
