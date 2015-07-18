@@ -67,10 +67,10 @@
 
 <%
 	if(curSession.getRegisteredClients() == null){
-		System.out.println("Arey ye th tatti hai");
+		System.out.println("No registered clients");
 	}
 	if(curSession.getTempRegisteredClients() == null){
-		System.out.println("Arey ye th aur bhi tatti hai");
+		System.out.println("No temporary registered clients");
 	}
 	int size = (curSession.getRegisteredClients()).size();
 	if(curSession.isExperimentRunning()){
